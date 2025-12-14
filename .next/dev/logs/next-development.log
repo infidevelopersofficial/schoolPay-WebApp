@@ -1,0 +1,108 @@
+[00:00:08.494] Server  LOG     
+[00:00:08.495] Server  LOG        We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+[00:00:08.496] Server  LOG        The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+[00:00:08.496] Server  LOG        	- include was updated to add '.next/dev/types/**/*.ts'
+[00:00:08.496] Server  LOG     
+[00:00:08.497] Server  LOG        The following mandatory changes were made to your tsconfig.json:
+
+[00:00:08.497] Server  LOG        	- jsx was set to react-jsx (next.js uses the React automatic runtime)
+[00:00:08.497] Server  LOG     
+[00:00:09.166] Server  LOG      ✓ Ready in 7.6s
+[00:00:16.101] Server  LOG      ○ Compiling / ...
+[00:00:22.648] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:00:25.016] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="/Codework/...">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" suppressHydrationWarning={true}>
+                          <head>
+                          <body
+                            className="inter_5972bc34-module__OU16Qa__className font-sans antialiased"
+-                           data-new-gr-c-s-check-loaded="14.1266.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+
+[00:00:25.410] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:25.410] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:00:25.410] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711012033}
+[00:00:58.356] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /teachers. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:00:58.417] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /teachers. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:00:58.905] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/teachers color: rgb(120, 120, 120) color: inherit {"dp":"/teachers","o":"http://localhost:3000/teachers","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711045516}
+[00:01:01.883] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /students. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:01:02.167] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/students color: rgb(120, 120, 120) color: inherit {"dp":"/students","o":"http://localhost:3000/students","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711048798}
+[00:01:06.467] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /parents. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:01:06.728] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/parents color: rgb(120, 120, 120) color: inherit {"dp":"/parents","o":"http://localhost:3000/parents","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711053359}
+[00:01:09.041] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /subjects. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:01:09.415] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/subjects color: rgb(120, 120, 120) color: inherit {"dp":"/subjects","o":"http://localhost:3000/subjects","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711056045}
+[00:01:11.963] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /classes. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:01:12.284] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/classes color: rgb(120, 120, 120) color: inherit {"dp":"/classes","o":"http://localhost:3000/classes","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711058911}
+[00:01:19.352] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /lessons. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:01:19.785] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/lessons color: rgb(120, 120, 120) color: inherit {"dp":"/lessons","o":"http://localhost:3000/lessons","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711066411}
+[00:01:34.084] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /exams. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:01:34.395] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/exams color: rgb(120, 120, 120) color: inherit {"dp":"/exams","o":"http://localhost:3000/exams","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711081018}
+[00:01:45.651] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /results. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:01:46.151] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/results color: rgb(120, 120, 120) color: inherit {"dp":"/results","o":"http://localhost:3000/results","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711092698}
+[00:01:46.362] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /students. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:01:46.615] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/students color: rgb(120, 120, 120) color: inherit {"dp":"/students","o":"http://localhost:3000/students","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711093242}
+[00:01:47.894] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /results. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:01:48.264] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/results color: rgb(120, 120, 120) color: inherit {"dp":"/results","o":"http://localhost:3000/results","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711094843}
+[00:01:57.599] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /attendance. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:01:58.053] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/attendance color: rgb(120, 120, 120) color: inherit {"dp":"/attendance","o":"http://localhost:3000/attendance","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711104630}
+[00:02:14.932] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /events. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:02:15.231] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/events color: rgb(120, 120, 120) color: inherit {"dp":"/events","o":"http://localhost:3000/events","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711121863}
+[00:02:20.219] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /messages. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:02:20.529] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/messages color: rgb(120, 120, 120) color: inherit {"dp":"/messages","o":"http://localhost:3000/messages","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711127149}
+[00:02:23.854] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /announcements. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:02:24.167] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/announcements color: rgb(120, 120, 120) color: inherit {"dp":"/announcements","o":"http://localhost:3000/announcements","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711130807}
+[00:02:28.350] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /fees. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:02:28.712] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/fees color: rgb(120, 120, 120) color: inherit {"dp":"/fees","o":"http://localhost:3000/fees","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711135336}
+[00:02:33.299] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /payments. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:02:33.643] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/payments color: rgb(120, 120, 120) color: inherit {"dp":"/payments","o":"http://localhost:3000/payments","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711140241}
+[00:02:35.208] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /results. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:02:35.533] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/results color: rgb(120, 120, 120) color: inherit {"dp":"/results","o":"http://localhost:3000/results","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765711142096}

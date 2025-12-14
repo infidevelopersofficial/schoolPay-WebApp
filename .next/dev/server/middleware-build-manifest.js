@@ -1,0 +1,26 @@
+globalThis.__BUILD_MANIFEST = {
+  "pages": {
+    "/_app": []
+  },
+  "devFiles": [],
+  "polyfillFiles": [
+    "static/chunks/7a5be_next_dist_build_polyfills_polyfill-nomodule.js"
+  ],
+  "lowPriorityFiles": [],
+  "rootMainFiles": [
+    "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_3f81e70c._.js",
+    "static/chunks/7a5be_next_dist_compiled_react-dom_2153a48e._.js",
+    "static/chunks/7a5be_next_dist_compiled_react-server-dom-turbopack_c0faaba3._.js",
+    "static/chunks/7a5be_next_dist_compiled_next-devtools_index_bc7ed426.js",
+    "static/chunks/7a5be_next_dist_compiled_b9ceebc0._.js",
+    "static/chunks/7a5be_next_dist_client_51ce4942._.js",
+    "static/chunks/7a5be_next_dist_515cade3._.js",
+    "static/chunks/7a5be_@swc_helpers_cjs_3a443283._.js",
+    "static/chunks/Codework_SchoolPay_school-fees-management_a0ff3932._.js",
+    "static/chunks/turbopack-Codework_SchoolPay_school-fees-management_94ecbd72._.js"
+  ]
+};
+globalThis.__BUILD_MANIFEST.lowPriorityFiles = [
+"/static/" + process.env.__NEXT_BUILD_ID + "/_buildManifest.js",
+"/static/" + process.env.__NEXT_BUILD_ID + "/_ssgManifest.js"
+];
