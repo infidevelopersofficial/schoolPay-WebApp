@@ -1,0 +1,17 @@
+{
+  "/announcements/page": "app/announcements/page.js",
+  "/attendance/page": "app/attendance/page.js",
+  "/classes/page": "app/classes/page.js",
+  "/events/page": "app/events/page.js",
+  "/exams/page": "app/exams/page.js",
+  "/fees/page": "app/fees/page.js",
+  "/lessons/page": "app/lessons/page.js",
+  "/messages/page": "app/messages/page.js",
+  "/page": "app/page.js",
+  "/parents/page": "app/parents/page.js",
+  "/payments/page": "app/payments/page.js",
+  "/results/page": "app/results/page.js",
+  "/students/page": "app/students/page.js",
+  "/subjects/page": "app/subjects/page.js",
+  "/teachers/page": "app/teachers/page.js"
+}

@@ -15,6 +15,16 @@ import {
   CreditCard,
   DollarSign,
   BarChart3,
+<<<<<<< HEAD
+=======
+  FileText,
+  Calendar,
+  ClipboardCheck,
+  MessageSquare,
+  Megaphone,
+  Award,
+  BookMarked,
+>>>>>>> master
 } from "lucide-react"
 
 const menuItems = [
@@ -25,6 +35,16 @@ const menuItems = [
   { icon: UserCircle, label: "Parents", href: "/parents" },
   { icon: BookOpen, label: "Subjects", href: "/subjects" },
   { icon: School, label: "Classes", href: "/classes" },
+<<<<<<< HEAD
+=======
+  { icon: BookMarked, label: "Lessons", href: "/lessons" },
+  { icon: FileText, label: "Exams", href: "/exams" },
+  { icon: Award, label: "Results", href: "/results" },
+  { icon: ClipboardCheck, label: "Attendance", href: "/attendance" },
+  { icon: Calendar, label: "Events", href: "/events" },
+  { icon: MessageSquare, label: "Messages", href: "/messages" },
+  { icon: Megaphone, label: "Announcements", href: "/announcements" },
+>>>>>>> master
   { label: "FINANCE", items: [] },
   { icon: DollarSign, label: "Fees", href: "/fees" },
   { icon: CreditCard, label: "Payments", href: "/payments" },
