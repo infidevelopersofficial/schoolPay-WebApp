@@ -1,0 +1,418 @@
+// SchoolPay Database Schema
+// Complete schema for school fees management system
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// Authentication & User Management
+// ============================================
+
+model User {
+  id             String   @id @default(cuid())
+  name           String
+  email          String   @unique
+  hashedPassword String?
+  role           Role     @default(ADMIN)
+  avatar         String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([email])
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  PARENT
+  STUDENT
+}
+
+// ============================================
+// Student Management
+// ============================================
+
+model Student {
+  id               String      @id @default(cuid())
+  name             String
+  email            String      @unique
+  phone            String?
+  dateOfBirth      DateTime?
+  gender           String?
+  address          String?
+  class            String
+  section          String?
+  rollNumber       String?
+  admissionDate    DateTime?   @default(now())
+  feeStatus        FeeStatus   @default(PENDING)
+  totalFees        Float       @default(0)
+  paidAmount       Float       @default(0)
+  pendingAmount    Float       @default(0)
+  bloodGroup       String?
+  emergencyContact String?
+  avatar           String?
+  parentId         String?
+  parent           Parent?     @relation(fields: [parentId], references: [id])
+  payments         Payment[]
+  results          Result[]
+  attendance       Attendance[]
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@index([email])
+  @@index([class])
+  @@index([feeStatus])
+}
+
+enum FeeStatus {
+  PAID
+  PENDING
+  OVERDUE
+  PARTIAL
+}
+
+// ============================================
+// Teacher Management
+// ============================================
+
+model Teacher {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  phone         String
+  subject       String
+  class         String
+  dateOfBirth   DateTime?
+  gender        String?
+  address       String?
+  qualification String?
+  experience    String?
+  joiningDate   DateTime? @default(now())
+  salary        Float?
+  avatar        String?
+  isActive      Boolean   @default(true)
+  lessons       Lesson[]
+  exams         Exam[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([email])
+  @@index([subject])
+}
+
+// ============================================
+// Parent/Guardian Management
+// ============================================
+
+model Parent {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  phone        String
+  relationship String?
+  occupation   String?
+  address      String?
+  students     Student[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([email])
+}
+
+// ============================================
+// Academic Structure
+// ============================================
+
+model Class {
+  id           String   @id @default(cuid())
+  name         String
+  section      String
+  strength     Int      @default(0)
+  capacity     Int      @default(40)
+  classTeacher String?
+  room         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([name, section])
+}
+
+model Subject {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  teacher     String?
+  classes     Int      @default(0)
+  students    Int      @default(0)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([code])
+}
+
+// ============================================
+// Financial Management
+// ============================================
+
+model Fee {
+  id          String      @id @default(cuid())
+  type        String
+  amount      Float
+  description String
+  frequency   Frequency
+  dueDate     String?
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+enum Frequency {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  ONE_TIME
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  studentId     String
+  student       Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  amount        Float
+  feeType       String
+  paymentMethod PaymentMethod
+  transactionId String?
+  receiptNumber String?       @unique
+  date          DateTime      @default(now())
+  status        PaymentStatus @default(COMPLETED)
+  remarks       String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([studentId])
+  @@index([date])
+  @@index([status])
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  UPI
+  BANK_TRANSFER
+  CHEQUE
+  ONLINE
+}
+
+enum PaymentStatus {
+  COMPLETED
+  PENDING
+  FAILED
+  REFUNDED
+}
+
+// ============================================
+// Academic Activities
+// ============================================
+
+model Lesson {
+  id          String       @id @default(cuid())
+  title       String
+  subject     String
+  class       String
+  teacherId   String?
+  teacher     Teacher?     @relation(fields: [teacherId], references: [id])
+  date        String
+  time        String?
+  duration    String
+  description String?
+  status      LessonStatus @default(SCHEDULED)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([teacherId])
+  @@index([status])
+}
+
+enum LessonStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+model Exam {
+  id          String     @id @default(cuid())
+  name        String
+  subject     String
+  class       String
+  date        String
+  time        String?
+  duration    String
+  maxMarks    Int
+  venue       String?
+  description String?
+  status      ExamStatus @default(SCHEDULED)
+  teacherId   String?
+  teacher     Teacher?   @relation(fields: [teacherId], references: [id])
+  results     Result[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([teacherId])
+  @@index([status])
+}
+
+enum ExamStatus {
+  SCHEDULED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+model Result {
+  id         String       @id @default(cuid())
+  studentId  String
+  student    Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  examId     String?
+  exam       Exam?        @relation(fields: [examId], references: [id])
+  examName   String
+  marks      Float
+  maxMarks   Float
+  grade      String
+  percentage Float
+  status     ResultStatus @default(PUBLISHED)
+  remarks    String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@index([studentId])
+  @@index([examId])
+}
+
+enum ResultStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Attendance {
+  id        String           @id @default(cuid())
+  studentId String
+  student   Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  date      DateTime
+  status    AttendanceStatus
+  remarks   String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@unique([studentId, date])
+  @@index([studentId])
+  @@index([date])
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
+
+// ============================================
+// Events & Communication
+// ============================================
+
+model Event {
+  id          String      @id @default(cuid())
+  name        String
+  date        String
+  time        String?
+  location    String
+  type        EventType
+  attendees   Int         @default(0)
+  description String?
+  status      EventStatus @default(UPCOMING)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([status])
+}
+
+enum EventType {
+  MEETING
+  SPORTS
+  ACADEMIC
+  CULTURAL
+  HOLIDAY
+  OTHER
+}
+
+enum EventStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+model Message {
+  id            String   @id @default(cuid())
+  from          String
+  fromEmail     String
+  to            String
+  toEmail       String
+  subject       String
+  body          String   @db.Text
+  unread        Boolean  @default(true)
+  starred       Boolean  @default(false)
+  hasAttachment Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([toEmail])
+  @@index([unread])
+}
+
+model Announcement {
+  id             String               @id @default(cuid())
+  title          String
+  content        String               @db.Text
+  date           String
+  author         String
+  priority       AnnouncementPriority
+  category       AnnouncementCategory
+  targetAudience TargetAudience
+  expiryDate     String?
+  isActive       Boolean              @default(true)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@index([priority])
+  @@index([category])
+}
+
+enum AnnouncementPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum AnnouncementCategory {
+  GENERAL
+  ACADEMIC
+  EVENT
+  HOLIDAY
+  EXAM
+  FEE
+}
+
+enum TargetAudience {
+  ALL
+  STUDENTS
+  TEACHERS
+  PARENTS
+}

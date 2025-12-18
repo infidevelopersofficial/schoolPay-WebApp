@@ -1,253 +1,137 @@
+"use client"
+
+import { useState } from "react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-<<<<<<< HEAD
-import { Plus, Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-
-const messages = [
-  { id: 1, from: "Ms. Sarah Anderson", subject: "Regarding Assignment Submission", time: "2 hrs ago", unread: true },
-  { id: 2, from: "Principal Office", subject: "School Holiday Announcement", time: "5 hrs ago", unread: true },
-  { id: 3, from: "Dr. James Wilson", subject: "Math Quiz Results", time: "1 day ago", unread: false },
-  { id: 4, from: "Event Committee", subject: "Sports Day Participation", time: "2 days ago", unread: false },
-=======
 import { Plus, Search, Inbox, Send, Archive, Trash2, Star, MoreHorizontal, Paperclip } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ComposeMessageForm } from "@/components/forms"
 
 const messages = [
-  {
-    id: 1,
-    from: "Ms. Sarah Anderson",
-    email: "sarah.a@school.edu",
-    avatar: "/placeholder.svg?height=40&width=40",
-    subject: "Regarding Fee Payment Extension",
-    preview: "Dear Admin, I would like to request an extension for John's tuition fee payment...",
-    time: "2 hours ago",
-    unread: true,
-    starred: false,
-    hasAttachment: false,
-  },
-  {
-    id: 2,
-    from: "Principal's Office",
-    email: "principal@school.edu",
-    avatar: "/placeholder.svg?height=40&width=40",
-    subject: "School Holiday Announcement",
-    preview: "Please be informed that the school will remain closed on January 26th for Republic Day...",
-    time: "5 hours ago",
-    unread: true,
-    starred: true,
-    hasAttachment: true,
-  },
-  {
-    id: 3,
-    from: "Dr. James Wilson",
-    email: "james.w@school.edu",
-    avatar: "/placeholder.svg?height=40&width=40",
-    subject: "Math Quiz Results Published",
-    preview: "The results for the Grade 10 Mathematics quiz have been published. Please review...",
-    time: "1 day ago",
-    unread: false,
-    starred: false,
-    hasAttachment: true,
-  },
-  {
-    id: 4,
-    from: "Event Committee",
-    email: "events@school.edu",
-    avatar: "/placeholder.svg?height=40&width=40",
-    subject: "Sports Day Participation Form",
-    preview: "Please find attached the participation form for the upcoming Annual Sports Day...",
-    time: "2 days ago",
-    unread: false,
-    starred: true,
-    hasAttachment: true,
-  },
-  {
-    id: 5,
-    from: "Mr. Robert Kumar",
-    email: "robert.k@school.edu",
-    avatar: "/placeholder.svg?height=40&width=40",
-    subject: "Science Lab Equipment Request",
-    preview: "We need to procure additional microscopes for the biology lab. Please approve...",
-    time: "3 days ago",
-    unread: false,
-    starred: false,
-    hasAttachment: false,
-  },
-  {
-    id: 6,
-    from: "Finance Department",
-    email: "finance@school.edu",
-    avatar: "/placeholder.svg?height=40&width=40",
-    subject: "Monthly Fee Collection Report",
-    preview: "Please find attached the fee collection report for December 2024...",
-    time: "4 days ago",
-    unread: false,
-    starred: false,
-    hasAttachment: true,
-  },
-]
-
-const stats = [
-  { label: "Inbox", value: 24, icon: Inbox },
-  { label: "Sent", value: 156, icon: Send },
-  { label: "Archived", value: 89, icon: Archive },
-  { label: "Trash", value: 12, icon: Trash2 },
->>>>>>> master
+  { id: 1, from: "Ms. Sarah Anderson", email: "sarah.a@school.edu", avatar: "/placeholder.svg?height=40&width=40", subject: "Regarding Fee Payment Extension", preview: "Dear Admin, I would like to request an extension for John's tuition fee payment...", time: "2 hours ago", unread: true, starred: false, hasAttachment: false },
+  { id: 2, from: "Principal's Office", email: "principal@school.edu", avatar: "/placeholder.svg?height=40&width=40", subject: "School Holiday Announcement", preview: "Please be informed that the school will remain closed on January 26th for Republic Day...", time: "5 hours ago", unread: true, starred: true, hasAttachment: true },
+  { id: 3, from: "Dr. James Wilson", email: "james.w@school.edu", avatar: "/placeholder.svg?height=40&width=40", subject: "Math Quiz Results", preview: "The results for the recent mathematics quiz have been uploaded to the system...", time: "1 day ago", unread: false, starred: false, hasAttachment: false },
+  { id: 4, from: "Event Committee", email: "events@school.edu", avatar: "/placeholder.svg?height=40&width=40", subject: "Sports Day Participation", preview: "We are excited to announce the upcoming Annual Sports Day. Please confirm participation...", time: "2 days ago", unread: false, starred: true, hasAttachment: true },
+  { id: 5, from: "Parent Association", email: "parents@school.edu", avatar: "/placeholder.svg?height=40&width=40", subject: "Monthly Meeting Invitation", preview: "You are cordially invited to attend the monthly parent-teacher association meeting...", time: "3 days ago", unread: false, starred: false, hasAttachment: false },
 ]
 
 export default function MessagesPage() {
+  const [showComposeForm, setShowComposeForm] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Messages</h1>
-            <p className="text-sm text-muted-foreground">Communication inbox</p>
+            <p className="text-sm text-muted-foreground">Internal communication and announcements</p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setShowComposeForm(true)}>
             <Plus className="h-4 w-4" />
-<<<<<<< HEAD
-            New Message
-          </Button>
-        </div>
-
-=======
             Compose
           </Button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {stats.map((stat, index) => (
-            <Card key={index}>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <stat.icon className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">{stat.label}</p>
-                    <p className="text-lg font-bold">{stat.value}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <ComposeMessageForm open={showComposeForm} onOpenChange={setShowComposeForm} onSuccess={() => setRefreshKey(prev => prev + 1)} />
+
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input placeholder="Search messages..." className="pl-10" />
         </div>
 
->>>>>>> master
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search messages..." className="pl-10" />
-          </div>
-        </div>
-
-<<<<<<< HEAD
-        <div className="space-y-2">
-          {messages.map((msg) => (
-            <Card key={msg.id} className={msg.unread ? "bg-muted/50" : ""}>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 flex-1">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback>
-                        {msg.from
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <p className="font-medium">{msg.from}</p>
-                      <p className="text-sm text-muted-foreground">{msg.subject}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-xs text-muted-foreground">{msg.time}</span>
-                    {msg.unread && <Badge>New</Badge>}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-=======
-        <Tabs defaultValue="inbox" className="space-y-4">
+        <Tabs defaultValue="inbox" className="space-y-4" key={refreshKey}>
           <TabsList>
-            <TabsTrigger value="inbox" className="gap-2">
-              <Inbox className="h-4 w-4" />
-              Inbox
-              <Badge variant="secondary" className="ml-1">
-                24
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger value="sent" className="gap-2">
-              <Send className="h-4 w-4" />
-              Sent
-            </TabsTrigger>
-            <TabsTrigger value="starred" className="gap-2">
-              <Star className="h-4 w-4" />
-              Starred
-            </TabsTrigger>
+            <TabsTrigger value="inbox" className="gap-2"><Inbox className="h-4 w-4" />Inbox</TabsTrigger>
+            <TabsTrigger value="sent" className="gap-2"><Send className="h-4 w-4" />Sent</TabsTrigger>
+            <TabsTrigger value="starred" className="gap-2"><Star className="h-4 w-4" />Starred</TabsTrigger>
+            <TabsTrigger value="archive" className="gap-2"><Archive className="h-4 w-4" />Archive</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="inbox">
+          <TabsContent value="inbox" className="space-y-2">
+            {messages.map((msg) => (
+              <Card key={msg.id} className={msg.unread ? "border-l-4 border-l-primary" : ""}>
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-4">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={msg.avatar} alt={msg.from} />
+                      <AvatarFallback>{msg.from.split(" ").map((n) => n[0]).join("")}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className={`font-medium truncate ${msg.unread ? "font-bold" : ""}`}>{msg.from}</p>
+                            {msg.unread && <Badge variant="default" className="h-5 px-1.5 text-xs">New</Badge>}
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">{msg.email}</p>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Star className={`h-4 w-4 ${msg.starred ? "fill-yellow-400 text-yellow-400" : ""}`} />
+                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem><Archive className="mr-2 h-4 w-4" />Archive</DropdownMenuItem>
+                              <DropdownMenuItem className="text-red-600"><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                      <p className={`text-sm mt-2 ${msg.unread ? "font-semibold" : ""}`}>{msg.subject}</p>
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{msg.preview}</p>
+                      <div className="flex items-center gap-4 mt-2">
+                        <span className="text-xs text-muted-foreground">{msg.time}</span>
+                        {msg.hasAttachment && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Paperclip className="h-3 w-3" />
+                            Attachment
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+
+          <TabsContent value="sent">
+            <div className="flex items-center justify-center h-40 text-muted-foreground">
+              No sent messages
+            </div>
+          </TabsContent>
+
+          <TabsContent value="starred">
             <div className="space-y-2">
-              {messages.map((msg) => (
-                <Card key={msg.id} className={msg.unread ? "bg-primary/5 border-primary/20" : ""}>
-                  <CardContent className="py-4">
+              {messages.filter((m) => m.starred).map((msg) => (
+                <Card key={msg.id}>
+                  <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={msg.avatar || "/placeholder.svg"} />
-                        <AvatarFallback>
-                          {msg.from
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
+                        <AvatarImage src={msg.avatar} alt={msg.from} />
+                        <AvatarFallback>{msg.from.split(" ").map((n) => n[0]).join("")}</AvatarFallback>
                       </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p
-                                className={`font-medium truncate ${msg.unread ? "text-foreground" : "text-muted-foreground"}`}
-                              >
-                                {msg.from}
-                              </p>
-                              {msg.starred && <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />}
-                              {msg.hasAttachment && <Paperclip className="h-4 w-4 text-muted-foreground" />}
-                            </div>
-                            <p className={`text-sm truncate ${msg.unread ? "font-medium" : ""}`}>{msg.subject}</p>
-                            <p className="text-sm text-muted-foreground truncate">{msg.preview}</p>
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <p className="font-medium">{msg.from}</p>
+                            <p className="text-xs text-muted-foreground">{msg.email}</p>
                           </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <span className="text-xs text-muted-foreground whitespace-nowrap">{msg.time}</span>
-                            {msg.unread && <Badge className="bg-primary">New</Badge>}
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem>Mark as Read</DropdownMenuItem>
-                                <DropdownMenuItem>Star</DropdownMenuItem>
-                                <DropdownMenuItem>Archive</DropdownMenuItem>
-                                <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
+                          <span className="text-xs text-muted-foreground">{msg.time}</span>
                         </div>
+                        <p className="text-sm font-semibold mt-2">{msg.subject}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{msg.preview}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -256,49 +140,12 @@ export default function MessagesPage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="sent">
+          <TabsContent value="archive">
             <div className="flex items-center justify-center h-40 text-muted-foreground">
-              <div className="text-center">
-                <Send className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
-                <p>Sent messages will appear here</p>
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="starred">
-            <div className="space-y-2">
-              {messages
-                .filter((m) => m.starred)
-                .map((msg) => (
-                  <Card key={msg.id}>
-                    <CardContent className="py-4">
-                      <div className="flex items-start gap-4">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={msg.avatar || "/placeholder.svg"} />
-                          <AvatarFallback>
-                            {msg.from
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium">{msg.from}</p>
-                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          </div>
-                          <p className="text-sm font-medium">{msg.subject}</p>
-                          <p className="text-sm text-muted-foreground truncate">{msg.preview}</p>
-                        </div>
-                        <span className="text-xs text-muted-foreground">{msg.time}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+              No archived messages
             </div>
           </TabsContent>
         </Tabs>
->>>>>>> master
       </div>
     </DashboardLayout>
   )

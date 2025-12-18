@@ -748,28 +748,10 @@ const subjects = [
         id: "SUB006",
         name: "Physics",
         code: "PHY101",
-        teacher: "Dr. Lisa Park",
-        classes: 3,
-        students: 88,
-        status: "active"
-    },
-    {
-        id: "SUB007",
-        name: "Chemistry",
-        code: "CHM101",
-        teacher: "Mr. David Lee",
+        teacher: "Dr. James Wilson",
         classes: 3,
         students: 85,
         status: "active"
-    },
-    {
-        id: "SUB008",
-        name: "Art & Design",
-        code: "ART101",
-        teacher: "Ms. Jennifer White",
-        classes: 2,
-        students: 45,
-        status: "inactive"
     }
 ];
 function SubjectsPage() {
@@ -787,21 +769,21 @@ function SubjectsPage() {
                                     children: "Subjects"
                                 }, void 0, false, {
                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                    lineNumber: 91,
+                                    lineNumber: 74,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                     className: "text-sm text-muted-foreground",
-                                    children: "Manage school subjects and curricula"
+                                    children: "Manage subjects and curriculum"
                                 }, void 0, false, {
                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                    lineNumber: 92,
+                                    lineNumber: 75,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                            lineNumber: 90,
+                            lineNumber: 73,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Button"], {
@@ -811,20 +793,20 @@ function SubjectsPage() {
                                     className: "h-4 w-4"
                                 }, void 0, false, {
                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                    lineNumber: 95,
+                                    lineNumber: 78,
                                     columnNumber: 13
                                 }, this),
                                 "Add Subject"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                            lineNumber: 94,
+                            lineNumber: 77,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                    lineNumber: 89,
+                    lineNumber: 72,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -837,7 +819,7 @@ function SubjectsPage() {
                                     className: "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                                 }, void 0, false, {
                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                    lineNumber: 102,
+                                    lineNumber: 86,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Input"], {
@@ -845,13 +827,13 @@ function SubjectsPage() {
                                     className: "pl-10"
                                 }, void 0, false, {
                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                    lineNumber: 103,
+                                    lineNumber: 87,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                            lineNumber: 101,
+                            lineNumber: 85,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Button"], {
@@ -862,14 +844,14 @@ function SubjectsPage() {
                                     className: "h-4 w-4"
                                 }, void 0, false, {
                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                    lineNumber: 106,
+                                    lineNumber: 90,
                                     columnNumber: 13
                                 }, this),
                                 "Filter"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                            lineNumber: 105,
+                            lineNumber: 89,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Button"], {
@@ -880,20 +862,20 @@ function SubjectsPage() {
                                     className: "h-4 w-4"
                                 }, void 0, false, {
                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                    lineNumber: 110,
+                                    lineNumber: 94,
                                     columnNumber: 13
                                 }, this),
                                 "Export"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                            lineNumber: 109,
+                            lineNumber: 93,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                    lineNumber: 100,
+                    lineNumber: 84,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Card"], {
@@ -903,45 +885,52 @@ function SubjectsPage() {
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableRow"], {
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableHead"], {
+                                            children: "Subject ID"
+                                        }, void 0, false, {
+                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
+                                            lineNumber: 104,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableHead"], {
                                             children: "Subject Name"
                                         }, void 0, false, {
                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                            lineNumber: 119,
+                                            lineNumber: 105,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableHead"], {
                                             children: "Code"
                                         }, void 0, false, {
                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                            lineNumber: 120,
+                                            lineNumber: 106,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableHead"], {
                                             children: "Teacher"
                                         }, void 0, false, {
                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                            lineNumber: 121,
+                                            lineNumber: 107,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableHead"], {
                                             children: "Classes"
                                         }, void 0, false, {
                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                            lineNumber: 122,
+                                            lineNumber: 108,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableHead"], {
                                             children: "Students"
                                         }, void 0, false, {
                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                            lineNumber: 123,
+                                            lineNumber: 109,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableHead"], {
                                             children: "Status"
                                         }, void 0, false, {
                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                            lineNumber: 124,
+                                            lineNumber: 110,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -949,29 +938,37 @@ function SubjectsPage() {
                                             children: "Actions"
                                         }, void 0, false, {
                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                            lineNumber: 125,
+                                            lineNumber: 111,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                    lineNumber: 118,
+                                    lineNumber: 103,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                lineNumber: 117,
+                                lineNumber: 102,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableBody"], {
                                 children: subjects.map((subject)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableRow"], {
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableCell"], {
+                                                className: "font-mono text-sm",
+                                                children: subject.id
+                                            }, void 0, false, {
+                                                fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
+                                                lineNumber: 117,
+                                                columnNumber: 19
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableCell"], {
                                                 className: "font-medium",
                                                 children: subject.name
                                             }, void 0, false, {
                                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                lineNumber: 131,
+                                                lineNumber: 118,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -981,47 +978,47 @@ function SubjectsPage() {
                                                     children: subject.code
                                                 }, void 0, false, {
                                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                    lineNumber: 133,
+                                                    lineNumber: 120,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                lineNumber: 132,
+                                                lineNumber: 119,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableCell"], {
                                                 children: subject.teacher
                                             }, void 0, false, {
                                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                lineNumber: 137,
+                                                lineNumber: 124,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableCell"], {
                                                 children: subject.classes
                                             }, void 0, false, {
                                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                lineNumber: 138,
+                                                lineNumber: 125,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableCell"], {
                                                 children: subject.students
                                             }, void 0, false, {
                                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                lineNumber: 139,
+                                                lineNumber: 126,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableCell"], {
                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Badge"], {
-                                                    className: subject.status === "active" ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-gray-100 text-gray-700 hover:bg-gray-100",
+                                                    className: "bg-green-100 text-green-700 hover:bg-green-100",
                                                     children: subject.status
                                                 }, void 0, false, {
                                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                    lineNumber: 141,
+                                                    lineNumber: 128,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                lineNumber: 140,
+                                                lineNumber: 127,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1032,23 +1029,22 @@ function SubjectsPage() {
                                                             asChild: true,
                                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Button"], {
                                                                 variant: "ghost",
-                                                                size: "icon",
-                                                                className: "h-8 w-8",
+                                                                size: "sm",
                                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$ellipsis$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__MoreHorizontal$3e$__["MoreHorizontal"], {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                                    lineNumber: 155,
+                                                                    lineNumber: 136,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                                lineNumber: 154,
+                                                                lineNumber: 135,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                            lineNumber: 153,
+                                                            lineNumber: 134,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -1057,100 +1053,100 @@ function SubjectsPage() {
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
                                                                     children: [
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__["Eye"], {
-                                                                            className: "h-4 w-4 mr-2"
+                                                                            className: "mr-2 h-4 w-4"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                                            lineNumber: 160,
+                                                                            lineNumber: 141,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         "View Details"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                                    lineNumber: 159,
+                                                                    lineNumber: 140,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
                                                                     children: [
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$pencil$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Pencil$3e$__["Pencil"], {
-                                                                            className: "h-4 w-4 mr-2"
+                                                                            className: "mr-2 h-4 w-4"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                                            lineNumber: 164,
+                                                                            lineNumber: 145,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         "Edit"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                                    lineNumber: 163,
+                                                                    lineNumber: 144,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
-                                                                    className: "text-destructive",
+                                                                    className: "text-red-600",
                                                                     children: [
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
-                                                                            className: "h-4 w-4 mr-2"
+                                                                            className: "mr-2 h-4 w-4"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                                            lineNumber: 168,
+                                                                            lineNumber: 149,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         "Delete"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                                    lineNumber: 167,
+                                                                    lineNumber: 148,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                            lineNumber: 158,
+                                                            lineNumber: 139,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                    lineNumber: 152,
+                                                    lineNumber: 133,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                                lineNumber: 151,
+                                                lineNumber: 132,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, subject.id, true, {
                                         fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                        lineNumber: 130,
+                                        lineNumber: 116,
                                         columnNumber: 17
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                                lineNumber: 128,
+                                lineNumber: 114,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                        lineNumber: 116,
+                        lineNumber: 101,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-                    lineNumber: 115,
+                    lineNumber: 100,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-            lineNumber: 88,
+            lineNumber: 70,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/Codework/SchoolPay/school-fees-management/app/subjects/page.tsx",
-        lineNumber: 87,
+        lineNumber: 69,
         columnNumber: 5
     }, this);
 }

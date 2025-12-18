@@ -747,20 +747,20 @@ const messages = [
         from: "Dr. James Wilson",
         email: "james.w@school.edu",
         avatar: "/placeholder.svg?height=40&width=40",
-        subject: "Math Quiz Results Published",
-        preview: "The results for the Grade 10 Mathematics quiz have been published. Please review...",
+        subject: "Math Quiz Results",
+        preview: "The results for the recent mathematics quiz have been uploaded to the system...",
         time: "1 day ago",
         unread: false,
         starred: false,
-        hasAttachment: true
+        hasAttachment: false
     },
     {
         id: 4,
         from: "Event Committee",
         email: "events@school.edu",
         avatar: "/placeholder.svg?height=40&width=40",
-        subject: "Sports Day Participation Form",
-        preview: "Please find attached the participation form for the upcoming Annual Sports Day...",
+        subject: "Sports Day Participation",
+        preview: "We are excited to announce the upcoming Annual Sports Day. Please confirm participation...",
         time: "2 days ago",
         unread: false,
         starred: true,
@@ -768,49 +768,15 @@ const messages = [
     },
     {
         id: 5,
-        from: "Mr. Robert Kumar",
-        email: "robert.k@school.edu",
+        from: "Parent Association",
+        email: "parents@school.edu",
         avatar: "/placeholder.svg?height=40&width=40",
-        subject: "Science Lab Equipment Request",
-        preview: "We need to procure additional microscopes for the biology lab. Please approve...",
+        subject: "Monthly Meeting Invitation",
+        preview: "You are cordially invited to attend the monthly parent-teacher association meeting...",
         time: "3 days ago",
         unread: false,
         starred: false,
         hasAttachment: false
-    },
-    {
-        id: 6,
-        from: "Finance Department",
-        email: "finance@school.edu",
-        avatar: "/placeholder.svg?height=40&width=40",
-        subject: "Monthly Fee Collection Report",
-        preview: "Please find attached the fee collection report for December 2024...",
-        time: "4 days ago",
-        unread: false,
-        starred: false,
-        hasAttachment: true
-    }
-];
-const stats = [
-    {
-        label: "Inbox",
-        value: 24,
-        icon: __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$inbox$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Inbox$3e$__["Inbox"]
-    },
-    {
-        label: "Sent",
-        value: 156,
-        icon: __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$send$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Send$3e$__["Send"]
-    },
-    {
-        label: "Archived",
-        value: 89,
-        icon: __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$archive$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Archive$3e$__["Archive"]
-    },
-    {
-        label: "Trash",
-        value: 12,
-        icon: __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"]
     }
 ];
 function MessagesPage() {
@@ -828,21 +794,21 @@ function MessagesPage() {
                                     children: "Messages"
                                 }, void 0, false, {
                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                    lineNumber: 99,
+                                    lineNumber: 81,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                     className: "text-sm text-muted-foreground",
-                                    children: "Communication inbox"
+                                    children: "Internal communication and announcements"
                                 }, void 0, false, {
                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                    lineNumber: 100,
+                                    lineNumber: 82,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                            lineNumber: 98,
+                            lineNumber: 80,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Button"], {
@@ -852,118 +818,44 @@ function MessagesPage() {
                                     className: "h-4 w-4"
                                 }, void 0, false, {
                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                    lineNumber: 103,
+                                    lineNumber: 85,
                                     columnNumber: 13
                                 }, this),
                                 "Compose"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                            lineNumber: 102,
+                            lineNumber: 84,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                    lineNumber: 97,
+                    lineNumber: 79,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "grid grid-cols-2 md:grid-cols-4 gap-4",
-                    children: stats.map((stat, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Card"], {
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["CardContent"], {
-                                className: "pt-6",
-                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "flex items-center gap-3",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "p-2 rounded-lg bg-primary/10",
-                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(stat.icon, {
-                                                className: "h-4 w-4 text-primary"
-                                            }, void 0, false, {
-                                                fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                lineNumber: 115,
-                                                columnNumber: 21
-                                            }, this)
-                                        }, void 0, false, {
-                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                            lineNumber: 114,
-                                            columnNumber: 19
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                    className: "text-xs text-muted-foreground",
-                                                    children: stat.label
-                                                }, void 0, false, {
-                                                    fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                    lineNumber: 118,
-                                                    columnNumber: 21
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                    className: "text-lg font-bold",
-                                                    children: stat.value
-                                                }, void 0, false, {
-                                                    fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                    lineNumber: 119,
-                                                    columnNumber: 21
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                            lineNumber: 117,
-                                            columnNumber: 19
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                    lineNumber: 113,
-                                    columnNumber: 17
-                                }, this)
-                            }, void 0, false, {
-                                fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                lineNumber: 112,
-                                columnNumber: 15
-                            }, this)
-                        }, index, false, {
+                    className: "relative",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$search$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Search$3e$__["Search"], {
+                            className: "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                        }, void 0, false, {
                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                            lineNumber: 111,
-                            columnNumber: 13
-                        }, this))
-                }, void 0, false, {
+                            lineNumber: 92,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Input"], {
+                            placeholder: "Search messages...",
+                            className: "pl-10"
+                        }, void 0, false, {
+                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                            lineNumber: 93,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                    lineNumber: 109,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "flex items-center gap-4",
-                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "relative flex-1 max-w-sm",
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$search$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Search$3e$__["Search"], {
-                                className: "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                            }, void 0, false, {
-                                fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                lineNumber: 129,
-                                columnNumber: 13
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Input"], {
-                                placeholder: "Search messages...",
-                                className: "pl-10"
-                            }, void 0, false, {
-                                fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                lineNumber: 130,
-                                columnNumber: 13
-                            }, this)
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                        lineNumber: 128,
-                        columnNumber: 11
-                    }, this)
-                }, void 0, false, {
-                    fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                    lineNumber: 127,
+                    lineNumber: 91,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Tabs"], {
@@ -980,23 +872,14 @@ function MessagesPage() {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                            lineNumber: 137,
+                                            lineNumber: 99,
                                             columnNumber: 15
                                         }, this),
-                                        "Inbox",
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Badge"], {
-                                            variant: "secondary",
-                                            className: "ml-1",
-                                            children: "24"
-                                        }, void 0, false, {
-                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                            lineNumber: 139,
-                                            columnNumber: 15
-                                        }, this)
+                                        "Inbox"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                    lineNumber: 136,
+                                    lineNumber: 98,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1007,14 +890,14 @@ function MessagesPage() {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                            lineNumber: 144,
+                                            lineNumber: 103,
                                             columnNumber: 15
                                         }, this),
                                         "Sent"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                    lineNumber: 143,
+                                    lineNumber: 102,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1025,135 +908,141 @@ function MessagesPage() {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                            lineNumber: 148,
+                                            lineNumber: 107,
                                             columnNumber: 15
                                         }, this),
                                         "Starred"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                    lineNumber: 147,
+                                    lineNumber: 106,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TabsTrigger"], {
+                                    value: "archive",
+                                    className: "gap-2",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$archive$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Archive$3e$__["Archive"], {
+                                            className: "h-4 w-4"
+                                        }, void 0, false, {
+                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                            lineNumber: 111,
+                                            columnNumber: 15
+                                        }, this),
+                                        "Archive"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                    lineNumber: 110,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                            lineNumber: 135,
+                            lineNumber: 97,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TabsContent"], {
                             value: "inbox",
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "space-y-2",
-                                children: messages.map((msg)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Card"], {
-                                        className: msg.unread ? "bg-primary/5 border-primary/20" : "",
-                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["CardContent"], {
-                                            className: "py-4",
-                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "flex items-start gap-4",
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Avatar"], {
-                                                        className: "h-10 w-10",
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["AvatarImage"], {
-                                                                src: msg.avatar || "/placeholder.svg"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                lineNumber: 160,
-                                                                columnNumber: 25
-                                                            }, this),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["AvatarFallback"], {
-                                                                children: msg.from.split(" ").map((n)=>n[0]).join("")
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                lineNumber: 161,
-                                                                columnNumber: 25
-                                                            }, this)
-                                                        ]
-                                                    }, void 0, true, {
-                                                        fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                        lineNumber: 159,
-                                                        columnNumber: 23
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        className: "flex-1 min-w-0",
-                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "space-y-2",
+                            children: messages.map((msg)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Card"], {
+                                    className: msg.unread ? "border-l-4 border-l-primary" : "",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["CardContent"], {
+                                        className: "p-4",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "flex items-start gap-4",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Avatar"], {
+                                                    className: "h-10 w-10",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["AvatarImage"], {
+                                                            src: msg.avatar,
+                                                            alt: msg.from
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                            lineNumber: 122,
+                                                            columnNumber: 23
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["AvatarFallback"], {
+                                                            children: msg.from.split(" ").map((n)=>n[0]).join("")
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                            lineNumber: 123,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                    lineNumber: 121,
+                                                    columnNumber: 21
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "flex-1 min-w-0",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                             className: "flex items-start justify-between gap-2",
                                                             children: [
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "min-w-0",
+                                                                    className: "flex-1 min-w-0",
                                                                     children: [
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                             className: "flex items-center gap-2",
                                                                             children: [
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                                    className: `font-medium truncate ${msg.unread ? "text-foreground" : "text-muted-foreground"}`,
+                                                                                    className: `font-medium truncate ${msg.unread ? "font-bold" : ""}`,
                                                                                     children: msg.from
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                                    lineNumber: 172,
-                                                                                    columnNumber: 31
+                                                                                    lineNumber: 134,
+                                                                                    columnNumber: 29
                                                                                 }, this),
-                                                                                msg.starred && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$star$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Star$3e$__["Star"], {
-                                                                                    className: "h-4 w-4 fill-yellow-400 text-yellow-400"
+                                                                                msg.unread && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Badge"], {
+                                                                                    variant: "default",
+                                                                                    className: "h-5 px-1.5 text-xs",
+                                                                                    children: "New"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                                    lineNumber: 177,
-                                                                                    columnNumber: 47
-                                                                                }, this),
-                                                                                msg.hasAttachment && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$paperclip$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Paperclip$3e$__["Paperclip"], {
-                                                                                    className: "h-4 w-4 text-muted-foreground"
-                                                                                }, void 0, false, {
-                                                                                    fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                                    lineNumber: 178,
-                                                                                    columnNumber: 53
+                                                                                    lineNumber: 135,
+                                                                                    columnNumber: 44
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                            lineNumber: 171,
-                                                                            columnNumber: 29
+                                                                            lineNumber: 133,
+                                                                            columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                            className: `text-sm truncate ${msg.unread ? "font-medium" : ""}`,
-                                                                            children: msg.subject
+                                                                            className: "text-xs text-muted-foreground truncate",
+                                                                            children: msg.email
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                            lineNumber: 180,
-                                                                            columnNumber: 29
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                            className: "text-sm text-muted-foreground truncate",
-                                                                            children: msg.preview
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                            lineNumber: 181,
-                                                                            columnNumber: 29
+                                                                            lineNumber: 137,
+                                                                            columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                    lineNumber: 170,
-                                                                    columnNumber: 27
+                                                                    lineNumber: 132,
+                                                                    columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                     className: "flex items-center gap-2 flex-shrink-0",
                                                                     children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "text-xs text-muted-foreground whitespace-nowrap",
-                                                                            children: msg.time
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Button"], {
+                                                                            variant: "ghost",
+                                                                            size: "sm",
+                                                                            className: "h-8 w-8 p-0",
+                                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$star$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Star$3e$__["Star"], {
+                                                                                className: `h-4 w-4 ${msg.starred ? "fill-yellow-400 text-yellow-400" : ""}`
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                                                lineNumber: 141,
+                                                                                columnNumber: 29
+                                                                            }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                            lineNumber: 184,
-                                                                            columnNumber: 29
-                                                                        }, this),
-                                                                        msg.unread && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Badge"], {
-                                                                            className: "bg-primary",
-                                                                            children: "New"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                            lineNumber: 185,
-                                                                            columnNumber: 44
+                                                                            lineNumber: 140,
+                                                                            columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["DropdownMenu"], {
                                                                             children: [
@@ -1161,147 +1050,175 @@ function MessagesPage() {
                                                                                     asChild: true,
                                                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Button"], {
                                                                                         variant: "ghost",
-                                                                                        size: "icon",
-                                                                                        className: "h-8 w-8",
+                                                                                        size: "sm",
+                                                                                        className: "h-8 w-8 p-0",
                                                                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$ellipsis$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__MoreHorizontal$3e$__["MoreHorizontal"], {
                                                                                             className: "h-4 w-4"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                                            lineNumber: 189,
-                                                                                            columnNumber: 35
+                                                                                            lineNumber: 146,
+                                                                                            columnNumber: 33
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                                        lineNumber: 188,
-                                                                                        columnNumber: 33
+                                                                                        lineNumber: 145,
+                                                                                        columnNumber: 31
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                                    lineNumber: 187,
-                                                                                    columnNumber: 31
+                                                                                    lineNumber: 144,
+                                                                                    columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
                                                                                     align: "end",
                                                                                     children: [
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
-                                                                                            children: "Mark as Read"
-                                                                                        }, void 0, false, {
+                                                                                            children: [
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$archive$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Archive$3e$__["Archive"], {
+                                                                                                    className: "mr-2 h-4 w-4"
+                                                                                                }, void 0, false, {
+                                                                                                    fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                                                                    lineNumber: 151,
+                                                                                                    columnNumber: 33
+                                                                                                }, this),
+                                                                                                "Archive"
+                                                                                            ]
+                                                                                        }, void 0, true, {
                                                                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                                            lineNumber: 193,
-                                                                                            columnNumber: 33
+                                                                                            lineNumber: 150,
+                                                                                            columnNumber: 31
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
-                                                                                            children: "Star"
-                                                                                        }, void 0, false, {
+                                                                                            className: "text-red-600",
+                                                                                            children: [
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
+                                                                                                    className: "mr-2 h-4 w-4"
+                                                                                                }, void 0, false, {
+                                                                                                    fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                                                                    lineNumber: 155,
+                                                                                                    columnNumber: 33
+                                                                                                }, this),
+                                                                                                "Delete"
+                                                                                            ]
+                                                                                        }, void 0, true, {
                                                                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                                            lineNumber: 194,
-                                                                                            columnNumber: 33
-                                                                                        }, this),
-                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
-                                                                                            children: "Archive"
-                                                                                        }, void 0, false, {
-                                                                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                                            lineNumber: 195,
-                                                                                            columnNumber: 33
-                                                                                        }, this),
-                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
-                                                                                            className: "text-destructive",
-                                                                                            children: "Delete"
-                                                                                        }, void 0, false, {
-                                                                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                                            lineNumber: 196,
-                                                                                            columnNumber: 33
+                                                                                            lineNumber: 154,
+                                                                                            columnNumber: 31
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                                    lineNumber: 192,
-                                                                                    columnNumber: 31
+                                                                                    lineNumber: 149,
+                                                                                    columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                            lineNumber: 186,
-                                                                            columnNumber: 29
+                                                                            lineNumber: 143,
+                                                                            columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                    lineNumber: 183,
+                                                                    lineNumber: 139,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                            lineNumber: 131,
+                                                            columnNumber: 23
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                            className: `text-sm mt-2 ${msg.unread ? "font-semibold" : ""}`,
+                                                            children: msg.subject
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                            lineNumber: 162,
+                                                            columnNumber: 23
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                            className: "text-sm text-muted-foreground mt-1 line-clamp-2",
+                                                            children: msg.preview
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                            lineNumber: 163,
+                                                            columnNumber: 23
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "flex items-center gap-4 mt-2",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-xs text-muted-foreground",
+                                                                    children: msg.time
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                                    lineNumber: 165,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                msg.hasAttachment && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "flex items-center gap-1 text-xs text-muted-foreground",
+                                                                    children: [
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$paperclip$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Paperclip$3e$__["Paperclip"], {
+                                                                            className: "h-3 w-3"
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                                            lineNumber: 168,
+                                                                            columnNumber: 29
+                                                                        }, this),
+                                                                        "Attachment"
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                                    lineNumber: 167,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                            lineNumber: 169,
-                                                            columnNumber: 25
+                                                            lineNumber: 164,
+                                                            columnNumber: 23
                                                         }, this)
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                        lineNumber: 168,
-                                                        columnNumber: 23
-                                                    }, this)
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                lineNumber: 158,
-                                                columnNumber: 21
-                                            }, this)
-                                        }, void 0, false, {
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                    lineNumber: 130,
+                                                    columnNumber: 21
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                            lineNumber: 157,
+                                            lineNumber: 120,
                                             columnNumber: 19
                                         }, this)
-                                    }, msg.id, false, {
+                                    }, void 0, false, {
                                         fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                        lineNumber: 156,
+                                        lineNumber: 119,
                                         columnNumber: 17
-                                    }, this))
-                            }, void 0, false, {
-                                fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                lineNumber: 154,
-                                columnNumber: 13
-                            }, this)
+                                    }, this)
+                                }, msg.id, false, {
+                                    fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                    lineNumber: 118,
+                                    columnNumber: 15
+                                }, this))
                         }, void 0, false, {
                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                            lineNumber: 153,
+                            lineNumber: 116,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TabsContent"], {
                             value: "sent",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "flex items-center justify-center h-40 text-muted-foreground",
-                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "text-center",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$send$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Send$3e$__["Send"], {
-                                            className: "h-8 w-8 mx-auto mb-2 text-muted-foreground/50"
-                                        }, void 0, false, {
-                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                            lineNumber: 212,
-                                            columnNumber: 17
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                            children: "Sent messages will appear here"
-                                        }, void 0, false, {
-                                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                            lineNumber: 213,
-                                            columnNumber: 17
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                    lineNumber: 211,
-                                    columnNumber: 15
-                                }, this)
+                                children: "No sent messages"
                             }, void 0, false, {
                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                lineNumber: 210,
+                                lineNumber: 181,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                            lineNumber: 209,
+                            lineNumber: 180,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -1310,7 +1227,7 @@ function MessagesPage() {
                                 className: "space-y-2",
                                 children: messages.filter((m)=>m.starred).map((msg)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Card"], {
                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["CardContent"], {
-                                            className: "py-4",
+                                            className: "p-4",
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "flex items-start gap-4",
                                                 children: [
@@ -1318,123 +1235,148 @@ function MessagesPage() {
                                                         className: "h-10 w-10",
                                                         children: [
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["AvatarImage"], {
-                                                                src: msg.avatar || "/placeholder.svg"
+                                                                src: msg.avatar,
+                                                                alt: msg.from
                                                             }, void 0, false, {
                                                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                lineNumber: 227,
+                                                                lineNumber: 195,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["AvatarFallback"], {
                                                                 children: msg.from.split(" ").map((n)=>n[0]).join("")
                                                             }, void 0, false, {
                                                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                lineNumber: 228,
+                                                                lineNumber: 196,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                        lineNumber: 226,
+                                                        lineNumber: 194,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        className: "flex-1 min-w-0",
+                                                        className: "flex-1",
                                                         children: [
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                className: "flex items-center gap-2",
+                                                                className: "flex items-start justify-between",
                                                                 children: [
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                        className: "font-medium",
-                                                                        children: msg.from
-                                                                    }, void 0, false, {
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        children: [
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                                className: "font-medium",
+                                                                                children: msg.from
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                                                lineNumber: 206,
+                                                                                columnNumber: 31
+                                                                            }, this),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                                className: "text-xs text-muted-foreground",
+                                                                                children: msg.email
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                                                                lineNumber: 207,
+                                                                                columnNumber: 31
+                                                                            }, this)
+                                                                        ]
+                                                                    }, void 0, true, {
                                                                         fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                        lineNumber: 237,
+                                                                        lineNumber: 205,
                                                                         columnNumber: 29
                                                                     }, this),
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$star$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__default__as__Star$3e$__["Star"], {
-                                                                        className: "h-4 w-4 fill-yellow-400 text-yellow-400"
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                        className: "text-xs text-muted-foreground",
+                                                                        children: msg.time
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                        lineNumber: 238,
+                                                                        lineNumber: 209,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                lineNumber: 236,
+                                                                lineNumber: 204,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                className: "text-sm font-medium",
+                                                                className: "text-sm font-semibold mt-2",
                                                                 children: msg.subject
                                                             }, void 0, false, {
                                                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                lineNumber: 240,
+                                                                lineNumber: 211,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                className: "text-sm text-muted-foreground truncate",
+                                                                className: "text-sm text-muted-foreground mt-1",
                                                                 children: msg.preview
                                                             }, void 0, false, {
                                                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                                lineNumber: 241,
+                                                                lineNumber: 212,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                        lineNumber: 235,
-                                                        columnNumber: 25
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "text-xs text-muted-foreground",
-                                                        children: msg.time
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                        lineNumber: 243,
+                                                        lineNumber: 203,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                                lineNumber: 225,
+                                                lineNumber: 193,
                                                 columnNumber: 23
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                            lineNumber: 224,
+                                            lineNumber: 192,
                                             columnNumber: 21
                                         }, this)
                                     }, msg.id, false, {
                                         fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                        lineNumber: 223,
+                                        lineNumber: 191,
                                         columnNumber: 19
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                                lineNumber: 219,
+                                lineNumber: 187,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                            lineNumber: 218,
+                            lineNumber: 186,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["TabsContent"], {
+                            value: "archive",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Codework$2f$SchoolPay$2f$school$2d$fees$2d$management$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex items-center justify-center h-40 text-muted-foreground",
+                                children: "No archived messages"
+                            }, void 0, false, {
+                                fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                                lineNumber: 222,
+                                columnNumber: 13
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
+                            lineNumber: 221,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-                    lineNumber: 134,
+                    lineNumber: 96,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-            lineNumber: 96,
+            lineNumber: 77,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/Codework/SchoolPay/school-fees-management/app/messages/page.tsx",
-        lineNumber: 95,
+        lineNumber: 76,
         columnNumber: 5
     }, this);
 }

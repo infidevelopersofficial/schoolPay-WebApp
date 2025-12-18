@@ -66,8 +66,5 @@ export function PageLoadingSkeleton() {
     </div>
   )
 }
-<<<<<<< HEAD
-=======
 
 export { PageLoadingSkeleton as PageSkeleton }
->>>>>>> master

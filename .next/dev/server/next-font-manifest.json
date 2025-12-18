@@ -1,27 +1,6 @@
 {
   "app": {
-    "[project]/Codework/SchoolPay/school-fees-management/app/announcements/page": [
-      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
-    ],
-    "[project]/Codework/SchoolPay/school-fees-management/app/attendance/page": [
-      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
-    ],
-    "[project]/Codework/SchoolPay/school-fees-management/app/classes/page": [
-      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
-    ],
-    "[project]/Codework/SchoolPay/school-fees-management/app/events/page": [
-      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
-    ],
-    "[project]/Codework/SchoolPay/school-fees-management/app/exams/page": [
-      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
-    ],
     "[project]/Codework/SchoolPay/school-fees-management/app/fees/page": [
-      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
-    ],
-    "[project]/Codework/SchoolPay/school-fees-management/app/lessons/page": [
-      "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
-    ],
-    "[project]/Codework/SchoolPay/school-fees-management/app/messages/page": [
       "static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2"
     ],
     "[project]/Codework/SchoolPay/school-fees-management/app/page": [

@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { PaymentsTable } from "@/components/payments/payments-table"
 import { Button } from "@/components/ui/button"
@@ -5,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Plus, Search, Filter, Download } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { DollarSign, CheckCircle, Clock, XCircle } from "lucide-react"
+import { RecordPaymentForm } from "@/components/forms"
 
 const paymentStats = [
   { label: "Total Received", value: "$125,430", icon: DollarSign, color: "bg-primary/10 text-primary" },
@@ -14,22 +18,25 @@ const paymentStats = [
 ]
 
 export default function PaymentsPage() {
+  const [showRecordForm, setShowRecordForm] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Page Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Payments</h1>
             <p className="text-sm text-muted-foreground">Track and manage fee payments</p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setShowRecordForm(true)}>
             <Plus className="h-4 w-4" />
             Record Payment
           </Button>
         </div>
 
-        {/* Stats */}
+        <RecordPaymentForm open={showRecordForm} onOpenChange={setShowRecordForm} onSuccess={() => setRefreshKey(prev => prev + 1)} />
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {paymentStats.map((stat, index) => (
             <Card key={index}>
@@ -48,7 +55,6 @@ export default function PaymentsPage() {
           ))}
         </div>
 
-        {/* Filters */}
         <div className="flex items-center gap-4">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -64,8 +70,7 @@ export default function PaymentsPage() {
           </Button>
         </div>
 
-        {/* Payments Table */}
-        <PaymentsTable />
+        <PaymentsTable key={refreshKey} />
       </div>
     </DashboardLayout>
   )
