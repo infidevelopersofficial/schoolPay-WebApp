@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: schoolpay-postgres
+    
+    # Environment variables for PostgreSQL initialization
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: schoolpay
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    
+    # Port mapping: host:container
+    ports:
+      - "6543:5432"
+    
+    # Persistent volume for database data
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Initialize database with seed data (optional)
+      # - ./prisma/init.sql:/docker-entrypoint-initdb.d/init.sql
+    
+    # Health check to verify database is ready
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d schoolpay"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    
+    # Network
+    networks:
+      - schoolpay_network
+    
+    # Restart policy for production
+    restart: unless-stopped
+    
+    # Resource limits (adjust for your machine)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  schoolpay_network:
+    driver: bridge
