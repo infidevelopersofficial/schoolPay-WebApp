@@ -1,18 +1,46 @@
-<<<<<<< HEAD
-.next/
-node_modules/
+# Dependencies
+node_modules
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Production
+/build
+/dist
+
+# Environment Variables
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-.DS_Store
-.vscode/
-dist/
-build/
-coverage/
-=======
-node_modules
->>>>>>> master
+.env*.local
 
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Prisma
 /lib/generated/prisma
+*.db
+*.db-journal
+
+# Misc
+.DS_Store
+*.pem
+.vscode/
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts

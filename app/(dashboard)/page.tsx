@@ -7,6 +7,7 @@ import { EventsWidget } from "@/components/dashboard/events-widget"
 import { AnnouncementsWidget } from "@/components/dashboard/announcements-widget"
 import { Card, CardContent } from "@/components/ui/card"
 import { DollarSign, TrendingUp, AlertTriangle, CheckCircle } from "lucide-react"
+import { prisma } from "@/lib/prisma"
 
 const financeStats = [
   {
@@ -39,17 +40,24 @@ const financeStats = [
   },
 ]
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [studentCount, teacherCount, parentCount, staffCount] = await Promise.all([
+    prisma.student.count(),
+    prisma.teacher.count(),
+    prisma.parent.count(),
+    prisma.user.count(),
+  ])
+
   return (
       <div className="grid grid-cols-12 gap-6">
         {/* Main content - Left side */}
         <div className="col-span-12 lg:col-span-8 space-y-6">
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard title="Students" value="1,234" year="2024/25" color="purple" />
-            <StatCard title="Teachers" value="123" year="2024/25" color="yellow" />
-            <StatCard title="Parents" value="1,089" year="2024/25" color="purple" />
-            <StatCard title="Staff" value="45" year="2024/25" color="yellow" />
+            <StatCard title="Students" value={studentCount} year="2024/25" color="purple" />
+            <StatCard title="Teachers" value={teacherCount} year="2024/25" color="yellow" />
+            <StatCard title="Parents" value={parentCount} year="2024/25" color="purple" />
+            <StatCard title="Staff" value={staffCount} year="2024/25" color="yellow" />
           </div>
 
           {/* Finance Stats */}
