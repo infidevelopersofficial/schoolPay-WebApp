@@ -1,61 +1,38 @@
-"use client"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { MoreHorizontal, Eye, Edit, Trash2 } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { MoreHorizontal, Eye, Edit, UserCircle } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DeleteConfirm } from "@/components/ui/delete-confirm"
+import { TableEmptyState } from "@/components/ui/table-empty-state"
 
-const parents = [
-  {
-    id: "PAR001",
-    name: "Robert Smith",
-    email: "robert.smith@email.com",
-    children: "John Smith, Lisa Smith",
-    phone: "+1 234 567 890",
-    relation: "Father",
-    status: "active",
-    avatar: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: "PAR002",
-    name: "Mary Johnson",
-    email: "mary.j@email.com",
-    children: "Sarah Johnson",
-    phone: "+1 234 567 891",
-    relation: "Mother",
-    status: "active",
-    avatar: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: "PAR003",
-    name: "James Brown",
-    email: "james.b@email.com",
-    children: "Michael Brown, Grace Brown",
-    phone: "+1 234 567 892",
-    relation: "Father",
-    status: "active",
-    avatar: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: "PAR004",
-    name: "Susan Miller",
-    email: "susan.m@email.com",
-    children: "Emily Davis",
-    phone: "+1 234 567 893",
-    relation: "Guardian",
-    status: "inactive",
-    avatar: "/placeholder.svg?height=40&width=40",
-  },
-]
-
-const statusColors = {
-  active: "bg-green-100 text-green-700",
-  inactive: "bg-gray-100 text-gray-700",
+interface ParentsTableProps {
+  data: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    relationship: string | null;
+    avatar?: string | null;
+    students?: { name: string }[];
+  }[]
 }
 
-export function ParentsTable() {
+export function ParentsTable({ data }: ParentsTableProps) {
+  if (data.length === 0) {
+    return (
+      <TableEmptyState
+        icon={UserCircle}
+        title="No parents found"
+        description="No parents match your current filters. Try adjusting the search or add a new parent."
+        addHref="/parents/new"
+        addLabel="Add Parent"
+      />
+    )
+  }
+
   return (
     <Card>
       <Table>
@@ -71,36 +48,37 @@ export function ParentsTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {parents.map((parent) => (
+          {data.map((parent) => (
             <TableRow key={parent.id}>
               <TableCell>
                 <div className="flex items-center gap-3">
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src={parent.avatar || "/placeholder.svg"} />
+                    <AvatarImage src={parent.avatar ?? undefined} alt={parent.name} />
                     <AvatarFallback>
-                      {parent.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
+                      {parent.name.split(" ").map((n) => n[0]).join("")}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="font-medium text-foreground">{parent.name}</p>
-                    <p className="text-xs text-muted-foreground">{parent.id}</p>
+                    <p className="text-xs text-muted-foreground font-mono">…{parent.id.slice(-6)}</p>
                   </div>
                 </div>
               </TableCell>
-              <TableCell>{parent.email}</TableCell>
-              <TableCell className="text-sm">{parent.children}</TableCell>
+              <TableCell className="text-sm">{parent.email}</TableCell>
+              <TableCell className="text-sm">
+                {parent.students && parent.students.length > 0
+                  ? parent.students.map((s) => s.name).join(", ")
+                  : "—"}
+              </TableCell>
               <TableCell>{parent.phone}</TableCell>
-              <TableCell>{parent.relation}</TableCell>
+              <TableCell>{parent.relationship ?? "—"}</TableCell>
               <TableCell>
-                <Badge className={statusColors[parent.status as keyof typeof statusColors]}>{parent.status}</Badge>
+                <Badge className="bg-green-100 text-green-700">Active</Badge>
               </TableCell>
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Row actions">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -113,10 +91,13 @@ export function ParentsTable() {
                       <Edit className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DeleteConfirm
+                      name={parent.name}
+                      onConfirm={() => {
+                        // TODO: wire to deleteParent server action
+                      }}
+                    />
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>

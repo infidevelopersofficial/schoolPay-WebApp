@@ -14,15 +14,21 @@ datasource db {
 // ============================================
 
 model User {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   name           String
-  email          String   @unique
+  email          String    @unique
+  emailVerified  DateTime?
   hashedPassword String?
-  role           Role     @default(ADMIN)
+  role           Role      @default(ADMIN)
   avatar         String?
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  image          String?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  accounts  Account[]
+  sessions  Session[]
+  auditLogs AuditLog[]
 
   @@index([email])
 }
@@ -32,6 +38,68 @@ enum Role {
   TEACHER
   PARENT
   STUDENT
+}
+
+// ============================================
+// Audit & Activity Tracking
+// ============================================
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userEmail   String?
+  action      String
+  entityType  String
+  entityId    String
+  oldValues   Json?
+  newValues   Json?
+  description String?
+  createdAt   DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// ============================================
+// Auth.js Required Models
+// ============================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 // ============================================
@@ -57,6 +125,7 @@ model Student {
   bloodGroup       String?
   emergencyContact String?
   avatar           String?
+  isActive         Boolean     @default(true) // Enforces Soft-Deletes preserving Payment history
   parentId         String?
   parent           Parent?     @relation(fields: [parentId], references: [id])
   payments         Payment[]
@@ -118,6 +187,7 @@ model Parent {
   relationship String?
   occupation   String?
   address      String?
+  isActive     Boolean   @default(true) // Enforces Soft-Deletes
   students     Student[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt

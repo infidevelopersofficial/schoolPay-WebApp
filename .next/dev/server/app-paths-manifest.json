@@ -1,10 +1,3 @@
 {
-  "/fees/page": "app/fees/page.js",
-  "/page": "app/page.js",
-  "/parents/page": "app/parents/page.js",
-  "/payments/page": "app/payments/page.js",
-  "/results/page": "app/results/page.js",
-  "/students/page": "app/students/page.js",
-  "/subjects/page": "app/subjects/page.js",
-  "/teachers/page": "app/teachers/page.js"
+  "/(auth)/login/page": "app/(auth)/login/page.js"
 }

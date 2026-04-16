@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useActionState, useEffect } from "react"
+import { addTeacherAction } from "@/app/(dashboard)/teachers/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { db } from "@/lib/db/database"
 import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 interface AddTeacherFormProps {
   open: boolean
@@ -16,72 +17,17 @@ interface AddTeacherFormProps {
 }
 
 export function AddTeacherForm({ open, onOpenChange, onSuccess }: AddTeacherFormProps) {
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    subject: "",
-    class: "",
-    dateOfBirth: "",
-    gender: "",
-    address: "",
-    qualification: "",
-    experience: "",
-    joiningDate: "",
-    salary: "",
-  })
+  const [state, formAction, isPending] = useActionState(addTeacherAction, null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-
-    try {
-      if (!formData.name || !formData.email || !formData.phone || !formData.subject || !formData.class) {
-        toast.error("Please fill in all required fields")
-        setLoading(false)
-        return
-      }
-
-      db.addTeacher({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        subject: formData.subject,
-        class: formData.class,
-        dateOfBirth: formData.dateOfBirth,
-        gender: formData.gender,
-        address: formData.address,
-        qualification: formData.qualification,
-        experience: formData.experience,
-        joiningDate: formData.joiningDate || new Date().toISOString().split("T")[0],
-        salary: formData.salary ? parseFloat(formData.salary) : undefined,
-      })
-
+  useEffect(() => {
+    if (state?.success) {
       toast.success("Teacher added successfully!")
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        subject: "",
-        class: "",
-        dateOfBirth: "",
-        gender: "",
-        address: "",
-        qualification: "",
-        experience: "",
-        joiningDate: "",
-        salary: "",
-      })
       onOpenChange(false)
-      if (onSuccess) onSuccess()
-    } catch (error) {
-      console.error("Error adding teacher:", error)
-      toast.error("Failed to add teacher")
-    } finally {
-      setLoading(false)
+      onSuccess?.()
+    } else if (state?.error && typeof state.error === "string") {
+      toast.error(state.error)
     }
-  }
+  }, [state, onOpenChange, onSuccess])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -89,80 +35,46 @@ export function AddTeacherForm({ open, onOpenChange, onSuccess }: AddTeacherForm
         <DialogHeader>
           <DialogTitle>Add New Teacher</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form action={formAction} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Full Name <span className="text-red-500">*</span></Label>
-              <Input
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Dr. John Smith"
-                required
-              />
+              <Input name="name" placeholder="Dr. John Smith" required />
             </div>
             <div className="space-y-2">
               <Label>Email <span className="text-red-500">*</span></Label>
-              <Input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="john@school.com"
-                required
-              />
+              <Input name="email" type="email" placeholder="john@school.com" required />
             </div>
             <div className="space-y-2">
               <Label>Phone <span className="text-red-500">*</span></Label>
-              <Input
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+1234567890"
-                required
-              />
+              <Input name="phone" placeholder="+1234567890" required />
             </div>
             <div className="space-y-2">
               <Label>Subject <span className="text-red-500">*</span></Label>
-              <Select value={formData.subject} onValueChange={(value) => setFormData({ ...formData, subject: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select subject" />
-                </SelectTrigger>
+              <Select name="subject">
+                <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Mathematics">Mathematics</SelectItem>
-                  <SelectItem value="English">English</SelectItem>
-                  <SelectItem value="Science">Science</SelectItem>
-                  <SelectItem value="History">History</SelectItem>
-                  <SelectItem value="Geography">Geography</SelectItem>
-                  <SelectItem value="Physics">Physics</SelectItem>
-                  <SelectItem value="Chemistry">Chemistry</SelectItem>
-                  <SelectItem value="Biology">Biology</SelectItem>
-                  <SelectItem value="Computer Science">Computer Science</SelectItem>
-                  <SelectItem value="Physical Education">Physical Education</SelectItem>
+                  {["Mathematics", "English", "Science", "History", "Geography", "Physics", "Chemistry", "Biology", "Computer Science", "Physical Education"].map(s => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label>Assigned Class <span className="text-red-500">*</span></Label>
-              <Select value={formData.class} onValueChange={(value) => setFormData({ ...formData, class: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select class" />
-                </SelectTrigger>
+              <Select name="class">
+                <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="9A">Grade 9A</SelectItem>
-                  <SelectItem value="9B">Grade 9B</SelectItem>
-                  <SelectItem value="10A">Grade 10A</SelectItem>
-                  <SelectItem value="10B">Grade 10B</SelectItem>
-                  <SelectItem value="11A">Grade 11A</SelectItem>
-                  <SelectItem value="11B">Grade 11B</SelectItem>
-                  <SelectItem value="12A">Grade 12A</SelectItem>
-                  <SelectItem value="12B">Grade 12B</SelectItem>
+                  {["9A", "9B", "10A", "10B", "11A", "11B", "12A", "12B"].map(c => (
+                    <SelectItem key={c} value={c}>Grade {c}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label>Gender</Label>
-              <Select value={formData.gender} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select gender" />
-                </SelectTrigger>
+              <Select name="gender">
+                <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Male">Male</SelectItem>
                   <SelectItem value="Female">Female</SelectItem>
@@ -172,60 +84,36 @@ export function AddTeacherForm({ open, onOpenChange, onSuccess }: AddTeacherForm
             </div>
             <div className="space-y-2">
               <Label>Date of Birth</Label>
-              <Input
-                type="date"
-                value={formData.dateOfBirth}
-                onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-              />
+              <Input name="dateOfBirth" type="date" />
             </div>
             <div className="space-y-2">
               <Label>Qualification</Label>
-              <Input
-                value={formData.qualification}
-                onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
-                placeholder="M.Sc, B.Ed"
-              />
+              <Input name="qualification" placeholder="M.Sc, B.Ed" />
             </div>
             <div className="space-y-2">
               <Label>Experience (years)</Label>
-              <Input
-                value={formData.experience}
-                onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-                placeholder="5"
-              />
+              <Input name="experience" placeholder="5" />
             </div>
             <div className="space-y-2">
               <Label>Joining Date</Label>
-              <Input
-                type="date"
-                value={formData.joiningDate}
-                onChange={(e) => setFormData({ ...formData, joiningDate: e.target.value })}
-              />
+              <Input name="joiningDate" type="date" />
             </div>
             <div className="space-y-2">
               <Label>Salary</Label>
-              <Input
-                type="number"
-                value={formData.salary}
-                onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
-                placeholder="50000"
-              />
+              <Input name="salary" type="number" placeholder="50000" />
             </div>
           </div>
           <div className="space-y-2">
             <Label>Address</Label>
-            <Input
-              value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              placeholder="123 Main St, City, State"
-            />
+            <Input name="address" placeholder="123 Main St, City, State" />
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Adding..." : "Add Teacher"}
+            <Button type="submit" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isPending ? "Adding..." : "Add Teacher"}
             </Button>
           </DialogFooter>
         </form>

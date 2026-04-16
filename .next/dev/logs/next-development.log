@@ -1,45 +1,144 @@
-[00:00:02.642] Server  LOG      ✓ Ready in 1436ms
-[00:00:07.901] Server  LOG      ○ Compiling /teachers ...
-[00:00:11.007] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /teachers. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:00:11.756] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:12.096] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:12.096] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/teachers","route":"/teachers"}
-[00:00:12.096] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/teachers color: rgb(120, 120, 120) color: inherit {"dp":"/teachers","o":"http://localhost:3000/teachers","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1766078239490}
-[00:00:19.694] Server  LOG      ○ Compiling / ...
-[00:00:19.924] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:00:20.512] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1766078247770}
-[00:00:21.814] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /teachers. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:00:22.006] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/teachers color: rgb(120, 120, 120) color: inherit {"dp":"/teachers","o":"http://localhost:3000/teachers","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1766078249392}
-[00:00:23.749] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:00:23.749] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:00:36.111] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /parents. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:00:36.377] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/parents color: rgb(120, 120, 120) color: inherit {"dp":"/parents","o":"http://localhost:3000/parents","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1766078263764}
-[00:00:37.416] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:00:37.416] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:00:43.562] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /subjects. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:00:43.765] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/subjects color: rgb(120, 120, 120) color: inherit {"dp":"/subjects","o":"http://localhost:3000/subjects","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1766078271153}
-[00:00:44.713] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:00:44.713] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:00:48.256] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /students. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:00:48.491] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/students color: rgb(120, 120, 120) color: inherit {"dp":"/students","o":"http://localhost:3000/students","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1766078275871}
-[00:00:49.136] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:00:49.136] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:01:10.857] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /results. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:01:11.017] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/results color: rgb(120, 120, 120) color: inherit {"dp":"/results","o":"http://localhost:3000/results","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1766078298400}
-[00:01:13.540] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:01:13.540] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:01:18.747] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /fees. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:01:18.963] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/fees color: rgb(120, 120, 120) color: inherit {"dp":"/fees","o":"http://localhost:3000/fees","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1766078306348}
-[00:01:27.424] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:01:27.424] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:01:35.486] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /payments. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:01:35.709] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/payments color: rgb(120, 120, 120) color: inherit {"dp":"/payments","o":"http://localhost:3000/payments","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1766078323090}
+[00:00:03.026] Server  LOG      ✓ Ready in 2.8s
+[00:00:03.029] Server  WARN     ⚠ ./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/platform/node
+Package import-in-the-middle can't be external
+The request import-in-the-middle matches serverExternalPackages (or the default list).
+The package resolves to a different version when requested from the project directory (3.0.1) compared to the package requested from the importing module (2.0.6).
+Make sure to install the same version of the package in both locations.
+
+
+[00:00:03.030] Server  WARN     ⚠ ./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/node
+Package import-in-the-middle can't be external
+The request import-in-the-middle matches serverExternalPackages (or the default list).
+The package resolves to a different version when requested from the project directory (3.0.1) compared to the package requested from the importing module (2.0.6).
+Make sure to install the same version of the package in both locations.
+
+
+[00:00:06.317] Server  LOG      ○ Compiling /login ...
+[00:00:06.463] Server  WARN     ⚠ ./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/platform/node
+Package import-in-the-middle can't be external
+The request import-in-the-middle matches serverExternalPackages (or the default list).
+The package resolves to a different version when requested from the project directory (3.0.1) compared to the package requested from the importing module (2.0.6).
+Make sure to install the same version of the package in both locations.
+
+
+[00:00:06.466] Server  WARN     ⚠ ./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/node
+Package import-in-the-middle can't be external
+The request import-in-the-middle matches serverExternalPackages (or the default list).
+The package resolves to a different version when requested from the project directory (3.0.1) compared to the package requested from the importing module (2.0.6).
+Make sure to install the same version of the package in both locations.
+
+
+[00:00:08.020] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/login" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" suppressHydrationWarning={true}>
+                          <head>
+                          <body
+                            className="inter_5972bc34-module__OU16Qa__className font-sans antialiased"
+-                           cz-shortcut-listen="true"
+                          >
+                  ...
+
+[00:00:08.021] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:08.021] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/login","route":"/login"}
+[00:00:08.021] Browser LOG     %c[Vercel Web Analytics]%c [view] http://localhost:3000/login?callbackUrl=http%3A%2F%2Flocalhost%3A3000%2F color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login?callbackUrl=http%3A%2F%2Flocalhost%3A3000%2F","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1776316271575} /_vercel/insights/view
+[00:00:15.705] Server  WARN     ⚠ ./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/platform/node
+Package import-in-the-middle can't be external
+The request import-in-the-middle matches serverExternalPackages (or the default list).
+The package resolves to a different version when requested from the project directory (3.0.1) compared to the package requested from the importing module (2.0.6).
+Make sure to install the same version of the package in both locations.
+
+
+[00:00:15.705] Server  WARN     ⚠ ./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/node
+Package import-in-the-middle can't be external
+The request import-in-the-middle matches serverExternalPackages (or the default list).
+The package resolves to a different version when requested from the project directory (3.0.1) compared to the package requested from the importing module (2.0.6).
+Make sure to install the same version of the package in both locations.
+
+
+[00:00:16.030] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:16.030] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/login","route":"/login"}
+[00:00:16.030] Browser LOG     %c[Vercel Web Analytics]%c [view] http://localhost:3000/login?callbackUrl=http%3A%2F%2Flocalhost%3A3000%2F color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login?callbackUrl=http%3A%2F%2Flocalhost%3A3000%2F","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1776316279588} /_vercel/insights/view
+[00:00:18.816] Server  WARN     ⚠ ./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/platform/node
+Package import-in-the-middle can't be external
+The request import-in-the-middle matches serverExternalPackages (or the default list).
+The package resolves to a different version when requested from the project directory (3.0.1) compared to the package requested from the importing module (2.0.6).
+Make sure to install the same version of the package in both locations.
+
+
+[00:00:18.817] Server  WARN     ⚠ ./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/node
+Package import-in-the-middle can't be external
+The request import-in-the-middle matches serverExternalPackages (or the default list).
+The package resolves to a different version when requested from the project directory (3.0.1) compared to the package requested from the importing module (2.0.6).
+Make sure to install the same version of the package in both locations.
+
+
+[00:00:27.292] Server  WARN     ⚠ ./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/platform/node
+Package import-in-the-middle can't be external
+The request import-in-the-middle matches serverExternalPackages (or the default list).
+The package resolves to a different version when requested from the project directory (3.0.1) compared to the package requested from the importing module (2.0.6).
+Make sure to install the same version of the package in both locations.
+
+
+[00:00:27.292] Server  WARN     ⚠ ./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/node
+Package import-in-the-middle can't be external
+The request import-in-the-middle matches serverExternalPackages (or the default list).
+The package resolves to a different version when requested from the project directory (3.0.1) compared to the package requested from the importing module (2.0.6).
+Make sure to install the same version of the package in both locations.
+
+
+[00:00:27.473] Server  ERROR   [auth][error] CredentialsSignin: Read more at https://errors.authjs.dev#credentialssignin
+[00:00:27.474] Server  ERROR       at Module.callback (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/.next/dev/server/chunks/ssr/97170_@auth_core_a59a75bc._.js:4315:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async AuthInternal (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/.next/dev/server/chunks/ssr/97170_@auth_core_a59a75bc._.js:5149:24)
+    at async Auth (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/.next/dev/server/chunks/ssr/97170_@auth_core_a59a75bc._.js:5371:34)
+    at async signIn (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/.next/dev/server/chunks/ssr/node_modules_ee3e5456._.js:4164:17)
+    at async sentryOp (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/.next/dev/server/chunks/ssr/[root-of-the-server]__eb01505a._.js:936:13)
+    at async run (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/.next/dev/server/chunks/ssr/[root-of-the-server]__eb01505a._.js:355:28)
+    at async executeActionAndPrepareForRender (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:35:4449)
+    at async /Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:35:2264
+    at async handleAction (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:34:23622)
+    at async renderToHTMLOrFlightImpl (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:40:41714)
+    at async doRender (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/.next/dev/server/chunks/ssr/node_modules_next_dist_c44b377b._.js:8614:28)
+    at async AppPageRouteModule.handleResponse (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:42:63162)
+    at async handleResponse (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/.next/dev/server/chunks/ssr/node_modules_next_dist_c44b377b._.js:8820:32)
+    at async handler (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/.next/dev/server/chunks/ssr/node_modules_next_dist_c44b377b._.js:9189:13)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/server/base-server.js:1413:9)
+    at async DevServer.renderPageComponent (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/server/base-server.js:1465:24)
+    at async DevServer.renderToResponseImpl (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/server/base-server.js:1515:32)
+    at async DevServer.pipeImpl (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/server/base-server.js:1021:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/server/next-server.js:394:17)
+    at async DevServer.handleRequestImpl (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/server/base-server.js:912:17)
+    at async /Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/server/dev/next-dev-server.js:382:20
+    at async Span.traceAsyncFn (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/server/dev/next-dev-server.js:378:24)
+    at async invokeRender (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/server/lib/router-server.js:240:21)
+    at async handleRequest (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/server/lib/router-server.js:436:24)
+    at async requestHandlerImpl (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/server/lib/router-server.js:484:13)
+    at async Server.requestListener (/Users/rupeshsingh/Documents/WorkSpace/SchoolPayWebApp/schoolPay-WebApp/node_modules/next/dist/server/lib/start-server.js:226:13)

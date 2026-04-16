@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useActionState, useEffect } from "react"
+import { recordPaymentAction } from "@/app/(dashboard)/payments/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { db } from "@/lib/db/database"
 import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 interface RecordPaymentFormProps {
   open: boolean
@@ -16,84 +17,17 @@ interface RecordPaymentFormProps {
 }
 
 export function RecordPaymentForm({ open, onOpenChange, onSuccess }: RecordPaymentFormProps) {
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    studentId: "",
-    studentName: "",
-    amount: "",
-    date: new Date().toISOString().split("T")[0],
-    method: "",
-    feeType: "",
-    transactionId: "",
-    receiptNumber: "",
-  })
+  const [state, formAction, isPending] = useActionState(recordPaymentAction, null)
 
-  const students = db.getStudents()
-  const fees = db.getFees()
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-
-    try {
-      if (!formData.studentId || !formData.amount || !formData.method) {
-        toast.error("Please fill in all required fields")
-        setLoading(false)
-        return
-      }
-
-      // Add payment
-      db.addPayment({
-        studentId: formData.studentId,
-        studentName: formData.studentName,
-        amount: parseFloat(formData.amount),
-        date: formData.date,
-        method: formData.method as any,
-        status: "Completed",
-        feeType: formData.feeType,
-        transactionId: formData.transactionId,
-        receiptNumber: formData.receiptNumber || `RCP${Date.now()}`,
-      })
-
-      // Update student fee status
-      const student = db.getStudent(formData.studentId)
-      if (student) {
-        const newPaidAmount = student.paidAmount + parseFloat(formData.amount)
-        const newPendingAmount = student.totalFees - newPaidAmount
-        db.updateStudent(formData.studentId, {
-          paidAmount: newPaidAmount,
-          pendingAmount: newPendingAmount,
-          feeStatus: newPendingAmount <= 0 ? "Paid" : newPendingAmount > student.totalFees * 0.5 ? "Overdue" : "Pending",
-        })
-      }
-
+  useEffect(() => {
+    if (state?.success) {
       toast.success("Payment recorded successfully!")
-      setFormData({
-        studentId: "",
-        studentName: "",
-        amount: "",
-        date: new Date().toISOString().split("T")[0],
-        method: "",
-        feeType: "",
-        transactionId: "",
-        receiptNumber: "",
-      })
       onOpenChange(false)
-      if (onSuccess) onSuccess()
-    } catch (error) {
-      console.error("Error recording payment:", error)
-      toast.error("Failed to record payment")
-    } finally {
-      setLoading(false)
+      onSuccess?.()
+    } else if (state?.error && typeof state.error === "string") {
+      toast.error(state.error)
     }
-  }
-
-  const handleStudentChange = (studentId: string) => {
-    const student = students.find((s) => s.id === studentId)
-    if (student) {
-      setFormData({ ...formData, studentId, studentName: student.name })
-    }
-  }
+  }, [state, onOpenChange, onSuccess])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -101,105 +35,56 @@ export function RecordPaymentForm({ open, onOpenChange, onSuccess }: RecordPayme
         <DialogHeader>
           <DialogTitle>Record Payment</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form action={formAction} className="space-y-4">
           <div className="space-y-2">
-            <Label>Student <span className="text-red-500">*</span></Label>
-            <Select value={formData.studentId} onValueChange={handleStudentChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select student" />
-              </SelectTrigger>
-              <SelectContent>
-                {students.map((student) => (
-                  <SelectItem key={student.id} value={student.id}>
-                    {student.name} - {student.class} (Pending: ${student.pendingAmount})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label>Student ID <span className="text-red-500">*</span></Label>
+            <Input name="studentId" placeholder="Enter student ID" required />
           </div>
-
           <div className="space-y-2">
-            <Label>Fee Type</Label>
-            <Select value={formData.feeType} onValueChange={(value) => setFormData({ ...formData, feeType: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select fee type" />
-              </SelectTrigger>
-              <SelectContent>
-                {fees.map((fee) => (
-                  <SelectItem key={fee.id} value={fee.type}>
-                    {fee.type} - ${fee.amount}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label>Fee Type <span className="text-red-500">*</span></Label>
+            <Input name="feeType" placeholder="Tuition Fee" required />
           </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Amount <span className="text-red-500">*</span></Label>
-              <Input
-                type="number"
-                value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                placeholder="5000"
-                required
-              />
+              <Input name="amount" type="number" placeholder="5000" required />
             </div>
-
             <div className="space-y-2">
-              <Label>Date <span className="text-red-500">*</span></Label>
-              <Input
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                required
-              />
+              <Label>Date</Label>
+              <Input name="date" type="date" defaultValue={new Date().toISOString().split("T")[0]} />
             </div>
           </div>
-
           <div className="space-y-2">
             <Label>Payment Method <span className="text-red-500">*</span></Label>
-            <Select value={formData.method} onValueChange={(value) => setFormData({ ...formData, method: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select method" />
-              </SelectTrigger>
+            <Select name="paymentMethod">
+              <SelectTrigger><SelectValue placeholder="Select method" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="Cash">Cash</SelectItem>
-                <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
-                <SelectItem value="Credit Card">Credit Card</SelectItem>
-                <SelectItem value="Debit Card">Debit Card</SelectItem>
-                <SelectItem value="Cheque">Cheque</SelectItem>
-                <SelectItem value="Online Payment">Online Payment</SelectItem>
+                <SelectItem value="CASH">Cash</SelectItem>
+                <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
+                <SelectItem value="CARD">Card</SelectItem>
+                <SelectItem value="UPI">UPI</SelectItem>
+                <SelectItem value="CHEQUE">Cheque</SelectItem>
+                <SelectItem value="ONLINE">Online Payment</SelectItem>
               </SelectContent>
             </Select>
           </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Transaction ID</Label>
-              <Input
-                value={formData.transactionId}
-                onChange={(e) => setFormData({ ...formData, transactionId: e.target.value })}
-                placeholder="TXN123456"
-              />
+              <Input name="transactionId" placeholder="TXN123456" />
             </div>
-
             <div className="space-y-2">
               <Label>Receipt Number</Label>
-              <Input
-                value={formData.receiptNumber}
-                onChange={(e) => setFormData({ ...formData, receiptNumber: e.target.value })}
-                placeholder="Auto-generated"
-              />
+              <Input name="receiptNumber" placeholder="Auto-generated" />
             </div>
           </div>
-
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Recording..." : "Record Payment"}
+            <Button type="submit" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isPending ? "Recording..." : "Record Payment"}
             </Button>
           </DialogFooter>
         </form>
