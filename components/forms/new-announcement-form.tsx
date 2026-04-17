@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState, useEffect } from "react"
+import { useActionState } from "react"
 import { createAnnouncementAction } from "@/app/(dashboard)/announcements/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,21 +8,18 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
-import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
+import { useFormEffect } from "@/lib/hooks/use-form-effect"
 
 export function NewAnnouncementForm({ open, onOpenChange, onSuccess }: any) {
   const [state, formAction, isPending] = useActionState(createAnnouncementAction, null)
 
-  useEffect(() => {
-    if (state?.success) {
-      toast.success("Announcement posted successfully!")
-      onOpenChange(false)
-      onSuccess?.()
-    } else if (state?.error) {
-      toast.error(typeof state.error === "string" ? state.error : "Failed to post announcement")
-    }
-  }, [state, onOpenChange, onSuccess])
+  useFormEffect(state, {
+    successMessage: "Announcement posted successfully!",
+    defaultErrorMessage: "Failed to post announcement",
+    onOpenChange,
+    onSuccess,
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

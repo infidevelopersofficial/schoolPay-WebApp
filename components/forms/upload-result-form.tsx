@@ -1,26 +1,23 @@
 "use client"
 
-import { useActionState, useEffect } from "react"
+import { useActionState } from "react"
 import { uploadResultAction } from "@/app/(dashboard)/results/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
+import { useFormEffect } from "@/lib/hooks/use-form-effect"
 
 export function UploadResultForm({ open, onOpenChange, onSuccess }: any) {
   const [state, formAction, isPending] = useActionState(uploadResultAction, null)
 
-  useEffect(() => {
-    if (state?.success) {
-      toast.success("Result uploaded successfully!")
-      onOpenChange(false)
-      onSuccess?.()
-    } else if (state?.error) {
-      toast.error(typeof state.error === "string" ? state.error : "Failed to upload result")
-    }
-  }, [state, onOpenChange, onSuccess])
+  useFormEffect(state, {
+    successMessage: "Result uploaded successfully!",
+    defaultErrorMessage: "Failed to upload result",
+    onOpenChange,
+    onSuccess,
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -1,14 +1,14 @@
 "use client"
 
-import { useActionState, useEffect } from "react"
+import { useActionState } from "react"
 import { addStudentAction } from "@/app/(dashboard)/students/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
+import { useFormEffect } from "@/lib/hooks/use-form-effect"
 
 interface AddStudentFormProps {
   open: boolean
@@ -19,15 +19,11 @@ interface AddStudentFormProps {
 export function AddStudentForm({ open, onOpenChange, onSuccess }: AddStudentFormProps) {
   const [state, formAction, isPending] = useActionState(addStudentAction, null)
 
-  useEffect(() => {
-    if (state?.success) {
-      toast.success("Student added successfully!")
-      onOpenChange(false)
-      onSuccess?.()
-    } else if (state?.error && typeof state.error === "string") {
-      toast.error(state.error)
-    }
-  }, [state, onOpenChange, onSuccess])
+  useFormEffect(state, {
+    successMessage: "Student added successfully!",
+    onOpenChange,
+    onSuccess,
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

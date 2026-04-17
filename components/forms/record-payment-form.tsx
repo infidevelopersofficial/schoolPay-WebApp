@@ -1,14 +1,14 @@
 "use client"
 
-import { useActionState, useEffect } from "react"
+import { useActionState } from "react"
 import { recordPaymentAction } from "@/app/(dashboard)/payments/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
+import { useFormEffect } from "@/lib/hooks/use-form-effect"
 
 interface RecordPaymentFormProps {
   open: boolean
@@ -19,15 +19,11 @@ interface RecordPaymentFormProps {
 export function RecordPaymentForm({ open, onOpenChange, onSuccess }: RecordPaymentFormProps) {
   const [state, formAction, isPending] = useActionState(recordPaymentAction, null)
 
-  useEffect(() => {
-    if (state?.success) {
-      toast.success("Payment recorded successfully!")
-      onOpenChange(false)
-      onSuccess?.()
-    } else if (state?.error && typeof state.error === "string") {
-      toast.error(state.error)
-    }
-  }, [state, onOpenChange, onSuccess])
+  useFormEffect(state, {
+    successMessage: "Payment recorded successfully!",
+    onOpenChange,
+    onSuccess,
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -1,26 +1,23 @@
 "use client"
 
-import { useActionState, useEffect } from "react"
+import { useActionState } from "react"
 import { createExamAction } from "@/app/(dashboard)/exams/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
+import { useFormEffect } from "@/lib/hooks/use-form-effect"
 
 export function ScheduleExamForm({ open, onOpenChange, onSuccess }: any) {
   const [state, formAction, isPending] = useActionState(createExamAction, null)
 
-  useEffect(() => {
-    if (state?.success) {
-      toast.success("Exam scheduled successfully!")
-      onOpenChange(false)
-      onSuccess?.()
-    } else if (state?.error) {
-      toast.error(typeof state.error === "string" ? state.error : "Failed to schedule exam")
-    }
-  }, [state, onOpenChange, onSuccess])
+  useFormEffect(state, {
+    successMessage: "Exam scheduled successfully!",
+    defaultErrorMessage: "Failed to schedule exam",
+    onOpenChange,
+    onSuccess,
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
