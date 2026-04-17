@@ -1,55 +1,61 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MoreHorizontal } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import Link from "next/link"
 
-const events = [
-  {
-    id: 1,
-    title: "Parent-Teacher Meeting",
-    time: "12:00 PM - 2:00 PM",
-    description: "Annual parent-teacher conference for all grades.",
-    color: "border-l-primary",
-  },
-  {
-    id: 2,
-    title: "Fee Payment Deadline",
-    time: "12:00 PM - 2:00 PM",
-    description: "Last date for semester fee submission.",
-    color: "border-l-accent",
-  },
-  {
-    id: 3,
-    title: "Sports Day",
-    time: "12:00 PM - 2:00 PM",
-    description: "Annual sports competition for students.",
-    color: "border-l-chart-3",
-  },
-]
+interface DashboardEvent {
+  id: string
+  name: string
+  date: string
+  time: string | null
+  description: string | null
+  type: string
+}
 
-export function EventsWidget() {
+interface EventsWidgetProps {
+  events: DashboardEvent[]
+}
+
+const TYPE_BORDER: Record<string, string> = {
+  MEETING: "border-l-primary",
+  SPORTS: "border-l-blue-400",
+  ACADEMIC: "border-l-yellow-400",
+  CULTURAL: "border-l-green-400",
+  HOLIDAY: "border-l-red-400",
+  OTHER: "border-l-muted-foreground",
+}
+
+export function EventsWidget({ events }: EventsWidgetProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg font-semibold">Events</CardTitle>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
+        <CardTitle className="text-lg font-semibold">Upcoming Events</CardTitle>
+        <Link href="/events" className="text-sm text-primary hover:underline">
+          View All
+        </Link>
       </CardHeader>
       <CardContent className="space-y-3">
-        {events.map((event) => (
-          <div key={event.id} className={cn("border-l-4 pl-3 py-2", event.color)}>
-            <div className="flex items-start justify-between">
-              <h4 className="text-sm font-medium text-foreground">{event.title}</h4>
-              <span className="text-xs text-muted-foreground">{event.time}</span>
+        {events.length === 0 ? (
+          <p className="py-4 text-center text-sm text-muted-foreground">No upcoming events</p>
+        ) : (
+          events.map((event) => (
+            <div
+              key={event.id}
+              className={cn("border-l-4 pl-3 py-2", TYPE_BORDER[event.type] ?? "border-l-border")}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <h4 className="text-sm font-medium text-foreground leading-tight">{event.name}</h4>
+                <span className="text-xs text-muted-foreground whitespace-nowrap">{event.date}</span>
+              </div>
+              {event.time && (
+                <p className="mt-0.5 text-xs text-muted-foreground">{event.time}</p>
+              )}
+              {event.description && (
+                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{event.description}</p>
+              )}
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">{event.description}</p>
-          </div>
-        ))}
+          ))
+        )}
       </CardContent>
     </Card>
   )
-}
-
-function cn(...classes: (string | undefined | false)[]) {
-  return classes.filter(Boolean).join(" ")
 }

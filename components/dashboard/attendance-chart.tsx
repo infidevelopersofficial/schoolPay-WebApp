@@ -3,17 +3,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid, Tooltip } from "recharts"
 
-const data = [
-  { day: "Mon", present: 55, absent: 20 },
-  { day: "Tue", present: 45, absent: 15 },
-  { day: "Wed", present: 70, absent: 25 },
-  { day: "Thu", present: 85, absent: 30 },
-  { day: "Fri", present: 60, absent: 20 },
-]
+interface AttendanceChartProps {
+  data: { day: string; present: number; absent: number }[]
+}
 
-export function AttendanceChart() {
+export function AttendanceChart({ data }: AttendanceChartProps) {
+  const hasData = data.some((d) => d.present > 0 || d.absent > 0)
+  const maxVal = Math.max(...data.map((d) => d.present + d.absent), 1)
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -34,15 +33,33 @@ export function AttendanceChart() {
           </div>
         </div>
         <div className="h-52">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} barGap={4}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-              <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6b7280" }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6b7280" }} domain={[0, 100]} />
-              <Bar dataKey="present" fill="#fef08a" radius={[4, 4, 0, 0]} barSize={20} />
-              <Bar dataKey="absent" fill="#93c5fd" radius={[4, 4, 0, 0]} barSize={20} />
-            </BarChart>
-          </ResponsiveContainer>
+          {hasData ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data} barGap={4}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                <XAxis
+                  dataKey="day"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: "#6b7280" }}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: "#6b7280" }}
+                  domain={[0, maxVal]}
+                  allowDecimals={false}
+                />
+                <Tooltip contentStyle={{ fontSize: 12 }} />
+                <Bar dataKey="present" fill="#fef08a" radius={[4, 4, 0, 0]} barSize={20} />
+                <Bar dataKey="absent" fill="#93c5fd" radius={[4, 4, 0, 0]} barSize={20} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <p className="text-sm text-muted-foreground">No attendance recorded this week</p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
