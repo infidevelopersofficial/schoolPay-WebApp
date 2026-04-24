@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
 import { withDAL } from "@/lib/dal/utils"
+import { getSchoolId } from "@/lib/tenant-context"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
 
@@ -23,8 +24,10 @@ export async function getParents(opts?: {
   limit?: number
   search?: string
 }) {
+  const schoolId = await getSchoolId()
   const { page = 1, limit = 50, search } = opts ?? {}
   const where: any = {
+    schoolId,
     isActive: true,
     ...(search && { name: { contains: search, mode: "insensitive" as const } }),
   }
@@ -52,16 +55,18 @@ export async function getParents(opts?: {
 }
 
 export async function createParent(input: CreateParentInput) {
+  const schoolId = await getSchoolId()
   const validated = createParentSchema.parse(input)
   return withDAL(
     "parents.create",
     async () => {
-      const parent = await prisma.parent.create({ data: validated })
+      const parent = await prisma.parent.create({ data: { ...validated, schoolId } })
 
       await recordAuditLog({
         action: "CREATE",
         entityType: "PARENT",
         entityId: parent.id,
+        schoolId,
         newValues: validated,
         description: `Registered parent: ${parent.name}`,
       })
@@ -73,10 +78,12 @@ export async function createParent(input: CreateParentInput) {
 }
 
 export async function updateParent(id: string, data: Partial<CreateParentInput>) {
+  const schoolId = await getSchoolId()
   return withDAL(
     "parents.update",
     async () => {
       const oldData = await prisma.parent.findUnique({ where: { id } })
+      if (oldData?.schoolId !== schoolId) throw new Error("Parent not found")
 
       const parent = await prisma.parent.update({ where: { id }, data })
 
@@ -84,6 +91,7 @@ export async function updateParent(id: string, data: Partial<CreateParentInput>)
         action: "UPDATE",
         entityType: "PARENT",
         entityId: id,
+        schoolId,
         oldValues: { name: oldData?.name, email: oldData?.email },
         newValues: { name: parent.name, email: parent.email },
         description: `Updated parent: ${parent.name}`,
@@ -96,9 +104,13 @@ export async function updateParent(id: string, data: Partial<CreateParentInput>)
 }
 
 export async function deleteParent(id: string) {
+  const schoolId = await getSchoolId()
   return withDAL(
     "parents.delete",
     async () => {
+      const existing = await prisma.parent.findUnique({ where: { id } })
+      if (existing?.schoolId !== schoolId) throw new Error("Parent not found")
+
       const parent = await prisma.parent.update({
         where: { id },
         data: { isActive: false },
@@ -108,6 +120,7 @@ export async function deleteParent(id: string) {
         action: "SOFT_DELETE",
         entityType: "PARENT",
         entityId: id,
+        schoolId,
         description: `Archived parent: ${parent.name}`,
       })
 

@@ -28,7 +28,11 @@ export function Sidebar() {
   )
 }
 
+import { useTenantConfig } from "@/hooks/use-tenant-config"
+
 export function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+  const config = useTenantConfig()
+
   return (
     <ul className="space-y-1">
       {navItems.map((item, index) => {
@@ -41,6 +45,16 @@ export function NavList({ pathname, onNavigate }: { pathname: string; onNavigate
             </li>
           )
         }
+
+        // Apply tenant feature toggles
+        if (item.show && !item.show(config)) return null
+
+        // Apply terminology overrides
+        let displayLabel = item.label
+        if (item.label === "Students") displayLabel = config.terminology.students
+        if (item.label === "Teachers") displayLabel = config.terminology.teachers
+        if (item.label === "Classes") displayLabel = config.terminology.classesOrBatches
+        if (item.label === "Fees" && config.billingMode === "INVOICE") displayLabel = "Invoices"
 
         const Icon = item.icon
         const isActive = pathname === item.href
@@ -61,7 +75,7 @@ export function NavList({ pathname, onNavigate }: { pathname: string; onNavigate
                 )}
               >
                 <Icon className="h-5 w-5 shrink-0" />
-                <span className="truncate">{item.label}</span>
+                <span className="truncate">{displayLabel}</span>
               </button>
             </li>
           )
@@ -80,7 +94,7 @@ export function NavList({ pathname, onNavigate }: { pathname: string; onNavigate
               )}
             >
               <Icon className="h-5 w-5 shrink-0" />
-              <span className="truncate">{item.label}</span>
+              <span className="truncate">{displayLabel}</span>
             </Link>
           </li>
         )

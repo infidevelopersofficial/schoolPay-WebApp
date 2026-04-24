@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
 import { withDAL } from "@/lib/dal/utils"
+import { getSchoolId } from "@/lib/tenant-context"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
 
@@ -19,8 +20,10 @@ export async function getAttendance(opts?: {
   date?: string
   classFilter?: string
 }) {
+  const schoolId = await getSchoolId()
   const { studentId, date } = opts ?? {}
   const where = {
+    schoolId,
     ...(studentId && { studentId }),
     ...(date && { date: new Date(date) }),
   }
@@ -37,15 +40,26 @@ export async function getAttendance(opts?: {
 }
 
 export async function markAttendance(input: z.infer<typeof markAttendanceSchema>) {
+  const schoolId = await getSchoolId()
   const validated = markAttendanceSchema.parse(input)
   return withDAL(
     "attendance.mark",
     async () => {
+      // Fixed: use the full compound key (studentId_date_schoolId) as defined in @@unique
+      // Previously used studentId_date which doesn't exist as a named constraint
       const record = await prisma.attendance.upsert({
         where: {
-          studentId_date: { studentId: validated.studentId, date: new Date(validated.date) },
+          studentId_date_schoolId: {
+            studentId: validated.studentId,
+            date: new Date(validated.date),
+            schoolId,
+          },
         },
-        create: { ...validated, date: new Date(validated.date) },
+        create: {
+          ...validated,
+          schoolId,
+          date: new Date(validated.date),
+        },
         update: { status: validated.status, remarks: validated.remarks },
       })
 
@@ -53,6 +67,7 @@ export async function markAttendance(input: z.infer<typeof markAttendanceSchema>
         action: "UPDATE",
         entityType: "ATTENDANCE",
         entityId: record.id,
+        schoolId,
         newValues: { status: validated.status, date: validated.date },
         description: `Marked attendance for student ${validated.studentId}: ${validated.status}`,
       })

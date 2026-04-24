@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { withDAL } from "@/lib/dal/utils"
+import { getSchoolId } from "@/lib/tenant-context"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
 
@@ -18,11 +19,12 @@ export const createAnnouncementSchema = z.object({
 })
 
 export async function getAnnouncements() {
+  const schoolId = await getSchoolId()
   return withDAL(
     "announcements.getAll",
     () =>
       prisma.announcement.findMany({
-        where: { isActive: true },
+        where: { schoolId, isActive: true },
         orderBy: { createdAt: "desc" },
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
@@ -30,10 +32,14 @@ export async function getAnnouncements() {
 }
 
 export async function createAnnouncement(input: z.infer<typeof createAnnouncementSchema>) {
+  const schoolId = await getSchoolId()
   const validated = createAnnouncementSchema.parse(input)
   return withDAL(
     "announcements.create",
-    () => prisma.announcement.create({ data: validated }),
+    () =>
+      prisma.announcement.create({
+        data: { ...validated, schoolId },
+      }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
 }

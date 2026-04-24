@@ -1,12 +1,15 @@
 // SchoolPay Database Schema
-// Multi-tenant school fees management system
+// Multi-tenant education management platform
+// Phase 2: TenantType, Batch, Enrollment, Invoice, Parent portal
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ============================================
@@ -14,28 +17,35 @@ datasource db {
 // ============================================
 
 model School {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique // URL-safe identifier (e.g., "springfield-high")
-  address   String?
-  phone     String?
-  email     String?
-  logo      String?           // URL to school logo
-  timezone  String   @default("Asia/Kolkata")
-  currency  String   @default("INR")
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String     @id @default(cuid())
+  name       String
+  slug       String     @unique
+  type       TenantType @default(SCHOOL)     // NEW: differentiates tenant behaviour
+  plan       PlanTier   @default(FREE)       // NEW: subscription plan
+  settings   Json?                           // NEW: per-tenant feature flags & preferences
+  address    String?
+  state      String?    // NEW: Place of supply for GST
+  phone      String?
+  email      String?
+  logo       String?
+  timezone   String     @default("Asia/Kolkata")
+  currency   String     @default("INR")
+  gstin      String?    // NEW: Goods and Services Tax Identification Number
+  isActive   Boolean    @default(true)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
-  // Relations — every domain entity hangs off School
   users         UserSchool[]
   students      Student[]
   teachers      Teacher[]
   parents       Parent[]
   classes       Class[]
+  batches       Batch[]        // NEW
   subjects      Subject[]
   fees          Fee[]
   payments      Payment[]
+  invoices      Invoice[]      // NEW
+  sessions      AcademicSession[] // NEW: Academic Years
   lessons       Lesson[]
   exams         Exam[]
   results       Result[]
@@ -46,6 +56,20 @@ model School {
   auditLogs     AuditLog[]
 
   @@index([slug])
+  @@index([type])
+}
+
+enum TenantType {
+  SCHOOL
+  COACHING_CENTER
+  PRIVATE_TUTOR
+}
+
+enum PlanTier {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
 }
 
 // ============================================
@@ -56,6 +80,7 @@ model User {
   id             String    @id @default(cuid())
   name           String
   email          String    @unique
+  phone          String?   @unique // NEW: mobile-first authentication support
   emailVerified  DateTime?
   hashedPassword String?
   role           Role      @default(ADMIN)
@@ -69,12 +94,12 @@ model User {
   sessions  Session[]
   auditLogs AuditLog[]
   schools   UserSchool[]
+  parent    Parent?       // NEW: reverse link — if this user is a parent/guardian
 
   @@index([email])
 }
 
 /// Join table — maps users to schools (many-to-many).
-/// A single user (e.g. a platform admin) can manage multiple schools.
 /// The `role` field is per-school so the same user can be ADMIN at one
 /// school and TEACHER at another.
 model UserSchool {
@@ -91,7 +116,7 @@ model UserSchool {
 }
 
 enum Role {
-  SUPER_ADMIN // Platform-level: can manage all schools
+  SUPER_ADMIN
   ADMIN
   TEACHER
   PARENT
@@ -168,34 +193,37 @@ model VerificationToken {
 // ============================================
 
 model Student {
-  id               String      @id @default(cuid())
+  id               String       @id @default(cuid())
   name             String
   email            String
   phone            String?
   dateOfBirth      DateTime?
   gender           String?
   address          String?
+  state            String?
   class            String
   section          String?
   rollNumber       String?
-  admissionDate    DateTime?   @default(now())
-  feeStatus        FeeStatus   @default(PENDING)
-  totalFees        Float       @default(0)
-  paidAmount       Float       @default(0)
-  pendingAmount    Float       @default(0)
+  admissionDate    DateTime?    @default(now())
+  feeStatus        FeeStatus    @default(PENDING)
+  totalFees        Float        @default(0)
+  paidAmount       Float        @default(0)
+  pendingAmount    Float        @default(0)
   bloodGroup       String?
   emergencyContact String?
   avatar           String?
-  isActive         Boolean     @default(true) // Enforces Soft-Deletes preserving Payment history
+  isActive         Boolean      @default(true)
   parentId         String?
-  parent           Parent?     @relation(fields: [parentId], references: [id])
+  parent           Parent?      @relation(fields: [parentId], references: [id])
   schoolId         String
-  school           School      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  school           School       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   payments         Payment[]
+  invoices         Invoice[]    // NEW
   results          Result[]
   attendance       Attendance[]
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  enrollments      Enrollment[] // NEW
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
   @@unique([email, schoolId])
   @@index([schoolId])
@@ -234,6 +262,7 @@ model Teacher {
   school        School    @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   lessons       Lesson[]
   exams         Exam[]
+  batches       Batch[]   // NEW: teacher can lead multiple batches
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -248,13 +277,18 @@ model Teacher {
 
 model Parent {
   id           String    @id @default(cuid())
+  // NEW: Link to User for portal login. Nullable for existing records.
+  // When a parent logs in, their User.id is stored here.
+  userId       String?   @unique
+  user         User?     @relation(fields: [userId], references: [id])
   name         String
   email        String
   phone        String
   relationship String?
   occupation   String?
   address      String?
-  isActive     Boolean   @default(true) // Enforces Soft-Deletes
+  state        String?
+  isActive     Boolean   @default(true)
   schoolId     String
   school       School    @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   students     Student[]
@@ -263,6 +297,7 @@ model Parent {
 
   @@unique([email, schoolId])
   @@index([schoolId])
+  @@index([userId])
 }
 
 // ============================================
@@ -286,6 +321,64 @@ model Class {
   @@index([schoolId])
 }
 
+/// Batch — the universal grouping model for all tenant types.
+/// Schools:         Grade 10-A → name="Class 10-A", grade="10", section="A"
+/// Coaching:        JEE Physics → name="JEE Physics Batch", subjectFocus="Physics"
+/// Private Tutor:   Rohit's Math → name="Rohit - Math"
+model Batch {
+  id           String       @id @default(cuid())
+  name         String
+  code         String?
+  grade        String?      // For schools: "10"
+  section      String?      // For schools: "A"
+  subjectFocus String?      // For coaching: "JEE Physics"
+  // Schedule stored as JSON: [{day: "MON", startTime: "09:00", durationMins: 90}]
+  schedule     Json?
+  capacity     Int          @default(40)
+  startDate    DateTime?
+  endDate      DateTime?
+  isActive     Boolean      @default(true)
+  schoolId     String
+  school       School       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  teacherId    String?
+  teacher      Teacher?     @relation(fields: [teacherId], references: [id])
+  enrollments  Enrollment[]
+  attendances  Attendance[] // NEW: Reverse relation for batch attendance
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@unique([code, schoolId])
+  @@index([schoolId])
+  @@index([teacherId])
+  @@index([isActive])
+}
+
+/// Enrollment — the link between a Student and a Batch.
+/// Replaces Student.class string with a proper FK relationship.
+model Enrollment {
+  id         String           @id @default(cuid())
+  studentId  String
+  student    Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  batchId    String
+  batch      Batch            @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  status     EnrollmentStatus @default(ACTIVE)
+  enrolledAt DateTime         @default(now())
+  schoolId   String
+
+  @@unique([studentId, batchId])
+  @@index([schoolId])
+  @@index([batchId])
+  @@index([studentId])
+  @@index([status])
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+  ON_HOLD
+}
+
 model Subject {
   id          String   @id @default(cuid())
   name        String
@@ -304,7 +397,9 @@ model Subject {
 }
 
 // ============================================
-// Financial Management
+// Financial Management — Dual Billing Mode
+// Schools use Fee (structured, frequency-based)
+// Coaching/Tutors use Invoice (line-item, ad-hoc)
 // ============================================
 
 model Fee {
@@ -330,6 +425,48 @@ enum Frequency {
   ONE_TIME
 }
 
+/// Invoice — flexible line-item billing for coaching centers and private tutors.
+/// Each line item is stored in the `lineItems` JSON field:
+/// [{description: "Monthly Tuition", qty: 1, rate: 5000, amount: 5000}]
+model Invoice {
+  id        String        @id @default(cuid())
+  invoiceNo String
+  studentId String
+  student   Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  schoolId  String
+  school    School        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  lineItems Json          // [{description, qty, rate, amount}]
+  subtotal  Float
+  cgstRate  Float?        @default(0)
+  cgstAmount Float?       @default(0)
+  sgstRate  Float?        @default(0)
+  sgstAmount Float?       @default(0)
+  igstRate  Float?        @default(0)
+  igstAmount Float?       @default(0)
+  total     Float
+  discountAmount Float?   @default(0)
+  discountReason String?
+  dueDate   DateTime
+  paidAt    DateTime?
+  status    InvoiceStatus @default(DRAFT)
+  notes     String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([invoiceNo, schoolId])
+  @@index([schoolId])
+  @@index([studentId])
+  @@index([status])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
 model Payment {
   id            String        @id @default(cuid())
   studentId     String
@@ -338,15 +475,17 @@ model Payment {
   feeType       String
   paymentMethod PaymentMethod
   transactionId String?
-  receiptNumber String?       @unique
+  receiptNumber String?
   date          DateTime      @default(now())
   status        PaymentStatus @default(COMPLETED)
   remarks       String?
+  metadata      Json?         // NEW: Stores PDC details, Cheque No, Bank, EMI specifics
   schoolId      String
   school        School        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
+  @@unique([receiptNumber, schoolId])
   @@index([studentId])
   @@index([date])
   @@index([status])
@@ -360,6 +499,8 @@ enum PaymentMethod {
   BANK_TRANSFER
   CHEQUE
   ONLINE
+  EMI
+  POST_DATED_CHEQUE
 }
 
 enum PaymentStatus {
@@ -469,6 +610,8 @@ model Attendance {
   date      DateTime
   status    AttendanceStatus
   remarks   String?
+  batchId   String?          // NEW: Support for batch-level attendance
+  batch     Batch?           @relation(fields: [batchId], references: [id])
   schoolId  String
   school    School           @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   createdAt DateTime         @default(now())
@@ -478,6 +621,7 @@ model Attendance {
   @@index([studentId])
   @@index([date])
   @@index([schoolId])
+  @@index([batchId])
 }
 
 enum AttendanceStatus {
@@ -589,4 +733,22 @@ enum TargetAudience {
   STUDENTS
   TEACHERS
   PARENTS
+}
+
+// ============================================
+// Academic Session / Year
+// ============================================
+
+model AcademicSession {
+  id        String   @id @default(cuid())
+  name      String   // e.g., "2024-2025"
+  startDate DateTime
+  endDate   DateTime
+  isCurrent Boolean  @default(false)
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolId])
 }

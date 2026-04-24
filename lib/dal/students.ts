@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
 import { withDAL } from "@/lib/dal/utils"
+import { getSchoolId } from "@/lib/tenant-context"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
 
@@ -42,13 +43,15 @@ export async function getStudents(opts?: {
   sortBy?: string
   sortDir?: "asc" | "desc"
 }) {
+  const schoolId = await getSchoolId()
   const { page = 1, limit = 50, search, classFilter, feeStatus, sortBy, sortDir } = opts ?? {}
 
   const where = {
+    schoolId,
+    isActive: true,
     ...(search && { name: { contains: search, mode: "insensitive" as const } }),
     ...(classFilter && { class: classFilter }),
     ...(feeStatus && { feeStatus: feeStatus as any }),
-    isActive: true,
   }
 
   const orderBy: any = sortBy && sortDir ? { [sortBy]: sortDir } : { createdAt: "desc" }
@@ -77,6 +80,7 @@ export async function getStudents(opts?: {
 }
 
 export async function getStudent(id: string) {
+  const schoolId = await getSchoolId()
   return withDAL(
     "students.getOne",
     () =>
@@ -88,6 +92,10 @@ export async function getStudent(id: string) {
           attendance: { orderBy: { date: "desc" }, take: 30 },
           results: { orderBy: { createdAt: "desc" } },
         },
+      }).then((student) => {
+        // Enforce ownership — never return a student from another tenant
+        if (student && student.schoolId !== schoolId) return null
+        return student
       }),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
   )
@@ -98,6 +106,7 @@ export async function getStudent(id: string) {
 // ──────────────────────────────────────────────
 
 export async function createStudent(input: CreateStudentInput) {
+  const schoolId = await getSchoolId()
   const validated = createStudentSchema.parse(input)
 
   return withDAL(
@@ -106,6 +115,7 @@ export async function createStudent(input: CreateStudentInput) {
       const student = await prisma.student.create({
         data: {
           ...validated,
+          schoolId,
           feeStatus: "PENDING",
           paidAmount: 0,
           pendingAmount: validated.totalFees,
@@ -118,6 +128,7 @@ export async function createStudent(input: CreateStudentInput) {
         action: "CREATE",
         entityType: "STUDENT",
         entityId: student.id,
+        schoolId,
         newValues: validated,
         description: `Registered student: ${student.name}`,
       })
@@ -129,10 +140,12 @@ export async function createStudent(input: CreateStudentInput) {
 }
 
 export async function updateStudent(id: string, data: Partial<CreateStudentInput>) {
+  const schoolId = await getSchoolId()
   return withDAL(
     "students.update",
     async () => {
       const oldData = await prisma.student.findUnique({ where: { id } })
+      if (oldData?.schoolId !== schoolId) throw new Error("Student not found")
 
       const updated = await prisma.student.update({
         where: { id },
@@ -146,6 +159,7 @@ export async function updateStudent(id: string, data: Partial<CreateStudentInput
         action: "UPDATE",
         entityType: "STUDENT",
         entityId: id,
+        schoolId,
         oldValues: { name: oldData?.name, class: oldData?.class },
         newValues: { name: updated.name, class: updated.class },
         description: `Updated student: ${updated.name}`,
@@ -158,9 +172,13 @@ export async function updateStudent(id: string, data: Partial<CreateStudentInput
 }
 
 export async function deleteStudent(id: string) {
+  const schoolId = await getSchoolId()
   return withDAL(
     "students.delete",
     async () => {
+      const existing = await prisma.student.findUnique({ where: { id } })
+      if (existing?.schoolId !== schoolId) throw new Error("Student not found")
+
       const student = await prisma.student.update({
         where: { id },
         data: { isActive: false },
@@ -170,6 +188,7 @@ export async function deleteStudent(id: string) {
         action: "SOFT_DELETE",
         entityType: "STUDENT",
         entityId: id,
+        schoolId,
         description: `Soft deleted student: ${student.name}`,
       })
 

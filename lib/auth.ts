@@ -85,12 +85,27 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           if (token.role !== "SUPER_ADMIN") {
             const memberships = await prisma.userSchool.findMany({
               where: { userId: user.id },
-              select: { schoolId: true, role: true },
+              select: {
+                schoolId: true,
+                role: true,
+                school: { select: { type: true, plan: true } },
+              },
             })
 
             if (memberships.length === 1) {
               token.activeSchoolId = memberships[0].schoolId
               token.schoolRole = memberships[0].role
+              token.tenantType = memberships[0].school.type
+              token.planTier = memberships[0].school.plan
+
+              // If the user is a PARENT role, resolve their parentId
+              if (memberships[0].role === "PARENT") {
+                const parent = await prisma.parent.findFirst({
+                  where: { userId: user.id, schoolId: memberships[0].schoolId },
+                  select: { id: true },
+                })
+                if (parent) token.parentId = parent.id
+              }
             }
           }
         } catch (err) {
@@ -101,42 +116,54 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         }
       }
 
-      // ── Allow school switching via session.update() ──────────────────
-      // Called from the school-selector UI: update({ activeSchoolId: "..." })
-      if (trigger === "update" && session?.activeSchoolId) {
-        token.activeSchoolId = session.activeSchoolId as string
+      // ── Allow school switching & silent refresh via session.update() ─────────
+      // Called from UI: update({ activeSchoolId: "..." }) or just update() to refresh data
+      if (trigger === "update") {
+        const targetSchoolId = session?.activeSchoolId || token.activeSchoolId
+        
+        if (targetSchoolId) {
+          token.activeSchoolId = targetSchoolId as string
 
-        // Also update the school-specific role
-        try {
-          const membership = await prisma.userSchool.findUnique({
-            where: {
-              userId_schoolId: {
-                userId: token.sub!,
-                schoolId: session.activeSchoolId as string,
+          // Also update the school-specific role, tenantType, planTier
+          try {
+            const membership = await prisma.userSchool.findUnique({
+              where: {
+                userId_schoolId: {
+                  userId: token.sub!,
+                  schoolId: token.activeSchoolId as string,
+                },
               },
-            },
-            select: { role: true },
-          })
-          if (membership) {
-            token.schoolRole = membership.role
+              select: {
+                role: true,
+                school: { select: { type: true, plan: true } },
+              },
+            })
+            if (membership) {
+              token.schoolRole = membership.role
+              token.tenantType = membership.school.type
+              token.planTier = membership.school.plan
+
+              // Re-resolve parentId on refresh/switch
+              if (membership.role === "PARENT") {
+                const parent = await prisma.parent.findFirst({
+                  where: { userId: token.sub!, schoolId: token.activeSchoolId as string },
+                  select: { id: true },
+                })
+                token.parentId = parent?.id ?? undefined
+              } else {
+                token.parentId = undefined
+              }
+            }
+          } catch (err) {
+            authLogger.error(
+              { err, userId: token.sub },
+              "Failed to resolve school role during session update/refresh",
+            )
           }
-        } catch (err) {
-          authLogger.error(
-            { err, userId: token.sub },
-            "Failed to resolve school role during school switch",
-          )
         }
       }
 
       return token
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub!
-        session.user.role = token.role as string
-        session.user.activeSchoolId = token.activeSchoolId as string | undefined
-      }
-      return session
     },
   },
 })

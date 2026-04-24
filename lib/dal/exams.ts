@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
 import { withDAL } from "@/lib/dal/utils"
+import { getSchoolId } from "@/lib/tenant-context"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
 
@@ -21,10 +22,12 @@ export const createExamSchema = z.object({
 })
 
 export async function getExams() {
+  const schoolId = await getSchoolId()
   return withDAL(
     "exams.getAll",
     () =>
       prisma.exam.findMany({
+        where: { schoolId },
         orderBy: { createdAt: "desc" },
         include: {
           teacher: { select: { name: true } },
@@ -36,18 +39,20 @@ export async function getExams() {
 }
 
 export async function createExam(input: z.infer<typeof createExamSchema>) {
+  const schoolId = await getSchoolId()
   const validated = createExamSchema.parse(input)
   return withDAL(
     "exams.create",
     async () => {
       const exam = await prisma.exam.create({
-        data: { ...validated, status: "SCHEDULED" },
+        data: { ...validated, schoolId, status: "SCHEDULED" },
       })
 
       await recordAuditLog({
         action: "CREATE",
         entityType: "EXAM",
         entityId: exam.id,
+        schoolId,
         newValues: validated,
         description: `Scheduled exam: ${exam.name} for class ${exam.class}`,
       })

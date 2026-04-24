@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { withDAL } from "@/lib/dal/utils"
+import { getSchoolId } from "@/lib/tenant-context"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
 
@@ -16,18 +17,27 @@ export const createEventSchema = z.object({
 })
 
 export async function getEvents() {
+  const schoolId = await getSchoolId()
   return withDAL(
     "events.getAll",
-    () => prisma.event.findMany({ orderBy: { createdAt: "desc" } }),
+    () =>
+      prisma.event.findMany({
+        where: { schoolId },
+        orderBy: { createdAt: "desc" },
+      }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
 }
 
 export async function createEvent(input: z.infer<typeof createEventSchema>) {
+  const schoolId = await getSchoolId()
   const validated = createEventSchema.parse(input)
   return withDAL(
     "events.create",
-    () => prisma.event.create({ data: { ...validated, status: "UPCOMING" } }),
+    () =>
+      prisma.event.create({
+        data: { ...validated, schoolId, status: "UPCOMING" },
+      }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
 }

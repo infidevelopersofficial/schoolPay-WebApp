@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { withDAL } from "@/lib/dal/utils"
+import { getSchoolId } from "@/lib/tenant-context"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
 
@@ -18,10 +19,12 @@ export const createLessonSchema = z.object({
 })
 
 export async function getLessons() {
+  const schoolId = await getSchoolId()
   return withDAL(
     "lessons.getAll",
     () =>
       prisma.lesson.findMany({
+        where: { schoolId },
         orderBy: { createdAt: "desc" },
         include: { teacher: { select: { name: true } } },
       }),
@@ -30,10 +33,14 @@ export async function getLessons() {
 }
 
 export async function createLesson(input: z.infer<typeof createLessonSchema>) {
+  const schoolId = await getSchoolId()
   const validated = createLessonSchema.parse(input)
   return withDAL(
     "lessons.create",
-    () => prisma.lesson.create({ data: { ...validated, status: "SCHEDULED" } }),
+    () =>
+      prisma.lesson.create({
+        data: { ...validated, schoolId, status: "SCHEDULED" },
+      }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
 }

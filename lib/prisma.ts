@@ -122,9 +122,45 @@ function createPrismaClient(): PrismaClient {
   return client
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient()
+import { AsyncLocalStorage } from "async_hooks"
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
+export const tenantContext = new AsyncLocalStorage<{ schoolId: string }>()
+
+export const prisma = (globalForPrisma.prisma ?? createPrismaClient()).$extends({
+  query: {
+    $allModels: {
+      async $allOperations({ model, operation, args, query }) {
+        const store = tenantContext.getStore()
+        
+        // If context is initialized (even if schoolId is ""), apply Native RLS
+        if (store !== undefined) {
+          // Bypass Native RLS explicitly for the User and Account models which span tenants
+          // Also skip if it's not a tenant-scoped model (this prevents unnecessary transaction overhead)
+          const modelsWithSchoolId = [
+            "Student", "Teacher", "Parent", "Class", "Batch", "Enrollment",
+            "Subject", "Fee", "Invoice", "Payment", "Lesson", "Exam", "Result",
+            "Attendance", "Event", "Message", "Announcement", "AcademicSession"
+          ]
+
+          if (modelsWithSchoolId.includes(model)) {
+            // Apply native Postgres Row-Level Security via sequential transaction
+            // The empty string '' is used for System Context (bypassing RLS)
+            const [, result] = await (globalForPrisma.prisma ?? prisma).$transaction([
+              (globalForPrisma.prisma ?? prisma).$executeRawUnsafe(`SELECT set_config('app.current_tenant', '${store.schoolId}', TRUE)`),
+              query(args) as any
+            ])
+            return result
+          }
+        }
+        
+        // Default execution (unprotected / non-tenant model)
+        return query(args)
+      }
+    }
+  }
+}) as PrismaClient // Cast back to PrismaClient to avoid complex type spreading
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma as any
 
 // ─── Graceful shutdown ────────────────────────────────────────────────────────
 // Registers once per process. Ensures in-flight queries complete and all
@@ -132,14 +168,23 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
 // (used by Docker / Kubernetes) can leave transactions open.
 
 if (process.env.NODE_ENV !== "test") {
+  // Guard flag prevents double-close when Next.js build workers share the
+  // same pool reference but each register their own signal handler.
+  let shutdownStarted = false
+
   const shutdown = async (signal: string) => {
+    if (shutdownStarted) return
+    shutdownStarted = true
+
     dbLogger.info({ signal }, "Shutdown signal received — closing DB connections")
     try {
       await prisma.$disconnect()
       await globalForPrisma.pgPool?.end()
       dbLogger.info("DB connections closed cleanly")
-    } catch (err) {
-      dbLogger.error({ err }, "Error during DB shutdown")
+    } catch (err: any) {
+      if (err?.message !== "Called end on pool more than once") {
+        dbLogger.error({ err }, "Error during DB shutdown")
+      }
     }
   }
 

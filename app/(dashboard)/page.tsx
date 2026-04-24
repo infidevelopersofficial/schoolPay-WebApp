@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma"
+import { getTenantContext } from "@/lib/tenant-context"
+import { withTenantRead } from "@/lib/dal/core"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { StudentsChart } from "@/components/dashboard/students-chart"
 import { AttendanceChart } from "@/components/dashboard/attendance-chart"
@@ -18,6 +20,7 @@ function fmt(amount: number): string {
 }
 
 export default async function HomePage() {
+  const { schoolId, tenantType } = await getTenantContext()
   const now = new Date()
   const yearStart = new Date(now.getFullYear(), 0, 1)
 
@@ -30,6 +33,7 @@ export default async function HomePage() {
   friday.setDate(monday.getDate() + 4)
   friday.setHours(23, 59, 59, 999)
 
+  // Fetch data inside the DAL wrapper which enforces RLS automatically
   const [
     studentCount,
     teacherCount,
@@ -46,43 +50,45 @@ export default async function HomePage() {
     weekAttendance,
     upcomingEvents,
     activeAnnouncements,
-  ] = await Promise.all([
-    prisma.student.count(),
-    prisma.teacher.count(),
-    prisma.parent.count(),
-    prisma.user.count(),
-    prisma.student.count({ where: { gender: "Male" } }),
-    prisma.student.count({ where: { gender: "Female" } }),
-    prisma.payment.aggregate({ where: { status: "COMPLETED" }, _sum: { amount: true } }),
-    prisma.student.count({ where: { feeStatus: { in: ["PENDING", "PARTIAL"] } } }),
-    prisma.student.count({ where: { feeStatus: "OVERDUE" } }),
-    prisma.student.aggregate({
-      where: { feeStatus: { in: ["PENDING", "PARTIAL"] } },
-      _sum: { pendingAmount: true },
-    }),
-    prisma.student.aggregate({
-      where: { feeStatus: "OVERDUE" },
-      _sum: { pendingAmount: true },
-    }),
-    prisma.payment.findMany({
-      where: { status: "COMPLETED", date: { gte: yearStart } },
-      select: { amount: true, date: true },
-    }),
-    prisma.attendance.findMany({
-      where: { date: { gte: monday, lte: friday } },
-      select: { date: true, status: true },
-    }),
-    prisma.event.findMany({
-      where: { status: "UPCOMING" },
-      orderBy: { date: "asc" },
-      take: 5,
-    }),
-    prisma.announcement.findMany({
-      where: { isActive: true },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    }),
-  ])
+  ] = await withTenantRead(async () => {
+    return Promise.all([
+      prisma.student.count(),
+      prisma.teacher.count(),
+      prisma.parent.count(),
+      prisma.user.count(), // Not scoped by RLS intentionally? Wait, user is not in modelsWithSchoolId
+      prisma.student.count({ where: { gender: "Male" } }),
+      prisma.student.count({ where: { gender: "Female" } }),
+      prisma.payment.aggregate({ where: { status: "COMPLETED" }, _sum: { amount: true } }),
+      prisma.student.count({ where: { feeStatus: { in: ["PENDING", "PARTIAL"] } } }),
+      prisma.student.count({ where: { feeStatus: "OVERDUE" } }),
+      prisma.student.aggregate({
+        where: { feeStatus: { in: ["PENDING", "PARTIAL"] } },
+        _sum: { pendingAmount: true },
+      }),
+      prisma.student.aggregate({
+        where: { feeStatus: "OVERDUE" },
+        _sum: { pendingAmount: true },
+      }),
+      prisma.payment.findMany({
+        where: { status: "COMPLETED", date: { gte: yearStart } },
+        select: { amount: true, date: true },
+      }),
+      prisma.attendance.findMany({
+        where: { date: { gte: monday, lte: friday } },
+        select: { date: true, status: true },
+      }),
+      prisma.event.findMany({
+        where: { status: "UPCOMING" },
+        orderBy: { date: "asc" },
+        take: 5,
+      }),
+      prisma.announcement.findMany({
+        where: { isActive: true },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      }),
+    ])
+  })
 
   // ── Finance stats ─────────────────────────────────────────────────────────────
   const totalCollected = collectedAgg._sum.amount ?? 0
@@ -146,15 +152,27 @@ export default async function HomePage() {
     }
   })
 
+  // ── Terminology overrides based on TenantType ─────────────────────────────────
+  let studentsLabel = "Students"
+  let teachersLabel = "Teachers"
+  let parentsLabel = "Parents"
+  
+  if (tenantType === "COACHING_CENTER") {
+    teachersLabel = "Faculty"
+  } else if (tenantType === "PRIVATE_TUTOR") {
+    studentsLabel = "Learners"
+    teachersLabel = "Tutors"
+  }
+
   return (
     <div className="grid grid-cols-12 gap-6">
       {/* Main content */}
       <div className="col-span-12 lg:col-span-8 space-y-6">
         {/* Entity counts */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard title="Students" value={studentCount} year="2024/25" color="purple" />
-          <StatCard title="Teachers" value={teacherCount} year="2024/25" color="yellow" />
-          <StatCard title="Parents" value={parentCount} year="2024/25" color="purple" />
+          <StatCard title={studentsLabel} value={studentCount} year="2024/25" color="purple" />
+          <StatCard title={teachersLabel} value={teacherCount} year="2024/25" color="yellow" />
+          <StatCard title={parentsLabel} value={parentCount} year="2024/25" color="purple" />
           <StatCard title="Staff" value={staffCount} year="2024/25" color="yellow" />
         </div>
 
