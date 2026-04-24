@@ -18,6 +18,7 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
       const isOnLoginPage = nextUrl.pathname.startsWith("/login")
+      const isOnSchoolSelect = nextUrl.pathname.startsWith("/select-school")
       const isApiRoute = nextUrl.pathname.startsWith("/api")
 
       // API routes handle their own authentication
@@ -29,6 +30,20 @@ export const authConfig = {
       // Redirect authenticated users away from login page
       if (isLoggedIn && isOnLoginPage) {
         return Response.redirect(new URL("/", nextUrl))
+      }
+
+      // ── Multi-tenant: enforce school selection ─────────────────────────
+      // Authenticated users without an active school must pick one before
+      // accessing the dashboard. SUPER_ADMINs can also bypass if needed.
+      if (isLoggedIn && !isOnSchoolSelect && !isOnLoginPage) {
+        const user = auth?.user as { activeSchoolId?: string; role?: string } | undefined
+        const hasSchool = !!user?.activeSchoolId
+        const isSuperAdmin = user?.role === "SUPER_ADMIN"
+
+        // SUPER_ADMINs can access without a school context (for admin views)
+        if (!hasSchool && !isSuperAdmin) {
+          return Response.redirect(new URL("/select-school", nextUrl))
+        }
       }
 
       return true

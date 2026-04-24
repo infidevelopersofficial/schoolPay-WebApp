@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { signOut } from "next-auth/react"
 import { cn } from "@/lib/utils"
 import { School } from "lucide-react"
 import { navItems } from "./nav-items"
@@ -43,6 +44,28 @@ export function NavList({ pathname, onNavigate }: { pathname: string; onNavigate
 
         const Icon = item.icon
         const isActive = pathname === item.href
+
+        // Logout item triggers signOut() instead of navigating
+        if (item.href === "/logout") {
+          return (
+            <li key={index}>
+              <button
+                type="button"
+                onClick={() => {
+                  onNavigate?.()
+                  signOut({ callbackUrl: "/login" })
+                }}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  "text-muted-foreground hover:bg-destructive/10 hover:text-destructive",
+                )}
+              >
+                <Icon className="h-5 w-5 shrink-0" />
+                <span className="truncate">{item.label}</span>
+              </button>
+            </li>
+          )
+        }
 
         return (
           <li key={index}>
