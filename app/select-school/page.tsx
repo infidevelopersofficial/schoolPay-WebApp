@@ -16,33 +16,43 @@ export default async function SelectSchoolPage() {
   // If user already has an active school, redirect to dashboard
   if (session.user.activeSchoolId) redirect("/")
 
-  // Fetch schools the user belongs to
-  const memberships = await prisma.userSchool.findMany({
-    where: { userId: session.user.id },
-    include: {
-      school: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          logo: true,
-          address: true,
-          isActive: true,
-        },
-      },
-    },
-  })
+  const isSuperAdmin = session.user.role === "SUPER_ADMIN"
 
-  const schools = memberships
-    .filter((m) => m.school.isActive)
-    .map((m) => ({
-      id: m.school.id,
-      name: m.school.name,
-      slug: m.school.slug,
-      logo: m.school.logo,
-      address: m.school.address,
-      role: m.role,
-    }))
+  // SUPER_ADMINs see every active school; everyone else sees only their memberships.
+  const schools = isSuperAdmin
+    ? (
+        await prisma.school.findMany({
+          where: { isActive: true },
+          select: { id: true, name: true, slug: true, logo: true, address: true },
+          orderBy: { name: "asc" },
+        })
+      ).map((s) => ({ ...s, role: "SUPER_ADMIN" as const }))
+    : (
+        await prisma.userSchool.findMany({
+          where: { userId: session.user.id },
+          include: {
+            school: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                logo: true,
+                address: true,
+                isActive: true,
+              },
+            },
+          },
+        })
+      )
+        .filter((m) => m.school.isActive)
+        .map((m) => ({
+          id: m.school.id,
+          name: m.school.name,
+          slug: m.school.slug,
+          logo: m.school.logo,
+          address: m.school.address,
+          role: m.role,
+        }))
 
   // If user only has one school, auto-select it (shouldn't normally reach here
   // since auth.ts handles this, but acts as a safety net)
