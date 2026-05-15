@@ -112,3 +112,15 @@ This project is part of the SchoolPay School Fees Management System.
 ## Support
 
 For issues or questions regarding multi-tenant scaling or deployment, please refer to the internal architectural walkthroughs or contact support.
+
+
+
+superadmin@school.com   → SUPER_ADMIN (superadmin123)
+admin@school.com        → ADMIN
+student1@school.com     → STUDENT (student123)
+student2@school.com     → STUDENT (student123)
+student3@school.com     → STUDENT (student123)
+teacher1@school.com     → TEACHER (teacher123)
+teacher2@school.com     → TEACHER (teacher123)
+parent1@school.com      → PARENT (parent123)
+parent2@school.com      → PARENT (parent123)

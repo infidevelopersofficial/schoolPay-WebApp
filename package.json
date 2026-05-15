@@ -90,6 +90,7 @@
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "baseline-browser-mapping": "^2.10.22",
     "postcss": "^8.5",
     "prisma": "^7.2.0",
     "tailwindcss": "^4.1.9",
