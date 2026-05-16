@@ -22,7 +22,9 @@ const lineItemSchema = z.object({
 export const createInvoiceSchema = z.object({
   studentId: z.string().min(1, "Student is required"),
   lineItems: z.array(lineItemSchema).min(1, "At least one line item required"),
-  taxRate: z.coerce.number().min(0).max(100).default(0),
+  cgstRate: z.coerce.number().min(0).max(100).default(0),
+  sgstRate: z.coerce.number().min(0).max(100).default(0),
+  igstRate: z.coerce.number().min(0).max(100).default(0),
   dueDate: z.string().min(1, "Due date is required"),
   notes: z.string().optional(),
 })
@@ -96,8 +98,11 @@ export async function createInvoice(input: CreateInvoiceInput) {
 
   // Calculate totals
   const subtotal = validated.lineItems.reduce((sum, item) => sum + item.amount, 0)
-  const taxAmount = subtotal * (validated.taxRate / 100)
-  const total = subtotal + taxAmount
+  const cgstAmount = subtotal * (validated.cgstRate / 100)
+  const sgstAmount = subtotal * (validated.sgstRate / 100)
+  const igstAmount = subtotal * (validated.igstRate / 100)
+  const totalTax = cgstAmount + sgstAmount + igstAmount
+  const total = subtotal + totalTax
 
   return withDAL(
     "invoices.create",
@@ -118,8 +123,12 @@ export async function createInvoice(input: CreateInvoiceInput) {
           schoolId,
           lineItems: validated.lineItems,
           subtotal,
-          taxRate: validated.taxRate,
-          taxAmount,
+          cgstRate: validated.cgstRate ?? 0,
+          cgstAmount: (validated.cgstRate ?? 0) * subtotal / 100,
+          sgstRate: validated.sgstRate ?? 0,
+          sgstAmount: (validated.sgstRate ?? 0) * subtotal / 100,
+          igstRate: validated.igstRate ?? 0,
+          igstAmount: (validated.igstRate ?? 0) * subtotal / 100,
           total,
           dueDate: new Date(validated.dueDate),
           notes: validated.notes,
