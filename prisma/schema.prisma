@@ -47,25 +47,27 @@ model School {
   updatedAt      DateTime @updatedAt
 
   // Relationships
-  users         UserSchool[]
-  students      Student[]
-  teachers      Teacher[]
-  parents       Parent[]
-  classes       Class[]
-  batches       Batch[]
-  subjects      Subject[]
-  fees          Fee[]
-  payments      Payment[]
-  invoices      Invoice[]
-  sessions      AcademicSession[]
-  lessons       Lesson[]
-  exams         Exam[]
-  results       Result[]
-  attendance    Attendance[]
-  events        Event[]
-  messages      Message[]
-  announcements Announcement[]
-  auditLogs     AuditLog[]
+  users          UserSchool[]
+  students       Student[]
+  teachers       Teacher[]
+  parents        Parent[]
+  classes        Class[]
+  batches        Batch[]
+  subjects       Subject[]
+  fees           Fee[]
+  payments       Payment[]
+  invoices       Invoice[]
+  sessions       AcademicSession[]
+  lessons        Lesson[]
+  exams          Exam[]
+  results        Result[]
+  examGroups     ExamGroup[]
+  gradingSchemes GradingScheme[]
+  attendance     Attendance[]
+  events         Event[]
+  messages       Message[]
+  announcements  Announcement[]
+  auditLogs      AuditLog[]
 
   // Phase 1 relationships
   branding            SchoolBranding?
@@ -411,6 +413,7 @@ model Batch {
   attendanceRegisters AttendanceRegister[]
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
+  exams               Exam[]
 
   @@unique([code, schoolId])
   @@index([schoolId])
@@ -457,6 +460,7 @@ model Subject {
   school      School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  exams       Exam[]
 
   @@unique([code, schoolId])
   @@index([schoolId])
@@ -609,65 +613,141 @@ enum LessonStatus {
   CANCELLED
 }
 
+// ============================================
+// Grading & Exams (Phase 6B)
+// ============================================
+
+model GradingScheme {
+  id          String      @id @default(cuid())
+  name        String // e.g., "Standard High School 100-point"
+  description String?
+  schoolId    String
+  school      School      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  bands       GradeBand[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  examGroups ExamGroup[]
+}
+
+model GradeBand {
+  id              String        @id @default(cuid())
+  schemeId        String
+  scheme          GradingScheme @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+  name            String // e.g., "A+", "B"
+  minMarks        Float // e.g., 90.0
+  maxMarks        Float // e.g., 100.0
+  points          Float? // GPA equivalent e.g., 4.0
+  remarksTemplate String? // Default remarks for this band
+}
+
+model ExamGroup {
+  id              String          @id @default(cuid())
+  name            String // e.g. "Term 1 Finals"
+  schoolId        String
+  school          School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  sessionId       String
+  session         AcademicSession @relation(fields: [sessionId], references: [id])
+  gradingSchemeId String?
+  gradingScheme   GradingScheme?  @relation(fields: [gradingSchemeId], references: [id])
+
+  exams     Exam[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolId])
+  @@index([sessionId])
+}
+
 model Exam {
-  id          String     @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
-  subject     String
-  class       String
-  date        String
-  time        String?
-  duration    String
-  maxMarks    Int
+  examGroupId String
+  examGroup   ExamGroup @relation(fields: [examGroupId], references: [id], onDelete: Cascade)
+
+  batchId   String
+  batch     Batch           @relation(fields: [batchId], references: [id])
+  subjectId String
+  subject   Subject         @relation(fields: [subjectId], references: [id])
+  sessionId String
+  session   AcademicSession @relation(fields: [sessionId], references: [id])
+
+  date      String
+  startTime DateTime?
+  endTime   DateTime?
+  maxMarks  Float
+
+  // Locking Controls
+  marksLocked      Boolean @default(false)
+  resultsPublished Boolean @default(false)
+
   venue       String?
   description String?
-  status      ExamStatus @default(SCHEDULED)
   teacherId   String?
-  teacher     Teacher?   @relation(fields: [teacherId], references: [id])
+  teacher     Teacher? @relation(fields: [teacherId], references: [id])
   schoolId    String
-  school      School     @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  results     Result[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  school      School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
 
-  @@index([teacherId])
-  @@index([status])
-  @@index([schoolId])
-}
+  results   Result[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-enum ExamStatus {
-  SCHEDULED
-  ONGOING
-  COMPLETED
-  CANCELLED
-}
-
-model Result {
-  id         String       @id @default(cuid())
-  studentId  String
-  student    Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  examId     String?
-  exam       Exam?        @relation(fields: [examId], references: [id])
-  examName   String
-  marks      Float
-  maxMarks   Float
-  grade      String
-  percentage Float
-  status     ResultStatus @default(PUBLISHED)
-  remarks    String?
-  schoolId   String
-  school     School       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-
-  @@index([studentId])
-  @@index([examId])
+  @@index([batchId])
+  @@index([subjectId])
+  @@index([sessionId])
   @@index([schoolId])
 }
 
 enum ResultStatus {
   DRAFT
   PUBLISHED
-  ARCHIVED
+  ABSENT
+  EXEMPTED
+}
+
+model Result {
+  id        String          @id @default(cuid())
+  examId    String
+  exam      Exam            @relation(fields: [examId], references: [id], onDelete: Cascade)
+  studentId String
+  student   Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  sessionId String
+  session   AcademicSession @relation(fields: [sessionId], references: [id])
+
+  status  ResultStatus @default(DRAFT)
+  marks   Float? // Nullable if Absent/Exempted
+  grade   String? // Derived from grading scheme
+  remarks String?
+
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  // Auditing metadata
+  enteredById String? // User ID of the teacher who entered it
+
+  modifications GradeModificationLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([examId, studentId])
+  @@index([schoolId])
+  @@index([studentId])
+}
+
+model GradeModificationLog {
+  id       String @id @default(cuid())
+  resultId String
+  result   Result @relation(fields: [resultId], references: [id], onDelete: Cascade)
+
+  oldMarks Float?
+  newMarks Float?
+  oldGrade String?
+  newGrade String?
+
+  reason      String
+  changedById String
+  changedAt   DateTime @default(now())
 }
 
 model Attendance {
@@ -848,16 +928,19 @@ enum TargetAudience {
 // ============================================
 
 model AcademicSession {
-  id        String   @id @default(cuid())
-  name      String // e.g., "2024-2025"
-  startDate DateTime
-  endDate   DateTime
-  isCurrent Boolean  @default(false)
-  schoolId  String
-  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  batches   Batch[]
+  id         String      @id @default(cuid())
+  name       String // e.g., "2024-2025"
+  startDate  DateTime
+  endDate    DateTime
+  isCurrent  Boolean     @default(false)
+  schoolId   String
+  school     School      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  batches    Batch[]
+  examGroups ExamGroup[]
+  exams      Exam[]
+  results    Result[]
 
   @@index([schoolId])
 }
