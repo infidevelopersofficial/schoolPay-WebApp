@@ -1,11 +1,14 @@
 "use server"
 
+import { withTenantAuth } from "@/lib/tenant-auth"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 import { createExam, createExamSchema } from "@/lib/dal/exams"
 
 export async function createExamAction(prevState: any, formData: FormData) {
-  const session = await auth()
+  try {
+    return await withTenantAuth("hasExams", ["ADMIN", "TEACHER"], async () => {
+      const session = await auth()
   if (!session) return { error: "Unauthorized" }
 
   const raw = Object.fromEntries(formData.entries())
@@ -21,5 +24,9 @@ export async function createExamAction(prevState: any, formData: FormData) {
     return { success: true }
   } catch (e) {
     return { error: "Failed to schedule exam" }
+  }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
   }
 }

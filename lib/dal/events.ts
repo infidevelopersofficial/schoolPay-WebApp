@@ -1,3 +1,4 @@
+import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { withDAL } from "@/lib/dal/utils"
@@ -17,7 +18,8 @@ export const createEventSchema = z.object({
 })
 
 export async function getEvents() {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   return withDAL(
     "events.getAll",
     () =>
@@ -27,6 +29,7 @@ export async function getEvents() {
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
+  })
 }
 
 export async function createEvent(input: z.infer<typeof createEventSchema>) {

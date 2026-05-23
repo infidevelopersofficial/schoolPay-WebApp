@@ -1,3 +1,4 @@
+import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
@@ -19,7 +20,8 @@ export const createFeeSchema = z.object({
 export type CreateFeeInput = z.infer<typeof createFeeSchema>
 
 export async function getFees() {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   return withDAL(
     "fees.getAll",
     () =>
@@ -29,6 +31,7 @@ export async function getFees() {
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
+  })
 }
 
 export async function createFee(input: CreateFeeInput) {

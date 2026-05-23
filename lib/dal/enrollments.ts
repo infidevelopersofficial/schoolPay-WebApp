@@ -1,3 +1,4 @@
+import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { withDAL } from "@/lib/dal/utils"
@@ -18,7 +19,8 @@ export const updateEnrollmentSchema = z.object({
 })
 
 export async function getEnrollments(opts?: { batchId?: string; studentId?: string; status?: string }) {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   const { batchId, studentId, status } = opts ?? {}
   return withDAL(
     "enrollments.getAll",
@@ -38,6 +40,7 @@ export async function getEnrollments(opts?: { batchId?: string; studentId?: stri
       }),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
   )
+  })
 }
 
 export async function enrollStudent(input: z.infer<typeof enrollStudentSchema>) {

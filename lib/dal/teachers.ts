@@ -1,3 +1,4 @@
+import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
@@ -5,6 +6,7 @@ import { withDAL } from "@/lib/dal/utils"
 import { getSchoolId } from "@/lib/tenant-context"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
+import { enforcePlanLimit } from "@/lib/billing/limits"
 
 const log = logger.child({ domain: "teachers" })
 
@@ -31,7 +33,8 @@ export async function getTeachers(opts?: {
   search?: string
   subject?: string
 }) {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   const { page = 1, limit = 50, search, subject } = opts ?? {}
   const where = {
     schoolId,
@@ -59,37 +62,56 @@ export async function getTeachers(opts?: {
       })),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
   )
+  })
 }
 
 export async function getTeacher(id: string) {
-  const schoolId = await getSchoolId()
-  return withDAL(
-    "teachers.getOne",
-    () =>
-      prisma.teacher.findUnique({
-        where: { id },
-        include: { lessons: true, exams: true },
-      }).then((teacher) => {
-        if (teacher && teacher.schoolId !== schoolId) return null
-        return teacher
-      }),
-    { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
-  )
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return withDAL(
+      "teachers.getOne",
+      () =>
+        prisma.teacher.findUnique({
+          where: { id },
+          include: {
+            batches: true,
+          },
+        }).then((teacher) => {
+          if (teacher && teacher.schoolId !== schoolId) return null
+          return teacher
+        }),
+      { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
+    )
+  })
 }
 
 export async function createTeacher(input: CreateTeacherInput) {
   const schoolId = await getSchoolId()
   const validated = createTeacherSchema.parse(input)
+
+  // Enforce usage limit before creating
+  await enforcePlanLimit({ schoolId, limitType: "staffLimit", incrementBy: 1 })
+
   return withDAL(
     "teachers.create",
     async () => {
-      const teacher = await prisma.teacher.create({
-        data: {
-          ...validated,
-          schoolId,
-          dateOfBirth: validated.dateOfBirth ? new Date(validated.dateOfBirth) : undefined,
-          joiningDate: validated.joiningDate ? new Date(validated.joiningDate) : new Date(),
-        },
+      const teacher = await prisma.$transaction(async (tx) => {
+        const created = await tx.teacher.create({
+          data: {
+            ...validated,
+            schoolId,
+            dateOfBirth: validated.dateOfBirth ? new Date(validated.dateOfBirth) : undefined,
+            joiningDate: validated.joiningDate ? new Date(validated.joiningDate) : new Date(),
+          },
+        })
+
+        // Authoritative source of usage sync
+        await tx.usageRecord.updateMany({
+          where: { schoolId },
+          data: { currentStaff: { increment: 1 } }
+        })
+
+        return created
       })
 
       await recordAuditLog({
@@ -141,9 +163,19 @@ export async function deleteTeacher(id: string) {
       const existing = await prisma.teacher.findUnique({ where: { id } })
       if (existing?.schoolId !== schoolId) throw new Error("Teacher not found")
 
-      const teacher = await prisma.teacher.update({
-        where: { id },
-        data: { isActive: false },
+      const teacher = await prisma.$transaction(async (tx) => {
+        const updated = await tx.teacher.update({
+          where: { id },
+          data: { isActive: false },
+        })
+
+        // Authoritative source of usage sync
+        await tx.usageRecord.updateMany({
+          where: { schoolId },
+          data: { currentStaff: { decrement: 1 } }
+        })
+
+        return updated
       })
 
       await recordAuditLog({

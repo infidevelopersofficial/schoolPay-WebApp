@@ -1,3 +1,4 @@
+import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
@@ -19,7 +20,8 @@ export const createClassSchema = z.object({
 export type CreateClassInput = z.infer<typeof createClassSchema>
 
 export async function getClasses() {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   return withDAL(
     "classes.getAll",
     () =>
@@ -29,6 +31,7 @@ export async function getClasses() {
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
+  })
 }
 
 export async function createClass(input: CreateClassInput) {

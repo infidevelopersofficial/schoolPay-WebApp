@@ -1,4 +1,6 @@
+import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
+import bcrypt from "bcryptjs"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
 import { withDAL } from "@/lib/dal/utils"
@@ -24,7 +26,8 @@ export async function getParents(opts?: {
   limit?: number
   search?: string
 }) {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   const { page = 1, limit = 50, search } = opts ?? {}
   const where: any = {
     schoolId,
@@ -52,6 +55,7 @@ export async function getParents(opts?: {
       })),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
   )
+  })
 }
 
 export async function createParent(input: CreateParentInput) {
@@ -60,18 +64,46 @@ export async function createParent(input: CreateParentInput) {
   return withDAL(
     "parents.create",
     async () => {
-      const parent = await prisma.parent.create({ data: { ...validated, schoolId } })
+      return await prisma.$transaction(async (tx) => {
+        // Create user account for the parent to log in
+        const hashedPassword = await bcrypt.hash(validated.phone, 10) // default password is phone
+        const user = await tx.user.create({
+          data: {
+            name: validated.name,
+            email: validated.email,
+            phone: validated.phone,
+            hashedPassword,
+            role: "PARENT"
+          }
+        })
 
-      await recordAuditLog({
-        action: "CREATE",
-        entityType: "PARENT",
-        entityId: parent.id,
-        schoolId,
-        newValues: validated,
-        description: `Registered parent: ${parent.name}`,
+        await tx.userSchool.create({
+          data: {
+            userId: user.id,
+            schoolId,
+            role: "PARENT"
+          }
+        })
+
+        const parent = await tx.parent.create({ 
+          data: { 
+            ...validated, 
+            schoolId,
+            userId: user.id 
+          } 
+        })
+
+        await recordAuditLog({
+          action: "CREATE",
+          entityType: "PARENT",
+          entityId: parent.id,
+          schoolId,
+          newValues: validated,
+          description: `Registered parent: ${parent.name}`,
+        }, tx)
+
+        return parent
       })
-
-      return parent
     },
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )

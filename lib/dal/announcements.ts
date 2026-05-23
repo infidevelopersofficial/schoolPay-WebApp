@@ -1,3 +1,4 @@
+import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { withDAL } from "@/lib/dal/utils"
@@ -19,7 +20,8 @@ export const createAnnouncementSchema = z.object({
 })
 
 export async function getAnnouncements() {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   return withDAL(
     "announcements.getAll",
     () =>
@@ -29,6 +31,7 @@ export async function getAnnouncements() {
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
+  })
 }
 
 export async function createAnnouncement(input: z.infer<typeof createAnnouncementSchema>) {

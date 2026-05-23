@@ -1,3 +1,4 @@
+import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { withDAL } from "@/lib/dal/utils"
@@ -17,7 +18,8 @@ export const sendMessageSchema = z.object({
 })
 
 export async function getMessages(opts?: { email?: string }) {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   const { email } = opts ?? {}
   return withDAL(
     "messages.getAll",
@@ -31,6 +33,7 @@ export async function getMessages(opts?: { email?: string }) {
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
+  })
 }
 
 export async function sendMessage(input: z.infer<typeof sendMessageSchema>) {

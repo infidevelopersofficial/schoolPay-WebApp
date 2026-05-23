@@ -1,3 +1,4 @@
+import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
@@ -19,7 +20,8 @@ export const uploadResultSchema = z.object({
 })
 
 export async function getResults(opts?: { studentId?: string; examId?: string }) {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   const { studentId, examId } = opts ?? {}
   return withDAL(
     "results.getAll",
@@ -38,6 +40,7 @@ export async function getResults(opts?: { studentId?: string; examId?: string })
       }),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
   )
+  })
 }
 
 export async function uploadResult(input: z.infer<typeof uploadResultSchema>) {

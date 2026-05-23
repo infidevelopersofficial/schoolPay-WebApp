@@ -1,11 +1,14 @@
 "use server"
 
+import { withTenantAuth } from "@/lib/tenant-auth"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 import { createParent, createParentSchema } from "@/lib/dal/parents"
 
 export async function addParentAction(prevState: any, formData: FormData) {
-  const session = await auth()
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const session = await auth()
   if (!session) return { error: "Unauthorized" }
 
   const raw = Object.fromEntries(formData.entries())
@@ -22,5 +25,9 @@ export async function addParentAction(prevState: any, formData: FormData) {
   } catch (e: any) {
     if (e?.code === "P2002") return { error: "A parent with this email already exists" }
     return { error: "Failed to create parent" }
+  }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
   }
 }

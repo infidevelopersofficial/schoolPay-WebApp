@@ -22,6 +22,7 @@ declare module "next-auth" {
       tenantType?: string       // "SCHOOL" | "COACHING_CENTER" | "PRIVATE_TUTOR"
       planTier?: string         // "FREE" | "STARTER" | "PROFESSIONAL" | "ENTERPRISE"
       parentId?: string         // Set when schoolRole === "PARENT"
+      studentId?: string        // Set when schoolRole === "STUDENT"
     } & DefaultSession["user"]
   }
 
@@ -32,6 +33,7 @@ declare module "next-auth" {
     tenantType?: string
     planTier?: string
     parentId?: string
+    studentId?: string
   }
 }
 
@@ -43,5 +45,6 @@ declare module "next-auth/jwt" {
     tenantType?: string
     planTier?: string
     parentId?: string
+    studentId?: string
   }
 }

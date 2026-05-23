@@ -22,7 +22,7 @@ export const authConfig = {
       const isLoggedIn = !!auth?.user
       const pathname = nextUrl.pathname
 
-      const isOnLoginPage   = pathname.startsWith("/login")
+      const isOnLoginPage   = pathname.startsWith("/login") || pathname.startsWith("/school/login")
       const isOnSchoolSelect = pathname.startsWith("/select-school")
       const isOnParentPortal = pathname.startsWith("/parent")
       const isApiRoute      = pathname.startsWith("/api")
@@ -45,6 +45,12 @@ export const authConfig = {
         if (user?.schoolRole === "PARENT") {
           return Response.redirect(new URL("/parent/dashboard", nextUrl))
         }
+
+        // STUDENT role → student portal, not admin dashboard
+        if (user?.schoolRole === "STUDENT") {
+          return Response.redirect(new URL("/student/dashboard", nextUrl))
+        }
+
         return Response.redirect(new URL("/", nextUrl))
       }
 
@@ -54,12 +60,27 @@ export const authConfig = {
           schoolRole?: string
           role?: string
           parentId?: string
+          studentId?: string
+          isPendingActivation?: boolean
         } | undefined
 
         const hasSchool  = !!user?.activeSchoolId
         const isSuperAdmin = user?.role === "SUPER_ADMIN"
         const isParent   = user?.schoolRole === "PARENT"
-
+        const isStudent  = user?.schoolRole === "STUDENT"
+        const isPendingActivation = user?.isPendingActivation === true
+        const isOnActivationRoute = pathname === "/student/activate"
+        
+        // ── Phase 5B.1: Activation Redirects ────────────────────────────────
+        if (isStudent) {
+          if (isPendingActivation && !isOnActivationRoute) {
+            return Response.redirect(new URL("/student/activate", nextUrl))
+          }
+          if (!isPendingActivation && isOnActivationRoute) {
+            return Response.redirect(new URL("/student/dashboard", nextUrl))
+          }
+        }
+        
         // ── Parent portal routes ────────────────────────────────────────────
         if (isOnParentPortal) {
           // Only parents (or super admins previewing) may access /parent/*
@@ -73,10 +94,24 @@ export const authConfig = {
           return true
         }
 
+        const isOnStudentPortal = pathname.startsWith("/student")
+
+        // ── Student portal routes ───────────────────────────────────────────
+        if (isOnStudentPortal) {
+          if (!isStudent && !isSuperAdmin) {
+            return Response.redirect(new URL("/", nextUrl))
+          }
+          if (isStudent && !user?.studentId) {
+            return Response.redirect(new URL("/login?error=student-not-linked", nextUrl))
+          }
+          return true
+        }
+
         // ── Admin dashboard routes ──────────────────────────────────────────
-        // Parents should not be on the admin portal at all
-        if (isParent && !isOnSchoolSelect) {
-          return Response.redirect(new URL("/parent/dashboard", nextUrl))
+        // Parents and Students should not be on the admin portal at all
+        if ((isParent || isStudent) && !isOnSchoolSelect) {
+          const redirectPath = isParent ? "/parent/dashboard" : "/student/dashboard"
+          return Response.redirect(new URL(redirectPath, nextUrl))
         }
 
         // Must have a school selected (unless SUPER_ADMIN)
@@ -96,6 +131,8 @@ export const authConfig = {
         session.user.tenantType = token.tenantType as string | undefined
         session.user.planTier = token.planTier as string | undefined
         session.user.parentId = token.parentId as string | undefined
+        session.user.studentId = token.studentId as string | undefined
+        ;(session.user as any).isPendingActivation = token.isPendingActivation === true
       }
       return session
     },

@@ -20,35 +20,39 @@ export const createPaymentSchema = z.object({
 
 export type CreatePaymentInput = z.infer<typeof createPaymentSchema>
 
-export async function getPayments(opts?: { page?: number; limit?: number; studentId?: string }) {
-  const schoolId = await getSchoolId()
-  const { page = 1, limit = 50, studentId } = opts ?? {}
-  const where = {
-    schoolId,
-    ...(studentId && { studentId }),
-  }
+import { withTenantRead } from "@/lib/dal/core"
 
-  return measureAsync(
-    "payments.getAll",
-    () =>
-      Promise.all([
-        prisma.payment.findMany({
-          where,
-          skip: (page - 1) * limit,
-          take: limit,
-          orderBy: { date: "desc" },
-          include: { student: { select: { name: true, class: true } } },
-        }),
-        prisma.payment.count({ where }),
-      ]).then(([payments, total]) => ({
-        payments,
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      })),
-    { sentryOp: "db.query", domain: "db", thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
-  )
+export async function getPayments(opts?: { page?: number; limit?: number; studentId?: string }) {
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    const { page = 1, limit = 50, studentId } = opts ?? {}
+    const where = {
+      schoolId,
+      ...(studentId && { studentId }),
+    }
+
+    return measureAsync(
+      "payments.getAll",
+      () =>
+        Promise.all([
+          prisma.payment.findMany({
+            where,
+            skip: (page - 1) * limit,
+            take: limit,
+            orderBy: { date: "desc" },
+            include: { student: { select: { name: true, class: true } } },
+          }),
+          prisma.payment.count({ where }),
+        ]).then(([payments, total]) => ({
+          payments,
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        })),
+      { sentryOp: "db.query", domain: "db", thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
+    )
+  })
 }
 
 export async function createPayment(input: CreatePaymentInput) {

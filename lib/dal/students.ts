@@ -1,3 +1,4 @@
+import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
@@ -5,6 +6,7 @@ import { withDAL } from "@/lib/dal/utils"
 import { getSchoolId } from "@/lib/tenant-context"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
+import { enforcePlanLimit } from "@/lib/billing/limits"
 
 const log = logger.child({ domain: "students" })
 
@@ -43,7 +45,8 @@ export async function getStudents(opts?: {
   sortBy?: string
   sortDir?: "asc" | "desc"
 }) {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   const { page = 1, limit = 50, search, classFilter, feeStatus, sortBy, sortDir } = opts ?? {}
 
   const where = {
@@ -77,28 +80,31 @@ export async function getStudents(opts?: {
       })),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
   )
+  })
 }
 
 export async function getStudent(id: string) {
-  const schoolId = await getSchoolId()
-  return withDAL(
-    "students.getOne",
-    () =>
-      prisma.student.findUnique({
-        where: { id },
-        include: {
-          parent: true,
-          payments: { orderBy: { date: "desc" }, take: 10 },
-          attendance: { orderBy: { date: "desc" }, take: 30 },
-          results: { orderBy: { createdAt: "desc" } },
-        },
-      }).then((student) => {
-        // Enforce ownership — never return a student from another tenant
-        if (student && student.schoolId !== schoolId) return null
-        return student
-      }),
-    { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
-  )
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return withDAL(
+      "students.getOne",
+      () =>
+        prisma.student.findUnique({
+          where: { id },
+          include: {
+            parent: true,
+            payments: { orderBy: { date: "desc" }, take: 10 },
+            attendance: { orderBy: { date: "desc" }, take: 30 },
+            results: { orderBy: { createdAt: "desc" } },
+          },
+        }).then((student) => {
+          // Enforce ownership
+          if (student && student.schoolId !== schoolId) return null
+          return student
+        }),
+      { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
+    )
+  })
 }
 
 // ──────────────────────────────────────────────
@@ -109,19 +115,33 @@ export async function createStudent(input: CreateStudentInput) {
   const schoolId = await getSchoolId()
   const validated = createStudentSchema.parse(input)
 
+  // Enforce usage limit before creating
+  await enforcePlanLimit({ schoolId, limitType: "studentLimit", incrementBy: 1 })
+
   return withDAL(
     "students.create",
     async () => {
-      const student = await prisma.student.create({
-        data: {
-          ...validated,
-          schoolId,
-          feeStatus: "PENDING",
-          paidAmount: 0,
-          pendingAmount: validated.totalFees,
-          dateOfBirth: validated.dateOfBirth ? new Date(validated.dateOfBirth) : undefined,
-          admissionDate: new Date(),
-        },
+      // Run as sequential transaction so we get the UsageRecord sync correctly
+      const student = await prisma.$transaction(async (tx) => {
+        const created = await tx.student.create({
+          data: {
+            ...validated,
+            schoolId,
+            feeStatus: "PENDING",
+            paidAmount: 0,
+            pendingAmount: validated.totalFees,
+            dateOfBirth: validated.dateOfBirth ? new Date(validated.dateOfBirth) : undefined,
+            admissionDate: new Date(),
+          },
+        })
+
+        // Authoritative source of usage sync
+        await tx.usageRecord.updateMany({
+          where: { schoolId },
+          data: { currentStudents: { increment: 1 } }
+        })
+
+        return created
       })
 
       await recordAuditLog({
@@ -179,9 +199,19 @@ export async function deleteStudent(id: string) {
       const existing = await prisma.student.findUnique({ where: { id } })
       if (existing?.schoolId !== schoolId) throw new Error("Student not found")
 
-      const student = await prisma.student.update({
-        where: { id },
-        data: { isActive: false },
+      const student = await prisma.$transaction(async (tx) => {
+        const updated = await tx.student.update({
+          where: { id },
+          data: { isActive: false },
+        })
+
+        // Authoritative source of usage sync
+        await tx.usageRecord.updateMany({
+          where: { schoolId },
+          data: { currentStudents: { decrement: 1 } }
+        })
+
+        return updated
       })
 
       await recordAuditLog({

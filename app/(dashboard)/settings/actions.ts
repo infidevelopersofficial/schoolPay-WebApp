@@ -1,5 +1,6 @@
 "use server"
 
+import { withTenantAuth } from "@/lib/tenant-auth"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 import { updateSchool } from "@/lib/dal/schools"
@@ -19,7 +20,9 @@ const updateSchoolSettingsSchema = z.object({
 })
 
 export async function updateSchoolSettingsAction(prevState: any, formData: FormData) {
-  const session = await auth()
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const session = await auth()
   if (!session) return { error: "Unauthorized" }
 
   const raw = Object.fromEntries(formData.entries())
@@ -41,5 +44,9 @@ export async function updateSchoolSettingsAction(prevState: any, formData: FormD
     return { success: true }
   } catch (e) {
     return { error: "Failed to update school settings" }
+  }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
   }
 }

@@ -1,3 +1,4 @@
+import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
@@ -22,7 +23,8 @@ export const createExamSchema = z.object({
 })
 
 export async function getExams() {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   return withDAL(
     "exams.getAll",
     () =>
@@ -36,6 +38,7 @@ export async function getExams() {
       }),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
   )
+  })
 }
 
 export async function createExam(input: z.infer<typeof createExamSchema>) {

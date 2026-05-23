@@ -2,6 +2,7 @@ import type React from "react"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { auth } from "@/lib/auth"
+import { GracePeriodBanner } from "@/components/billing/grace-period-banner"
 
 /**
  * Dashboard Layout — wraps all authenticated pages with the sidebar and header.
@@ -22,15 +23,18 @@ export default async function DashboardLayout({
   const user = session?.user
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <div className="pl-0 md:pl-56">
+    <div className="min-h-screen bg-background flex flex-col">
+      <GracePeriodBanner />
+      <div className="flex-1 relative">
+        <Sidebar />
+        <div className="pl-0 md:pl-56">
         <Header
           userName={user?.name}
           userEmail={user?.email}
           userImage={user?.image}
         />
         <main className="p-4 md:p-6">{children}</main>
+      </div>
       </div>
     </div>
   )

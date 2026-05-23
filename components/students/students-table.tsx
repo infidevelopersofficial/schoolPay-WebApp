@@ -21,7 +21,7 @@ interface StudentsTableProps {
   data: {
     id: string;
     name: string;
-    email: string;
+    email: string | null;
     class: string;
     phone: string | null;
     feeStatus: string;

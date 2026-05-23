@@ -4,6 +4,7 @@ import { recordAuditLog } from "@/lib/audit"
 import { withDAL } from "@/lib/dal/utils"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
+import { generateTenantId } from "@/lib/utils/tenant-id-generator"
 
 const log = logger.child({ domain: "schools" })
 
@@ -17,6 +18,7 @@ export const createSchoolSchema = z.object({
     .string()
     .min(1, "Slug is required")
     .regex(/^[a-z0-9-]+$/, "Slug must be lowercase alphanumeric with hyphens"),
+  type: z.enum(["SCHOOL", "COACHING_CENTER", "PRIVATE_TUTOR"]).default("SCHOOL"),
   address: z.string().optional(),
   phone: z.string().optional(),
   email: z.string().email().optional(),
@@ -140,7 +142,13 @@ export async function createSchool(input: CreateSchoolInput) {
   return withDAL(
     "schools.create",
     async () => {
-      const school = await prisma.school.create({ data: validated })
+      const tenantId = await generateTenantId(validated.type as any)
+      const school = await prisma.school.create({ 
+        data: {
+          ...validated,
+          tenantId
+        } 
+      })
 
       await recordAuditLog({
         action: "CREATE",

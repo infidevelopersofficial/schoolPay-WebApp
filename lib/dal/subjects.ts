@@ -1,3 +1,4 @@
+import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
@@ -16,7 +17,8 @@ export const createSubjectSchema = z.object({
 })
 
 export async function getSubjects() {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   return withDAL(
     "subjects.getAll",
     () =>
@@ -26,6 +28,7 @@ export async function getSubjects() {
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
+  })
 }
 
 export async function createSubject(input: z.infer<typeof createSubjectSchema>) {

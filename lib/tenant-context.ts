@@ -12,6 +12,7 @@
  */
 
 import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 import { cache } from "react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -22,6 +23,7 @@ export interface TenantContext {
   tenantType: string       // "SCHOOL" | "COACHING_CENTER" | "PRIVATE_TUTOR"
   planTier: string         // "FREE" | "STARTER" | "PROFESSIONAL" | "ENTERPRISE"
   parentId: string | null  // populated when schoolRole === "PARENT"
+  onboardingStatus: string // "PENDING" | "IN_PROGRESS" | "COMPLETED"
 }
 
 // ─── TenantError ──────────────────────────────────────────────────────────────
@@ -52,12 +54,28 @@ export const getTenantContext = cache(async (): Promise<TenantContext> => {
   const schoolId = user?.activeSchoolId as string | undefined
   if (!schoolId) throw new TenantError()
 
+  // Fetch onboarding status from the School model
+  let onboardingStatus = "PENDING"
+  try {
+    const school = await prisma.school.findUnique({
+      where: { id: schoolId },
+      select: { onboardingStatus: true },
+    })
+    if (school) {
+      onboardingStatus = school.onboardingStatus || "PENDING"
+    }
+  } catch (err) {
+    // If query fails, default to PENDING to not break the session
+    console.warn("Failed to fetch onboardingStatus for school:", err)
+  }
+
   return {
     schoolId,
     schoolRole: (user?.schoolRole as string) ?? null,
     tenantType: (user?.tenantType as string) ?? "SCHOOL",
     planTier: (user?.planTier as string) ?? "FREE",
     parentId: (user?.parentId as string) ?? null,
+    onboardingStatus,
   }
 })
 

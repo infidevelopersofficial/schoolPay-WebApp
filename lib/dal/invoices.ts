@@ -1,3 +1,4 @@
+import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
@@ -41,7 +42,8 @@ export async function getInvoices(opts?: {
   studentId?: string
   status?: string
 }) {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   const { page = 1, limit = 50, studentId, status } = opts ?? {}
   const where: any = {
     schoolId,
@@ -70,10 +72,12 @@ export async function getInvoices(opts?: {
       })),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
   )
+  })
 }
 
 export async function getInvoice(id: string) {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   return withDAL(
     "invoices.getOne",
     () =>
@@ -86,6 +90,7 @@ export async function getInvoice(id: string) {
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
+  })
 }
 
 // ──────────────────────────────────────────────
@@ -184,7 +189,8 @@ export async function updateInvoiceStatus(id: string, status: "DRAFT" | "SENT" |
 }
 
 export async function getInvoiceSummary() {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   return withDAL(
     "invoices.summary",
     () =>
@@ -201,4 +207,5 @@ export async function getInvoiceSummary() {
       })),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
   )
+  })
 }

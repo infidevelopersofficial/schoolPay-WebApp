@@ -1,3 +1,4 @@
+import { withTenantRead } from "@/lib/dal/core"
 /**
  * Parent Portal DAL
  *
@@ -26,7 +27,8 @@ const log = logger.child({ domain: "parent-portal" })
  * each child's fee status and recent attendance.
  */
 export async function getParentDashboard() {
-  const { schoolId, parentId } = await getParentContext()
+  return withTenantRead(async () => {
+    const { schoolId, parentId } = await getParentContext()
   return withDAL(
     "parentPortal.dashboard",
     () =>
@@ -70,6 +72,7 @@ export async function getParentDashboard() {
       }),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
   )
+  })
 }
 
 // ──────────────────────────────────────────────
@@ -87,7 +90,8 @@ async function assertChildOwnership(studentId: string, schoolId: string, parentI
 }
 
 export async function getChildAttendance(studentId: string, opts?: { limit?: number }) {
-  const { schoolId, parentId } = await getParentContext()
+  return withTenantRead(async () => {
+    const { schoolId, parentId } = await getParentContext()
   await assertChildOwnership(studentId, schoolId, parentId)
   const { limit = 60 } = opts ?? {}
   return withDAL(
@@ -105,10 +109,12 @@ export async function getChildAttendance(studentId: string, opts?: { limit?: num
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
+  })
 }
 
 export async function getChildResults(studentId: string) {
-  const { schoolId, parentId } = await getParentContext()
+  return withTenantRead(async () => {
+    const { schoolId, parentId } = await getParentContext()
   await assertChildOwnership(studentId, schoolId, parentId)
   return withDAL(
     "parentPortal.childResults",
@@ -122,10 +128,12 @@ export async function getChildResults(studentId: string) {
       }),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
   )
+  })
 }
 
 export async function getChildPayments(studentId: string) {
-  const { schoolId, parentId } = await getParentContext()
+  return withTenantRead(async () => {
+    const { schoolId, parentId } = await getParentContext()
   await assertChildOwnership(studentId, schoolId, parentId)
   return withDAL(
     "parentPortal.childPayments",
@@ -146,10 +154,12 @@ export async function getChildPayments(studentId: string) {
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
+  })
 }
 
 export async function getChildInvoices(studentId: string) {
-  const { schoolId, parentId } = await getParentContext()
+  return withTenantRead(async () => {
+    const { schoolId, parentId } = await getParentContext()
   await assertChildOwnership(studentId, schoolId, parentId)
   return withDAL(
     "parentPortal.childInvoices",
@@ -180,10 +190,12 @@ export async function getChildInvoices(studentId: string) {
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
+  })
 }
 
 export async function getSchoolAnnouncements() {
-  const { schoolId } = await getParentContext()
+  return withTenantRead(async () => {
+    const { schoolId } = await getParentContext()
   return withDAL(
     "parentPortal.announcements",
     () =>
@@ -198,4 +210,5 @@ export async function getSchoolAnnouncements() {
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
+  })
 }

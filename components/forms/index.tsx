@@ -12,7 +12,6 @@ export {
   CreateLessonForm,
   ScheduleExamForm,
   UploadResultForm,
-  MarkAttendanceForm,
   CreateEventForm,
   ComposeMessageForm,
   NewAnnouncementForm,

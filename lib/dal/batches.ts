@@ -1,3 +1,4 @@
+import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
@@ -37,7 +38,8 @@ export type CreateBatchInput = z.infer<typeof createBatchSchema>
 // ──────────────────────────────────────────────
 
 export async function getBatches(opts?: { isActive?: boolean; teacherId?: string }) {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   const { isActive = true, teacherId } = opts ?? {}
   return withDAL(
     "batches.getAll",
@@ -56,10 +58,12 @@ export async function getBatches(opts?: { isActive?: boolean; teacherId?: string
       }),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
   )
+  })
 }
 
 export async function getBatch(id: string) {
-  const schoolId = await getSchoolId()
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
   return withDAL(
     "batches.getOne",
     () =>
@@ -78,6 +82,7 @@ export async function getBatch(id: string) {
       }),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
   )
+  })
 }
 
 // ──────────────────────────────────────────────
