@@ -69,7 +69,7 @@ export default async function ParentDashboardPage() {
         </Card>
       ) : (
         <div className="space-y-8">
-          {students.map((student) => {
+          {students.map((student: any) => {
             const att = attendanceSummary(student.attendance)
             const recentPayment = student.payments[0]
             const recentResult = student.results[0]

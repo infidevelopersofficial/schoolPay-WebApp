@@ -1,4 +1,6 @@
-import { getParentDashboard, getChildResults } from "@/lib/dal/parent-portal"
+const fs = require("fs");
+
+const newContent = `import { getParentDashboard, getChildResults } from "@/lib/dal/parent-portal"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Star, Trophy, TrendingUp, BookOpen } from "lucide-react"
@@ -27,27 +29,22 @@ export default async function ParentResultsPage() {
         <p className="text-slate-500 mt-1 text-sm">Academic performance tracked by term and exam group</p>
       </div>
 
-      {students.map(async (student: any) => {
+      {students.map(async (student) => {
         // Fetch full results with exam group structure for this child
-        let fullResults: any[] = [];
-        try {
-          fullResults = await getChildResults(student.id);
-        } catch(e) {
-          console.error(e);
-        }
+        const fullResults = await getChildResults(student.id).catch(() => []);
         
         const avgPercentage = fullResults.length > 0
-          ? fullResults.reduce((s, r) => s + (r.marks !== null && (r.exam.maxMarks || 0) > 0 ? (r.marks / (r.exam.maxMarks || 1)) * 100 : 0), 0) / fullResults.length
+          ? fullResults.reduce((s, r) => s + (r.marks !== null && r.exam.maxMarks > 0 ? (r.marks / r.exam.maxMarks) * 100 : 0), 0) / fullResults.length
           : null
 
         // Group by AcademicYear -> ExamGroup
         const grouped = fullResults.reduce((acc, result) => {
-          const yearName = result.exam.examGroup?.session?.name || "Unassigned Year";
+          const yearName = result.exam.examGroup?.academicYear?.name || "Unassigned Year";
           const groupName = result.exam.examGroup?.name || "Ungrouped Exams";
-          const termName = "";
+          const termName = result.exam.examGroup?.term || "";
           
           if (!acc[yearName]) acc[yearName] = {};
-          if (!acc[yearName][groupName]) acc[yearName][groupName] = { term: termName, results: [] as any[] };
+          if (!acc[yearName][groupName]) acc[yearName][groupName] = { term: termName, results: [] };
           
           acc[yearName][groupName].results.push(result);
           return acc;
@@ -92,9 +89,7 @@ export default async function ParentResultsPage() {
                   <div key={yearName} className="space-y-4">
                     <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">{yearName}</h3>
                     
-                    {Object.entries(groups as any).map(([groupName, groupData]: [string, any]) => {
-                      const { term, results } = groupData;
-                      return (
+                    {Object.entries(groups).map(([groupName, { term, results }]) => (
                       <Card key={groupName} className="overflow-hidden">
                         <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 py-3">
                           <div className="flex items-center justify-between">
@@ -107,7 +102,7 @@ export default async function ParentResultsPage() {
                         </CardHeader>
                         <CardContent className="p-0">
                           <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {results.map((result: any) => {
+                            {results.map((result) => {
                               const perc = result.marks !== null && result.exam.maxMarks > 0 
                                 ? (result.marks / result.exam.maxMarks) * 100 
                                 : 0
@@ -118,7 +113,7 @@ export default async function ParentResultsPage() {
                                       <p className="font-medium text-slate-900 dark:text-slate-100 truncate">
                                         {result.exam.name}
                                       </p>
-                                      <Badge variant="outline" className={`text-xs ${gradeColor(result.grade)}`}>
+                                      <Badge variant="outline" className={\`text-xs \${gradeColor(result.grade)}\`}>
                                         {result.grade || "-"}
                                       </Badge>
                                     </div>
@@ -132,14 +127,14 @@ export default async function ParentResultsPage() {
                                     </div>
                                     <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                       <div
-                                        className={`h-full rounded-full transition-all ${
+                                        className={\`h-full rounded-full transition-all \${
                                           perc >= 75
                                             ? "bg-emerald-500"
                                             : perc >= 50
                                               ? "bg-amber-500"
                                               : "bg-red-500"
-                                        }`}
-                                        style={{ width: `${Math.min(100, perc)}%` }}
+                                        }\`}
+                                        style={{ width: \`\${Math.min(100, perc)}%\` }}
                                       />
                                     </div>
                                   </div>
@@ -149,8 +144,7 @@ export default async function ParentResultsPage() {
                           </div>
                         </CardContent>
                       </Card>
-                      )
-                    })}
+                    ))}
                   </div>
                 ))}
               </div>
@@ -161,3 +155,6 @@ export default async function ParentResultsPage() {
     </div>
   )
 }
+`
+
+fs.writeFileSync("app/(parent-portal)/parent/results/page.tsx", newContent);

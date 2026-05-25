@@ -1,4 +1,6 @@
-import { getParentDashboard, getChildInvoices } from "@/lib/dal/parent-portal"
+const fs = require("fs");
+
+const newContent = `import { getParentDashboard, getChildInvoices } from "@/lib/dal/parent-portal"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { IndianRupee, Receipt, CheckCircle, AlertTriangle, FileText } from "lucide-react"
@@ -29,7 +31,7 @@ export default async function ParentFeesPage() {
         <p className="text-slate-500 mt-1 text-sm">Track your children's fee status, view invoices, and make payments</p>
       </div>
 
-      {students.map(async (student: any) => {
+      {students.map(async (student) => {
         // Fetch full invoices
         const invoices = await getChildInvoices(student.id).catch(() => [])
 
@@ -79,7 +81,7 @@ export default async function ParentFeesPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className={`text-2xl font-bold ${student.pendingAmount > 0 ? "text-red-600" : "text-slate-400"}`}>
+                  <p className={\`text-2xl font-bold \${student.pendingAmount > 0 ? "text-red-600" : "text-slate-400"}\`}>
                     ₹{student.pendingAmount.toLocaleString("en-IN")}
                   </p>
                 </CardContent>
@@ -96,7 +98,7 @@ export default async function ParentFeesPage() {
                 <div className="h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-violet-500 to-indigo-600 rounded-full transition-all"
-                    style={{ width: `${Math.min(100, (student.paidAmount / student.totalFees) * 100)}%` }}
+                    style={{ width: \`\${Math.min(100, (student.paidAmount / student.totalFees) * 100)}%\` }}
                   />
                 </div>
               </div>
@@ -111,7 +113,7 @@ export default async function ParentFeesPage() {
                 <p className="text-sm text-slate-500">No invoices generated yet.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {invoices.map((inv: any) => (
+                  {invoices.map((inv) => (
                     <InvoicePaymentCard key={inv.id} invoice={inv} studentName={student.name} />
                   ))}
                 </div>
@@ -127,7 +129,7 @@ export default async function ParentFeesPage() {
                 <Card className="border-none shadow-sm">
                   <CardContent className="p-0">
                     <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {student.payments.map((p: any, i: number) => (
+                      {student.payments.map((p, i) => (
                         <div key={i} className="flex items-center justify-between px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
                           <div>
                             <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{p.feeType}</p>
@@ -137,7 +139,7 @@ export default async function ParentFeesPage() {
                             </p>
                           </div>
                           <div className="flex items-center gap-3">
-                            <Badge variant="outline" className={`text-xs ${statusBadge(p.status)}`}>
+                            <Badge variant="outline" className={\`text-xs \${statusBadge(p.status)}\`}>
                               {p.status}
                             </Badge>
                             <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
@@ -157,3 +159,6 @@ export default async function ParentFeesPage() {
     </div>
   )
 }
+`
+
+fs.writeFileSync("app/(parent-portal)/parent/fees/page.tsx", newContent);

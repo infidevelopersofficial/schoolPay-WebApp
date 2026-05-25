@@ -58,6 +58,9 @@ export async function POST(req: NextRequest) {
         case "subscription.authenticated":
           await handleSubscriptionAuthenticated(event.payload.subscription.entity)
           break
+        case "order.paid":
+          await handleOrderPaid(event.payload.order.entity, event.payload.payment.entity)
+          break
         default:
           console.log(`Unhandled Razorpay event: ${event.event}`)
       }
@@ -218,4 +221,80 @@ async function handleSubscriptionCancelled(subscriptionData: any) {
     "CANCELED", 
     { action: "SUBSCRIPTION_CANCELLED" }
   );
+}
+
+async function handleOrderPaid(orderData: any, paymentData: any) {
+  const invoiceId = orderData.notes?.invoiceId
+  const schoolId = orderData.notes?.schoolId
+  const studentId = orderData.notes?.studentId
+
+  if (!invoiceId || !schoolId || !studentId) {
+    return
+  }
+
+  const razorpayPaymentId = paymentData?.id
+  const razorpayOrderId = orderData.id
+
+  await db.$transaction(async (tx) => {
+    // 0. Double Idempotency
+    const currentInvoice = await tx.invoice.findUnique({
+      where: { id: invoiceId },
+      select: { id: true, status: true, total: true }
+    })
+    
+    if (!currentInvoice || currentInvoice.status === "PAID") return;
+
+    if (razorpayPaymentId) {
+      const existingPayment = await tx.payment.findFirst({
+        where: { transactionId: razorpayPaymentId }
+      })
+      if (existingPayment) return;
+    }
+
+    // 1. Update Invoice
+    await tx.invoice.update({
+      where: { id: currentInvoice.id },
+      data: {
+        status: "PAID",
+        paidAt: new Date()
+      }
+    })
+
+    // 2. Create Payment Record
+    await tx.payment.create({
+      data: {
+        amount: currentInvoice.total,
+        date: new Date(),
+        feeType: "Tuition Fee",
+        paymentMethod: "ONLINE",
+        status: "COMPLETED",
+        schoolId,
+        studentId,
+        transactionId: razorpayPaymentId,
+        metadata: { invoiceId: currentInvoice.id, razorpayOrderId },
+        receiptNumber: "RCPT-" + Math.random().toString(36).substring(2, 8).toUpperCase()
+      }
+    })
+
+    // 3. Update Student Balances
+    await tx.student.update({
+      where: { id: studentId },
+      data: {
+        paidAmount: { increment: currentInvoice.total },
+        pendingAmount: { decrement: currentInvoice.total }
+      }
+    })
+
+    // 4. Audit Log
+    await tx.auditLog.create({
+      data: {
+        action: "PAYMENT_VERIFIED",
+        entityType: "INVOICE",
+        entityId: currentInvoice.id,
+        schoolId,
+        newValues: { status: "PAID", razorpayPaymentId, razorpayOrderId },
+        description: "Payment verified from webhook (order.paid)"
+      }
+    })
+  })
 }

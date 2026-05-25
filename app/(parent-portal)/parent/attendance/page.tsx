@@ -25,10 +25,10 @@ export default async function ParentAttendancePage() {
         <p className="text-slate-500 mt-1 text-sm">Last 30 days attendance record</p>
       </div>
 
-      {students.map((student) => {
+      {students.map((student: any) => {
         const total = student.attendance.length
-        const present = student.attendance.filter((a) => a.status === "PRESENT" || a.status === "LATE").length
-        const absent = student.attendance.filter((a) => a.status === "ABSENT").length
+        const present = student.attendance.filter((a: any) => a.status === "PRESENT" || a.status === "LATE").length
+        const absent = student.attendance.filter((a: any) => a.status === "ABSENT").length
         const rate = total > 0 ? Math.round((present / total) * 100) : 0
 
         return (
@@ -73,7 +73,7 @@ export default async function ParentAttendancePage() {
                   <p className="text-center text-slate-400 text-sm py-8">No attendance records</p>
                 ) : (
                   <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {student.attendance.map((record, i) => {
+                    {student.attendance.map((record: any, i: number) => {
                       const cfg = STATUS_CONFIG[record.status as keyof typeof STATUS_CONFIG]
                       const Icon = cfg?.icon ?? CheckCircle
                       return (

@@ -42,7 +42,7 @@ export default async function ParentAnnouncementsPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {announcements.map((ann) => {
+          {announcements.map((ann: any) => {
             const cfg = PRIORITY_CONFIG[ann.priority as keyof typeof PRIORITY_CONFIG]
             const Icon = cfg?.icon ?? Bell
             return (
