@@ -37,7 +37,7 @@ export default async function StudentResultsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Exam Name</TableHead>
+                  <TableHead>Exam Group</TableHead>
                   <TableHead>Subject</TableHead>
                   <TableHead>Marks Obtained</TableHead>
                   <TableHead>Total Marks</TableHead>
@@ -49,13 +49,13 @@ export default async function StudentResultsPage() {
                 {results.map((result) => (
                   <TableRow key={result.id}>
                     <TableCell className="font-medium">
-                      {result.exam?.name || "Exam"}
+                      {result.exam?.examGroup?.name || "Exam"}
                     </TableCell>
-                    <TableCell>{result.examName}</TableCell>
-                    <TableCell className="font-bold">{result.marks}</TableCell>
-                    <TableCell>{result.maxMarks}</TableCell>
+                    <TableCell>{result.exam?.subject?.name || result.exam?.name || "-"}</TableCell>
+                    <TableCell className="font-bold">{result.marks ?? "-"}</TableCell>
+                    <TableCell>{result.exam?.maxMarks ?? "-"}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{result.grade}</Badge>
+                      <Badge variant="outline">{result.grade || "-"}</Badge>
                     </TableCell>
                     <TableCell>
                       {new Date(result.createdAt).toLocaleDateString()}
@@ -73,18 +73,18 @@ export default async function StudentResultsPage() {
                 <CardContent className="p-4 flex flex-col gap-3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-medium">{result.examName}</h3>
-                      <p className="text-xs text-muted-foreground">{result.exam?.name || "Exam"}</p>
+                      <h3 className="font-medium">{result.exam?.examGroup?.name || "Exam"}</h3>
+                      <p className="text-xs text-muted-foreground">{result.exam?.subject?.name || result.exam?.name || "-"}</p>
                     </div>
-                    <Badge variant="outline">{result.grade}</Badge>
+                    <Badge variant="outline">{result.grade || "-"}</Badge>
                   </div>
                   <div className="flex justify-between items-end border-t pt-3">
                     <p className="text-xs text-muted-foreground">
                       Published {new Date(result.createdAt).toLocaleDateString()}
                     </p>
                     <div className="text-right">
-                      <span className="text-2xl font-bold">{result.marks}</span>
-                      <span className="text-sm text-muted-foreground"> / {result.maxMarks}</span>
+                      <span className="text-2xl font-bold">{result.marks ?? "-"}</span>
+                      <span className="text-sm text-muted-foreground"> / {result.exam?.maxMarks ?? "-"}</span>
                     </div>
                   </div>
                 </CardContent>

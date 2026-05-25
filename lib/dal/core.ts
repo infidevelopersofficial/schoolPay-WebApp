@@ -16,3 +16,15 @@ export async function withTenantRead<T>(
     return action(schoolId)
   })
 }
+
+import { prisma } from "@/lib/prisma"
+
+export async function getActiveSession() {
+  const { schoolId } = await getTenantContext()
+  return await tenantContext.run({ schoolId }, async () => {
+    return await prisma.academicSession.findFirst({
+      where: { schoolId, isCurrent: true },
+      orderBy: { createdAt: 'desc' }
+    })
+  })
+}

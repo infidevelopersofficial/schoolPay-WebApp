@@ -26,6 +26,8 @@ interface AuditLogParams {
     | "MESSAGE"
     | "ANNOUNCEMENT"
     | "SCHOOL"
+    | "EXAM_GROUP"
+    | "GRADING_SCHEME"
   entityId: string
   oldValues?: unknown
   newValues?: unknown

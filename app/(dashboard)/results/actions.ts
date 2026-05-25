@@ -1,32 +1,48 @@
 "use server"
 
-import { withTenantAuth } from "@/lib/tenant-auth"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
-import { uploadResult, uploadResultSchema } from "@/lib/dal/results"
+import { bulkUpsertResults } from "@/lib/dal/results"
 
-export async function uploadResultAction(prevState: any, formData: FormData) {
-  try {
-    return await withTenantAuth("hasExams", ["ADMIN", "TEACHER"], async () => {
-      const session = await auth()
-  if (!session) return { error: "Unauthorized" }
+export async function bulkUpsertResultAction(formData: FormData) {
+  const session = await auth()
+  if (!session?.user) {
+    return { success: false, error: "Unauthorized" }
+  }
 
-  const raw = Object.fromEntries(formData.entries())
-  const result = uploadResultSchema.safeParse(raw)
-
-  if (!result.success) {
-    return { error: "Validation failed", fieldErrors: result.error.flatten().fieldErrors }
+  // Allow Teachers and Admins
+  if (session.user.role !== "ADMIN" && session.user.role !== "TEACHER") {
+    return { success: false, error: "Unauthorized" }
   }
 
   try {
-    await uploadResult(result.data)
-    revalidatePath("/results")
-    return { success: true }
-  } catch (e) {
-    return { error: "Failed to upload result" }
-  }
-    })
-  } catch (e: any) {
-    return { error: e.message || "Unauthorized" }
+    const examId = formData.get("examId") as string
+    const sessionId = formData.get("sessionId") as string
+    const overrideReason = formData.get("overrideReason") as string | undefined
+    
+    // Parse results from JSON string in form data
+    const resultsStr = formData.get("results") as string
+    if (!resultsStr) {
+      throw new Error("Missing results data")
+    }
+    
+    const results = JSON.parse(resultsStr)
+
+    // Ensure only admins can supply an override reason
+    if (overrideReason && session.user.role !== "ADMIN") {
+      throw new Error("Only admins can perform locked exam overrides")
+    }
+
+    const { upsertedCount, modifiedCount } = await bulkUpsertResults({
+      examId,
+      sessionId,
+      results,
+      overrideReason: session.user.role === "ADMIN" ? overrideReason : undefined,
+    }, session.user.id)
+    
+    revalidatePath("/exams")
+    return { success: true, upsertedCount, modifiedCount }
+  } catch (error: any) {
+    return { success: false, error: error.message }
   }
 }

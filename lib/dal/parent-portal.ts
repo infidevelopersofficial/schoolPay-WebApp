@@ -58,7 +58,7 @@ export async function getParentDashboard() {
                 where: { schoolId },
                 orderBy: { createdAt: "desc" },
                 take: 5,
-                select: { examName: true, grade: true, percentage: true, marks: true, maxMarks: true, createdAt: true },
+                select: { grade: true, marks: true, createdAt: true, exam: { select: { name: true, maxMarks: true } } },
               },
               payments: {
                 where: { schoolId },
@@ -123,7 +123,7 @@ export async function getChildResults(studentId: string) {
         where: { studentId, schoolId },
         orderBy: { createdAt: "desc" },
         include: {
-          exam: { select: { name: true, subject: true, class: true, date: true } },
+          exam: { select: { name: true, subject: true, batch: { select: { grade: true, section: true } }, date: true } },
         },
       }),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },

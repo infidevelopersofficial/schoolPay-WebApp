@@ -10,8 +10,6 @@ export {
   AddSubjectForm,
   AddClassForm,
   CreateLessonForm,
-  ScheduleExamForm,
-  UploadResultForm,
   CreateEventForm,
   ComposeMessageForm,
   NewAnnouncementForm,

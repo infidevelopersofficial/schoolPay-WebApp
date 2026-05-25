@@ -103,6 +103,9 @@ export async function getMyResults(limit?: number) {
         select: {
           name: true,
           date: true,
+          maxMarks: true,
+          subject: { select: { name: true } },
+          examGroup: { select: { name: true } }
         }
       }
     }
@@ -162,10 +165,10 @@ export async function getMyAnnouncements(limit?: number) {
 export async function getMyDashboard() {
   const { studentId, schoolId } = await getStudentContext()
 
-  // Pre-fetch basic student details needed for queries (like their class string for exams)
+  // Pre-fetch basic student details needed for queries
   const student = await prisma.student.findUnique({
     where: { id: studentId, schoolId },
-    select: { class: true }
+    select: { enrollments: { select: { batchId: true } } }
   })
 
   if (!student) {
@@ -199,14 +202,14 @@ export async function getMyDashboard() {
       where: { studentId, schoolId, status: "PUBLISHED" },
       orderBy: { createdAt: 'desc' },
       take: 3,
-      include: { exam: { select: { name: true } } }
+      include: { exam: { select: { name: true, maxMarks: true } } }
     }),
     // 4. Upcoming Exams
     prisma.exam.findMany({
       where: { 
         schoolId, 
-        class: student.class, // matches student.class directly as per schema
-        status: "SCHEDULED"
+        batchId: { in: student.enrollments.map(e => e.batchId) },
+        date: { gte: new Date().toISOString().split("T")[0] }
       },
       orderBy: { date: 'asc' },
       take: 3

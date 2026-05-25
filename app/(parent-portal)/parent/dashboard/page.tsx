@@ -163,8 +163,12 @@ export default async function ParentDashboardPage() {
                           <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
                             {recentResult.grade}
                           </p>
-                          <p className="text-xs text-slate-500 truncate mt-0.5">{recentResult.examName}</p>
-                          <p className="text-xs text-slate-400">{recentResult.percentage.toFixed(1)}%</p>
+                          <p className="text-xs text-slate-500 truncate mt-0.5">{recentResult.exam.name}</p>
+                          <p className="text-xs text-slate-400">
+                            {recentResult.marks !== null && recentResult.exam.maxMarks > 0 
+                              ? ((recentResult.marks / recentResult.exam.maxMarks) * 100).toFixed(1) + "%" 
+                              : "-"}
+                          </p>
                         </>
                       ) : (
                         <p className="text-sm text-slate-400">No results yet</p>

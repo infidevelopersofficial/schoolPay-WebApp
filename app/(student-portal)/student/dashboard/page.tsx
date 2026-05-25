@@ -141,13 +141,13 @@ export default async function StudentDashboardPage() {
                 {recentResults.map((result) => (
                   <div key={result.id} className="flex items-center justify-between border-b last:border-0 pb-3 last:pb-0">
                     <div>
-                      <p className="font-medium">{result.examName}</p>
+                      <p className="font-medium">{result.exam.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {result.exam?.name || "Exam"} • {new Date(result.createdAt).toLocaleDateString()}
+                        {new Date(result.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-lg">{result.marks} <span className="text-xs font-normal text-muted-foreground">/ {result.maxMarks}</span></p>
+                      <p className="font-bold text-lg">{result.marks} <span className="text-xs font-normal text-muted-foreground">/ {result.exam.maxMarks}</span></p>
                       <Badge variant="outline">{result.grade}</Badge>
                     </div>
                   </div>

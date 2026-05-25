@@ -4,10 +4,11 @@ import { Badge } from "@/components/ui/badge"
 import { Star, Trophy, TrendingUp } from "lucide-react"
 
 export const metadata = {
-  title: "Results — Parent Portal",
+  title: "Results - Parent Portal",
 }
 
-function gradeColor(grade: string) {
+function gradeColor(grade: string | null) {
+  if (!grade) return "bg-slate-100 text-slate-700 border-slate-200"
   const g = grade.toUpperCase()
   if (["A+", "A"].includes(g)) return "bg-emerald-100 text-emerald-700 border-emerald-200"
   if (["B+", "B"].includes(g)) return "bg-blue-100 text-blue-700 border-blue-200"
@@ -28,7 +29,7 @@ export default async function ParentResultsPage() {
 
       {students.map((student) => {
         const avgPercentage = student.results.length > 0
-          ? student.results.reduce((s, r) => s + r.percentage, 0) / student.results.length
+          ? student.results.reduce((s, r) => s + (r.marks !== null && r.exam.maxMarks > 0 ? (r.marks / r.exam.maxMarks) * 100 : 0), 0) / student.results.length
           : null
 
         return (
@@ -63,46 +64,51 @@ export default async function ParentResultsPage() {
               </Card>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {student.results.map((result, i) => (
-                  <Card key={i} className="hover:shadow-md transition-shadow group">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate pr-2">
-                          {result.examName}
-                        </CardTitle>
-                        <Badge variant="outline" className={`text-xs flex-shrink-0 ${gradeColor(result.grade)}`}>
-                          {result.grade}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      {/* Score bar */}
-                      <div className="mb-3">
-                        <div className="flex justify-between text-xs text-slate-400 mb-1.5">
-                          <span>{result.marks} / {result.maxMarks} marks</span>
-                          <span className="font-medium text-slate-600">{result.percentage.toFixed(1)}%</span>
+                {student.results.map((result, i) => {
+                  const perc = result.marks !== null && result.exam.maxMarks > 0 
+                    ? (result.marks / result.exam.maxMarks) * 100 
+                    : 0
+                  return (
+                    <Card key={i} className="hover:shadow-md transition-shadow group">
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate pr-2">
+                            {result.exam.name}
+                          </CardTitle>
+                          <Badge variant="outline" className={`text-xs flex-shrink-0 ${gradeColor(result.grade)}`}>
+                            {result.grade || "-"}
+                          </Badge>
                         </div>
-                        <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all ${
-                              result.percentage >= 75
-                                ? "bg-gradient-to-r from-emerald-400 to-emerald-600"
-                                : result.percentage >= 50
-                                  ? "bg-gradient-to-r from-amber-400 to-amber-500"
-                                  : "bg-gradient-to-r from-red-400 to-red-500"
-                            }`}
-                            style={{ width: `${Math.min(100, result.percentage)}%` }}
-                          />
+                      </CardHeader>
+                      <CardContent>
+                        {/* Score bar */}
+                        <div className="mb-3">
+                          <div className="flex justify-between text-xs text-slate-400 mb-1.5">
+                            <span>{result.marks ?? "-"} / {result.exam.maxMarks} marks</span>
+                            <span className="font-medium text-slate-600">{perc.toFixed(1)}%</span>
+                          </div>
+                          <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all ${
+                                perc >= 75
+                                  ? "bg-gradient-to-r from-emerald-400 to-emerald-600"
+                                  : perc >= 50
+                                    ? "bg-gradient-to-r from-amber-400 to-amber-500"
+                                    : "bg-gradient-to-r from-red-400 to-red-500"
+                              }`}
+                              style={{ width: `${Math.min(100, perc)}%` }}
+                            />
+                          </div>
                         </div>
-                      </div>
-                      <p className="text-xs text-slate-400">
-                        {new Date(result.createdAt).toLocaleDateString("en-IN", {
-                          day: "numeric", month: "short", year: "numeric",
-                        })}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
+                        <p className="text-xs text-slate-400">
+                          {new Date(result.createdAt).toLocaleDateString("en-IN", {
+                            day: "numeric", month: "short", year: "numeric",
+                          })}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
               </div>
             )}
           </div>

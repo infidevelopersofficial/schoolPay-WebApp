@@ -95,7 +95,7 @@ export async function getStudent(id: string) {
             parent: true,
             payments: { orderBy: { date: "desc" }, take: 10 },
             attendance: { orderBy: { date: "desc" }, take: 30 },
-            results: { orderBy: { createdAt: "desc" } },
+            results: { orderBy: { createdAt: "desc" }, include: { exam: { select: { name: true, maxMarks: true } } } },
           },
         }).then((student) => {
           // Enforce ownership
