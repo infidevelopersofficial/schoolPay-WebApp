@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
           await handleOrderPaid(event.payload.order.entity, event.payload.payment.entity)
           break
         default:
-          console.log(`Unhandled Razorpay event: ${event.event}`)
+          if (process.env.NODE_ENV === "development") console.log(`Unhandled Razorpay event: ${event.event}`)
       }
 
       // Mark as processed

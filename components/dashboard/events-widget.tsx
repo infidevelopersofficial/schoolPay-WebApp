@@ -29,7 +29,7 @@ export function EventsWidget({ events }: EventsWidgetProps) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg font-semibold">Upcoming Events</CardTitle>
-        <Link href="/events" className="text-sm text-primary hover:underline">
+        <Link href="/dashboard/events" className="text-sm text-primary hover:underline">
           View All
         </Link>
       </CardHeader>

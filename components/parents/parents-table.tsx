@@ -13,7 +13,7 @@ interface ParentsTableProps {
     id: string;
     name: string;
     email: string;
-    phone: string;
+    mobile: string;
     relationship: string | null;
     avatar?: string | null;
     students?: { name: string }[];
@@ -70,7 +70,7 @@ export function ParentsTable({ data }: ParentsTableProps) {
                   ? parent.students.map((s) => s.name).join(", ")
                   : "—"}
               </TableCell>
-              <TableCell>{parent.phone}</TableCell>
+              <TableCell>{parent.mobile}</TableCell>
               <TableCell>{parent.relationship ?? "—"}</TableCell>
               <TableCell>
                 <Badge className="bg-green-100 text-green-700">Active</Badge>

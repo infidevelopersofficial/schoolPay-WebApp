@@ -40,7 +40,7 @@ export function DataTableShell({
           <ol className="flex items-center gap-1 text-sm text-muted-foreground">
             <li>
               <Link
-                href="/"
+                href="/dashboard"
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
                 aria-label="Dashboard"
               >

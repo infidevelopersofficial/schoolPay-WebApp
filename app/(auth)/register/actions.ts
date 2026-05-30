@@ -54,6 +54,7 @@ export async function registerTenant(formData: FormData) {
             name,
             slug,
             tenantId,
+            schoolCode: tenantId,
             type,
             city,
             state,

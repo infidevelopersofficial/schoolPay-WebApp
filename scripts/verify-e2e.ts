@@ -3,7 +3,7 @@ import { registerTenant } from "../app/(auth)/register/actions";
 import { completeOnboarding } from "../components/forms/onboarding/actions";
 import { createTeacher } from "../lib/dal/teachers";
 import { createStudent } from "../lib/dal/students";
-import { importStudentsAction } from "../app/(dashboard)/students/import/actions";
+import { importStudentsAction } from "../app/(dashboard)/dashboard/students/import/actions";
 import { createPayment } from "../lib/dal/payments";
 import { createParent } from "../lib/dal/parents";
 import { createLead, convertLeadToStudent } from "../lib/dal/leads";
@@ -29,6 +29,7 @@ async function runE2E() {
         name: "E2E Test School",
         slug: "e2e-test-school-" + Date.now(),
         tenantId: "SCH-E2E-" + Date.now(),
+        schoolCode: "SCH-E2E-" + Date.now(),
         type: "SCHOOL",
         city: "Test City",
         state: "Test State",
@@ -87,7 +88,7 @@ async function runE2E() {
         schoolId,
         name: "Test Parent",
         email: "parent@e2eschool.com",
-        phone: "1122334455",
+        mobile: "1122334455",
       }
     });
     

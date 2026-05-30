@@ -8,6 +8,7 @@
 
 - [Overview](#overview)
 - [Key Concepts](#key-concepts)
+- [Core Modules](#core-modules)
 - [Architecture](#architecture)
 - [Security Model](#security-model)
 - [Tech Stack](#tech-stack)
@@ -28,7 +29,7 @@ SchoolPay handles the complete fee lifecycle for Indian educational institutions
 
 | Type | Use Case | Key Features |
 |---|---|---|
-| `K12_SCHOOL` | Traditional schools | Classes, sections, term fee schedules, parent portal |
+| `K12_SCHOOL` | Traditional schools | Classes, sections, term fee schedules, parent portal, attendance, exams & gradebook |
 | `COACHING_CENTER` | Coaching institutes | Batches, test series, lead management, enrollment |
 | `PRIVATE_TUTOR` | Independent educators | Individual learners, session tracking, invoicing |
 
@@ -53,6 +54,16 @@ All data access goes through a tenant context established at the start of each r
 ### Parent Portal
 
 Parents and guardians authenticate through a dedicated, isolated interface at `/(parent-portal)/`. Authentication is handled via **OTP (One-Time Password) sent to a registered mobile number**, separate from the staff/admin session flow. Parents can only access their own child's fee history, outstanding dues, and payment receipts. The parent portal shares no session context with the admin dashboard.
+
+---
+
+## Core Modules
+
+- **Student Management**: Enrollment, academic session linkage, and profile management.
+- **Fee Structure & Collection**: Term-based fee schedules, Razorpay integration (with webhook fallbacks & security hardening), automated PDF receipt generation (`jsPDF`), and overdue tracking.
+- **Exams & Gradebook**: Phase 6B implementation with explicit academic year linkage, dynamic grading scales, and report cards.
+- **Attendance**: Phase 6A attendance tracking supporting daily registers, leave management, and reporting.
+- **Parent Portal**: Dedicated OTP-authenticated mobile-first PWA for parents to view fees, download receipts, and check attendance/grades.
 
 ---
 
@@ -140,6 +151,10 @@ Unauthenticated or unauthorised requests are redirected at the network edge — 
 | Icons | Lucide React |
 | Language | TypeScript |
 | Utilities | `clsx`, `tailwind-merge` |
+| Payments | Razorpay (Security Hardened Webhooks) |
+| PDF Generation | jsPDF & pdf-lib |
+| Rate Limiting | Upstash Redis |
+| Observability | Sentry |
 | Deployment | Vercel (Edge Runtime + Serverless Functions) |
 
 > **Note on Tailwind CSS v4:** This project uses Tailwind v4, which introduces a CSS-first configuration model. There is no `tailwind.config.js` — configuration is defined directly in `globals.css` using `@theme`. If you are migrating from v3, refer to the [Tailwind v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide) before making style changes.

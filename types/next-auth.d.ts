@@ -23,6 +23,7 @@ declare module "next-auth" {
       planTier?: string         // "FREE" | "STARTER" | "PROFESSIONAL" | "ENTERPRISE"
       parentId?: string         // Set when schoolRole === "PARENT"
       studentId?: string        // Set when schoolRole === "STUDENT"
+      isImpersonating?: boolean // Set when SCHOOLPAY_TEAM impersonates a tenant
     } & DefaultSession["user"]
   }
 
@@ -34,6 +35,7 @@ declare module "next-auth" {
     planTier?: string
     parentId?: string
     studentId?: string
+    isImpersonating?: boolean
   }
 }
 
@@ -46,5 +48,6 @@ declare module "next-auth/jwt" {
     planTier?: string
     parentId?: string
     studentId?: string
+    isImpersonating?: boolean
   }
 }

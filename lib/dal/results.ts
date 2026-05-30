@@ -6,6 +6,8 @@ import { withDAL } from "@/lib/dal/utils"
 import { getSchoolId } from "@/lib/tenant-context"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
+import { publishEvent } from "@/lib/events/emitter"
+
 
 const log = logger.child({ domain: "results" })
 
@@ -75,6 +77,44 @@ export async function bulkUpsertResults(input: z.infer<typeof bulkUpsertResultSc
         let upsertedCount = 0
         let modifiedCount = 0
 
+        const emitResultPublished = async (studentId: string, marks: number | null, grade: string | null) => {
+          try {
+            const student = await tx.student.findUnique({
+              where: { id: studentId },
+              include: { parent: true },
+            });
+            
+            let parentUserId = student?.parent?.userId || student?.userId || null;
+            if (!parentUserId && student?.parent?.email) {
+              const matchingUser = await tx.user.findUnique({
+                where: { email: student.parent.email },
+              });
+              parentUserId = matchingUser?.id || null;
+            }
+
+            if (parentUserId && student) {
+              await publishEvent({
+                tx,
+                eventType: "RESULT_PUBLISHED",
+                entityType: "RESULT",
+                entityId: studentId,
+                schoolId,
+                payload: {
+                  userId: parentUserId,
+                  schoolId,
+                  studentName: student.name,
+                  examName: exam.name,
+                  marks: marks || 0,
+                  maxMarks: exam.maxMarks || 100,
+                  grade: grade,
+                },
+              });
+            }
+          } catch (eventErr) {
+            console.error("[Non-blocking Error] Failed to publish RESULT_PUBLISHED event:", eventErr);
+          }
+        };
+
         for (const res of validated.results) {
           const existing = existingMap.get(res.studentId)
           
@@ -93,6 +133,9 @@ export async function bulkUpsertResults(input: z.infer<typeof bulkUpsertResultSc
                 }
               })
               upsertedCount++
+
+              // Emit RESULT_PUBLISHED event safely
+              await emitResultPublished(res.studentId, res.marks, res.grade);
 
               // If exam was locked, log the modification
               if (exam.marksLocked) {
@@ -126,6 +169,9 @@ export async function bulkUpsertResults(input: z.infer<typeof bulkUpsertResultSc
               }
             })
             upsertedCount++
+
+            // Emit RESULT_PUBLISHED event safely
+            await emitResultPublished(res.studentId, res.marks, res.grade);
           }
         }
 

@@ -25,7 +25,7 @@ export function AnnouncementsWidget({ announcements }: AnnouncementsWidgetProps)
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg font-semibold">Announcements</CardTitle>
-        <Link href="/announcements" className="text-sm text-primary hover:underline">
+        <Link href="/dashboard/announcements" className="text-sm text-primary hover:underline">
           View All
         </Link>
       </CardHeader>

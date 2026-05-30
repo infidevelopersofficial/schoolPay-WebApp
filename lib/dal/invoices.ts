@@ -6,6 +6,8 @@ import { withDAL } from "@/lib/dal/utils"
 import { getSchoolId } from "@/lib/tenant-context"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
+import { publishEvent } from "@/lib/events/emitter"
+
 
 const log = logger.child({ domain: "invoices" })
 
@@ -181,6 +183,43 @@ export async function updateInvoiceStatus(id: string, status: "DRAFT" | "SENT" |
         newValues: { status },
         description: `Invoice ${existing.invoiceNo} marked as ${status}`,
       })
+
+      // Emit FEE_DUE event safely if status is updated to SENT
+      if (status === "SENT") {
+        try {
+          const student = await prisma.student.findUnique({
+            where: { id: invoice.studentId },
+            include: { parent: true },
+          });
+
+          let parentUserId = student?.parent?.userId || student?.userId || null;
+          if (!parentUserId && student?.parent?.email) {
+            const matchingUser = await prisma.user.findUnique({
+              where: { email: student.parent.email },
+            });
+            parentUserId = matchingUser?.id || null;
+          }
+
+          if (parentUserId && student) {
+            await publishEvent({
+              eventType: "FEE_DUE",
+              entityType: "INVOICE",
+              entityId: invoice.id,
+              schoolId,
+              payload: {
+                userId: parentUserId,
+                schoolId,
+                studentName: student.name,
+                invoiceNo: invoice.invoiceNo,
+                amount: invoice.total,
+                dueDate: invoice.dueDate,
+              },
+            });
+          }
+        } catch (eventErr) {
+          console.error("[Non-blocking Error] Failed to publish FEE_DUE event:", eventErr);
+        }
+      }
 
       return invoice
     },

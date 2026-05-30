@@ -15,6 +15,8 @@ export const createFeeSchema = z.object({
   description: z.string().min(1, "Description is required"),
   frequency: z.enum(["MONTHLY", "QUARTERLY", "YEARLY", "ONE_TIME"]),
   dueDate: z.string().optional(),
+  className: z.string().optional(),
+  sessionId: z.string().optional(),
 })
 
 export type CreateFeeInput = z.infer<typeof createFeeSchema>

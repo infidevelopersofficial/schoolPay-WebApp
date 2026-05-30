@@ -14,7 +14,7 @@ export default async function SelectSchoolPage() {
   if (!session?.user) redirect("/login")
 
   // If user already has an active school, redirect to dashboard
-  if (session.user.activeSchoolId) redirect("/")
+  if (session.user.activeSchoolId) redirect("/dashboard")
 
   const isSuperAdmin = session.user.role === "SUPER_ADMIN"
 

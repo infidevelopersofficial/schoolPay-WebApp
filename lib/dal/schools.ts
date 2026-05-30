@@ -146,7 +146,8 @@ export async function createSchool(input: CreateSchoolInput) {
       const school = await prisma.school.create({ 
         data: {
           ...validated,
-          tenantId
+          tenantId,
+          schoolCode: tenantId
         } 
       })
 

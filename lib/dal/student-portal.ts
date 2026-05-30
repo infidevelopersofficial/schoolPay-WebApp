@@ -45,7 +45,7 @@ export async function getMyProfile() {
       parent: {
         select: {
           name: true,
-          phone: true,
+          mobile: true,
           email: true,
         }
       },

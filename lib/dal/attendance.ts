@@ -8,6 +8,7 @@ import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
 import { AttendanceStatus } from "@prisma/client"
 import { publishEvent } from "@/lib/events/emitter"
+import { redis } from "@/lib/redis"
 
 const log = logger.child({ domain: "attendance" })
 
@@ -127,6 +128,88 @@ export async function markBulkAttendance(input: BulkAttendanceInput, userId: str
               await publishEvent({ tx, eventType: "STUDENT_ABSENT", entityType: "ATTENDANCE", entityId: record.studentId, schoolId, payload: { date: validated.date, batchId: validated.batchId } })
             } else if (record.status === "LATE") {
               await publishEvent({ tx, eventType: "STUDENT_LATE", entityType: "ATTENDANCE", entityId: record.studentId, schoolId, payload: { date: validated.date, batchId: validated.batchId } })
+            }
+
+            // Emit ATTENDANCE_MARKED only for ABSENT or LATE
+            if (record.status === "ABSENT" || record.status === "LATE") {
+              try {
+                const student = await tx.student.findUnique({
+                  where: { id: record.studentId },
+                  include: { parent: true },
+                });
+                
+                let parentUserId = student?.parent?.userId || student?.userId || null;
+                let parentEmail = student?.parent?.email || student?.email;
+                if (!parentUserId && parentEmail) {
+                  const matchingUser = await tx.user.findUnique({
+                    where: { email: parentEmail },
+                  });
+                  parentUserId = matchingUser?.id || null;
+                }
+
+                if (parentEmail) {
+                  if (record.status === "ABSENT") {
+                    await tx.notification.create({
+                      data: {
+                        schoolId,
+                        studentId: record.studentId,
+                        type: "ABSENT_ALERT",
+                        sentTo: parentEmail,
+                        status: "SENT"
+                      }
+                    });
+                    if (process.env.NODE_ENV === "development") console.log(`[ABSENT_ALERT] Sent to ${parentEmail}`);
+                  }
+                  
+                  // Calculate total attendance
+                  const allRecords = await tx.attendance.findMany({
+                    where: { studentId: record.studentId, schoolId, status: { notIn: ["NOT_MARKED", "HOLIDAY"] } }
+                  });
+                  let presLate = 0;
+                  for (const r of allRecords) {
+                    if (r.status === "PRESENT" || r.status === "LATE") presLate++;
+                  }
+                  if (allRecords.length > 0) {
+                    const percentage = (presLate / allRecords.length) * 100;
+                    if (percentage < 75) {
+                      const warnKey = `warn:${record.studentId}`;
+                      const hasWarned = await redis?.get(warnKey);
+                      if (!hasWarned) {
+                        await tx.notification.create({
+                          data: {
+                            schoolId,
+                            studentId: record.studentId,
+                            type: "LOW_ATTENDANCE_WARNING",
+                            sentTo: parentEmail,
+                            status: "SENT"
+                          }
+                        });
+                        await redis?.set(warnKey, 1, { ex: 604800 });
+                        if (process.env.NODE_ENV === "development") console.log(`[LOW_ATTENDANCE_WARNING] Sent to ${parentEmail}`);
+                      }
+                    }
+                  }
+                }
+
+                if (parentUserId && student) {
+                  await publishEvent({
+                    tx,
+                    eventType: "ATTENDANCE_MARKED",
+                    entityType: "ATTENDANCE",
+                    entityId: record.studentId,
+                    schoolId,
+                    payload: {
+                      userId: parentUserId,
+                      schoolId,
+                      studentName: student.name,
+                      date: validated.date,
+                      status: record.status,
+                    },
+                  });
+                }
+              } catch (eventErr) {
+                console.error("[Non-blocking Error] Failed to publish ATTENDANCE_MARKED event:", eventErr);
+              }
             }
           }
         }

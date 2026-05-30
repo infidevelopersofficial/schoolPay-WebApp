@@ -107,7 +107,7 @@ export default async function StudentProfilePage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Phone</p>
-                  <p className="font-medium mt-1">{profile.parent.phone || "Not provided"}</p>
+                  <p className="font-medium mt-1">{profile.parent.mobile || "Not provided"}</p>
                 </div>
                 {profile.parent.email && (
                   <div className="sm:col-span-2">

@@ -7,6 +7,8 @@ import {
   TrendingUp, Bell, Star, Calendar, CheckCircle, XCircle, Clock
 } from "lucide-react"
 import Link from "next/link"
+import { listSurveysForParent } from "@/lib/dal/surveys"
+import { Button } from "@/components/ui/button"
 
 function feeStatusColor(status: string) {
   if (status === "PAID") return "bg-emerald-100 text-emerald-700 border-emerald-200"
@@ -31,8 +33,12 @@ export const metadata = {
 export default async function ParentDashboardPage() {
   const session = await auth()
   const user = session?.user as any
-  const data = await getParentDashboard()
+  const [data, parentSurveys] = await Promise.all([
+    getParentDashboard(),
+    listSurveysForParent(),
+  ])
 
+  const pendingSurveys = parentSurveys.filter((s: any) => !s.isCompleted)
   const students = data?.students ?? []
   const greeting = (() => {
     const h = new Date().getHours()
@@ -58,6 +64,30 @@ export default async function ParentDashboardPage() {
           {new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
         </div>
       </div>
+      
+      {pendingSurveys.length > 0 && (
+        <Card className="border border-violet-100 bg-gradient-to-r from-violet-500/10 via-indigo-500/5 to-cyan-500/5 dark:border-violet-950/40 dark:from-violet-950/20 shadow-sm relative overflow-hidden backdrop-blur-md rounded-2xl">
+          <div className="absolute top-0 bottom-0 left-0 w-1 bg-gradient-to-b from-violet-500 to-indigo-600" />
+          <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="p-3 bg-violet-100 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 rounded-xl flex-shrink-0">
+                <ClipboardList className="h-5 w-5" />
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-800 dark:text-slate-200">Active Surveys & Feedbacks</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
+                  The school administration has published {pendingSurveys.length} new feedback questionnaire{pendingSurveys.length > 1 ? "s" : ""} waiting for your response.
+                </p>
+              </div>
+            </div>
+            <Link href="/parent/surveys" className="flex-shrink-0">
+              <Button size="sm" className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-semibold shadow-md flex items-center gap-1.5 rounded-xl">
+                Take Survey <ClipboardList className="h-4 w-4" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
 
       {students.length === 0 ? (
         <Card className="border-dashed">

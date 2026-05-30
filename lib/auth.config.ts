@@ -22,17 +22,21 @@ export const authConfig = {
       const isLoggedIn = !!auth?.user
       const pathname = nextUrl.pathname
 
-      const isOnLoginPage   = pathname.startsWith("/login") || pathname.startsWith("/school/login")
+      const isOnLoginPage   = pathname.startsWith("/login") || pathname.startsWith("/register")
       const isOnSchoolSelect = pathname.startsWith("/select-school")
-      const isOnParentPortal = pathname.startsWith("/parent")
+      const isOnParentPortal = pathname.startsWith("/parent") && !pathname.startsWith("/parent/claim")
+      const isOnStudentPortal = pathname.startsWith("/student")
+      const isOnAppPortal   = pathname.startsWith("/dashboard")
       const isApiRoute      = pathname.startsWith("/api")
 
       // API routes handle their own auth
       if (isApiRoute) return true
 
-      // Unauthenticated → login
-      if (!isLoggedIn && !isOnLoginPage) return false
+      const requiresAuth = isOnAppPortal || isOnParentPortal || isOnStudentPortal || isOnSchoolSelect || pathname.startsWith("/super-admin");
 
+      // Unauthenticated → login
+      if (!isLoggedIn && requiresAuth) return false
+      
       // Authenticated → away from login
       if (isLoggedIn && isOnLoginPage) {
         const user = auth?.user as {
@@ -40,6 +44,10 @@ export const authConfig = {
           schoolRole?: string
           role?: string
         } | undefined
+
+        if (user?.role === "SCHOOLPAY_TEAM") {
+          return Response.redirect(new URL("/super-admin/tenants", nextUrl))
+        }
 
         // PARENT role → parent portal, not admin dashboard
         if (user?.schoolRole === "PARENT") {
@@ -51,7 +59,7 @@ export const authConfig = {
           return Response.redirect(new URL("/student/dashboard", nextUrl))
         }
 
-        return Response.redirect(new URL("/", nextUrl))
+        return Response.redirect(new URL("/dashboard", nextUrl))
       }
 
       if (isLoggedIn) {
@@ -65,7 +73,7 @@ export const authConfig = {
         } | undefined
 
         const hasSchool  = !!user?.activeSchoolId
-        const isSuperAdmin = user?.role === "SUPER_ADMIN"
+        const isSuperAdmin = user?.role === "SUPER_ADMIN" || user?.role === "SCHOOLPAY_TEAM"
         const isParent   = user?.schoolRole === "PARENT"
         const isStudent  = user?.schoolRole === "STUDENT"
         const isPendingActivation = user?.isPendingActivation === true
@@ -85,7 +93,7 @@ export const authConfig = {
         if (isOnParentPortal) {
           // Only parents (or super admins previewing) may access /parent/*
           if (!isParent && !isSuperAdmin) {
-            return Response.redirect(new URL("/", nextUrl))
+            return Response.redirect(new URL("/dashboard", nextUrl))
           }
           // Parents without parentId linked → deny with message
           if (isParent && !user?.parentId) {
@@ -99,7 +107,7 @@ export const authConfig = {
         // ── Student portal routes ───────────────────────────────────────────
         if (isOnStudentPortal) {
           if (!isStudent && !isSuperAdmin) {
-            return Response.redirect(new URL("/", nextUrl))
+            return Response.redirect(new URL("/dashboard", nextUrl))
           }
           if (isStudent && !user?.studentId) {
             return Response.redirect(new URL("/login?error=student-not-linked", nextUrl))
@@ -109,7 +117,7 @@ export const authConfig = {
 
         // ── Admin dashboard routes ──────────────────────────────────────────
         // Parents and Students should not be on the admin portal at all
-        if ((isParent || isStudent) && !isOnSchoolSelect) {
+        if ((isParent || isStudent) && isOnAppPortal) {
           const redirectPath = isParent ? "/parent/dashboard" : "/student/dashboard"
           return Response.redirect(new URL(redirectPath, nextUrl))
         }
@@ -133,6 +141,8 @@ export const authConfig = {
         session.user.parentId = token.parentId as string | undefined
         session.user.studentId = token.studentId as string | undefined
         ;(session.user as any).isPendingActivation = token.isPendingActivation === true
+        ;(session.user as any).isDemo = token.isDemo
+        ;(session.user as any).demoExpiresAt = token.demoExpiresAt
       }
       return session
     },

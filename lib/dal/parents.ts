@@ -85,9 +85,11 @@ export async function createParent(input: CreateParentInput) {
           }
         })
 
+        const { phone, ...restData } = validated;
         const parent = await tx.parent.create({ 
           data: { 
-            ...validated, 
+            ...restData,
+            mobile: phone,
             schoolId,
             userId: user.id 
           } 

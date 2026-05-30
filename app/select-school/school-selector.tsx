@@ -29,7 +29,7 @@ export function SchoolSelector({ schools, userName }: SchoolSelectorProps) {
     try {
       // Update the JWT session with the selected school
       await update({ activeSchoolId: schoolId })
-      router.push("/")
+      router.push("/dashboard")
       router.refresh()
     } catch {
       setSelecting(null)

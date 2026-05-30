@@ -5,6 +5,9 @@ import { withDAL } from "@/lib/dal/utils"
 import { getSchoolId } from "@/lib/tenant-context"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
+import { auth } from "@/lib/auth"
+import { publishEvent } from "@/lib/events/emitter"
+
 
 const log = logger.child({ domain: "announcements" })
 
@@ -37,7 +40,8 @@ export async function getAnnouncements() {
 export async function createAnnouncement(input: z.infer<typeof createAnnouncementSchema>) {
   const schoolId = await getSchoolId()
   const validated = createAnnouncementSchema.parse(input)
-  return withDAL(
+  
+  const announcement = await withDAL(
     "announcements.create",
     () =>
       prisma.announcement.create({
@@ -45,4 +49,54 @@ export async function createAnnouncement(input: z.infer<typeof createAnnouncemen
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
+
+  // Emit ANNOUNCEMENT_CREATED for each recipient user safely
+  try {
+    const roles: string[] = []
+    if (announcement.targetAudience === "ALL") {
+      roles.push("PARENT", "STUDENT")
+    } else if (announcement.targetAudience === "PARENTS") {
+      roles.push("PARENT")
+    } else if (announcement.targetAudience === "STUDENTS") {
+      roles.push("STUDENT")
+    } else if (announcement.targetAudience === "TEACHERS") {
+      roles.push("TEACHER")
+    }
+
+    if (roles.length > 0) {
+      const recipients = await prisma.userSchool.findMany({
+        where: {
+          schoolId,
+          role: { in: roles as any },
+          user: { isActive: true }
+        },
+        select: { userId: true }
+      });
+
+      const session = await auth();
+      const authorName = session?.user?.name || announcement.author || "School Administration";
+
+      // Publish event for each user
+      for (const recipient of recipients) {
+        await publishEvent({
+          eventType: "ANNOUNCEMENT_CREATED",
+          entityType: "ANNOUNCEMENT",
+          entityId: announcement.id,
+          schoolId,
+          payload: {
+            userId: recipient.userId,
+            schoolId,
+            title: announcement.title,
+            content: announcement.content,
+            authorName,
+            targetAudience: announcement.targetAudience
+          }
+        });
+      }
+    }
+  } catch (eventErr) {
+    console.error("[Non-blocking Error] Failed to publish ANNOUNCEMENT_CREATED events:", eventErr);
+  }
+
+  return announcement
 }

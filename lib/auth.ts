@@ -18,6 +18,7 @@ import bcrypt from "bcryptjs"
 import { authConfig } from "./auth.config"
 import { accountBruteForceLimit } from "./ratelimit"
 import { authLogger } from "@/lib/logger"
+import { redis } from "@/lib/redis"
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -28,14 +29,58 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       credentials: {
         identifier: { label: "Email, Phone, or Admission Number", type: "text" },
         password: { label: "Password", type: "password" },
-        schoolCode: { label: "School Code (Optional)", type: "text" }
+        schoolCode: { label: "School Code (Optional)", type: "text" },
+        isOtp: { label: "OTP", type: "text" },
+        role: { label: "Role", type: "text" }
       },
       async authorize(credentials) {
         if (!credentials?.identifier || !credentials?.password) return null
 
         try {
-          const identifier = credentials.identifier as string;
-          const schoolCode = credentials.schoolCode as string | undefined;
+          const identifier = (credentials.identifier as string)?.trim();
+          const schoolCode = (credentials.schoolCode as string)?.trim();
+          const isOtp = credentials.isOtp === "true" || credentials.isOtp === true;
+          const role = credentials.role as string | undefined;
+
+          // SCHOOLPAY_TEAM bypass
+          if (!schoolCode && role === "SCHOOLPAY_TEAM") {
+            const teamUser = await prisma.spayTeamUser.findUnique({
+              where: { email: identifier }
+            });
+            if (!teamUser) return null;
+            const isValid = await bcrypt.compare(credentials.password as string, teamUser.password);
+            if (!isValid) return null;
+            return {
+              id: teamUser.id,
+              name: teamUser.name,
+              email: teamUser.email,
+              role: "SCHOOLPAY_TEAM"
+            };
+          }
+
+          // OTP bypass
+          if (isOtp) {
+             const otpKey = `otp:${schoolCode}:${identifier}`;
+             if (redis) {
+               const storedOtp = await redis.get(otpKey);
+               if (!storedOtp || storedOtp !== credentials.password) return null;
+               await redis.del(otpKey);
+             }
+             
+             const parent = await prisma.parent.findFirst({
+               where: { email: identifier, school: { OR: [{schoolCode: schoolCode}, {tenantId: schoolCode}, {slug: schoolCode}] } },
+               include: { user: true }
+             });
+             if (parent && parent.user) {
+               return {
+                 id: parent.user.id,
+                 name: parent.user.name,
+                 email: parent.user.email,
+                 role: parent.user.role
+               }
+             }
+             return null;
+          }
           
           let user = null;
           let isPendingActivation = false;
@@ -49,11 +94,23 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
               throw new Error("Too many login attempts. Please try again later.");
             }
 
-            // Student Portal Login Flow via Admission Number
-            const student = await prisma.student.findFirst({
-              where: {
-                admissionNumber: identifier,
-                school: { slug: schoolCode }
+            // Route login flow based on role
+            if (role === "STUDENT") {
+              // Student Portal Login Flow via Admission Number or Email
+              const student = await prisma.student.findFirst({
+                where: {
+                  OR: [
+                    { admissionNumber: identifier },
+                    { email: identifier },
+                    { studentId: identifier }
+                  ],
+                school: {
+                  OR: [
+                    { slug: schoolCode },
+                    { tenantId: schoolCode },
+                    { schoolCode: schoolCode }
+                  ]
+                }
               },
               include: { user: true }
             });
@@ -129,18 +186,65 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             } else {
               return null;
             }
+          } else {
+            // ADMIN, TEACHER, PARENT multi-tenant login
+            user = await prisma.user.findFirst({
+              where: {
+                OR: [
+                  { email: { equals: identifier, mode: "insensitive" } },
+                  { phone: identifier },
+                  { schools: { some: { staffId: { equals: identifier, mode: "insensitive" } } } }
+                ],
+                schools: {
+                  some: {
+                    school: {
+                      OR: [
+                        { slug: { equals: schoolCode, mode: "insensitive" } },
+                        { tenantId: { equals: schoolCode, mode: "insensitive" } },
+                        { schoolCode: { equals: schoolCode, mode: "insensitive" } }
+                      ]
+                    }
+                  }
+                }
+              }
+            });
+
+            if (!user) {
+              throw new Error("Invalid credentials or account is suspended.");
+            }
+
+            if (user.lockedUntil && user.lockedUntil > new Date()) {
+              authLogger.warn({ email: user.email }, "Locked user attempted login.")
+              throw new Error("Your account has been locked. Please try again in 15 minutes.")
+            }
           }
+        }
 
           // Global Login Flow via Email or Phone
           if (!user && !schoolCode) {
             user = await prisma.user.findFirst({
               where: {
                 OR: [
-                  { email: identifier },
+                  { email: { equals: identifier, mode: "insensitive" } },
                   { phone: identifier }
                 ]
               }
             });
+
+            if (user) {
+              // Brute force check
+              if (user.lockedUntil && user.lockedUntil > new Date()) {
+                authLogger.warn({ email: user.email }, "Locked user attempted login.")
+                await prisma.authAuditLog.create({
+                  data: {
+                    userId: user.id,
+                    email: user.email,
+                    action: "LOCKOUT",
+                  }
+                })
+                throw new Error("Your account has been locked. Please try again in 15 minutes.")
+              }
+            }
           }
 
           if (!user?.hashedPassword) return null
@@ -150,7 +254,48 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             user.hashedPassword,
           )
 
-          if (!isValidPassword) return null
+          if (!isValidPassword) {
+            if (!schoolCode && user) {
+              const newAttempts = (user.failedLoginAttempts || 0) + 1
+              const lockedUntil = newAttempts >= 5 ? new Date(Date.now() + 15 * 60 * 1000) : null
+              
+              await prisma.$transaction([
+                prisma.user.update({
+                  where: { id: user.id },
+                  data: { failedLoginAttempts: newAttempts, lockedUntil }
+                }),
+                prisma.authAuditLog.create({
+                  data: {
+                    userId: user.id,
+                    email: user.email,
+                    action: "LOGIN_FAILURE",
+                  }
+                })
+              ])
+
+              if (lockedUntil) {
+                throw new Error("Your account has been locked. Please try again in 15 minutes.")
+              }
+            }
+            return null
+          }
+
+          // Successful authentication -> reset attempts
+          if (!schoolCode && user) {
+            await prisma.$transaction([
+              prisma.user.update({
+                where: { id: user.id },
+                data: { failedLoginAttempts: 0, lockedUntil: null }
+              }),
+              prisma.authAuditLog.create({
+                data: {
+                  userId: user.id,
+                  email: user.email,
+                  action: "LOGIN_SUCCESS",
+                }
+              })
+            ])
+          }
 
           return {
             id: user.id,
@@ -177,6 +322,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.role = (user as { role?: string }).role;
+        token.isImpersonating = false;
+
         
         const isPendingActivation = (user as any).isPendingActivation;
         if (isPendingActivation) {
@@ -195,7 +342,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
               select: {
                 schoolId: true,
                 role: true,
-                school: { select: { type: true, plan: true } },
+                school: { select: { type: true, plan: true, isDemo: true, demoExpiresAt: true } },
               },
             })
 
@@ -204,6 +351,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
               token.schoolRole = memberships[0].role
               token.tenantType = memberships[0].school.type
               token.planTier = memberships[0].school.plan?.name || "FREE"
+              token.isDemo = memberships[0].school.isDemo
+              token.demoExpiresAt = memberships[0].school.demoExpiresAt?.toISOString()
 
               if (memberships[0].role === "PARENT") {
                 const parent = await prisma.parent.findFirst({
@@ -253,7 +402,28 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       }
 
       // ── Allow school switching & silent refresh via session.update() ─────────
-      if (trigger === "update" && session?.activeSchoolId) {
+      if (trigger === "update") {
+        if (session?.exitImpersonation) {
+           token.role = "SCHOOLPAY_TEAM";
+           token.schoolRole = undefined;
+           token.activeSchoolId = undefined;
+           token.tenantType = undefined;
+           token.planTier = undefined;
+           token.isImpersonating = false;
+           return token;
+        }
+
+        if (session?.impersonateSchoolId) {
+          if (token.role !== "SCHOOLPAY_TEAM") {
+             throw new Error("Forbidden");
+          }
+          token.activeSchoolId = session.impersonateSchoolId;
+          token.role = "SCHOOL_ADMIN";
+          token.isImpersonating = true;
+          return token;
+        }
+
+        if (session?.activeSchoolId) {
         try {
           const membership = await prisma.userSchool.findUnique({
             where: {
@@ -270,6 +440,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             token.schoolRole = membership.role
             token.tenantType = membership.school.type
             token.planTier = membership.school.plan?.name || "FREE"
+            token.isDemo = membership.school.isDemo
+            token.demoExpiresAt = membership.school.demoExpiresAt?.toISOString()
             authLogger.info(
               { userId: token.sub, schoolId: membership.schoolId },
               "Session context switched to new school",
@@ -283,6 +455,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         }
       }
 
+      }
       return token
     },
     async session({ session, token }) {
@@ -291,7 +464,13 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         session.user.id = "";
         return session;
       }
-      return authConfig.callbacks!.session!({ session, token } as any);
+      
+      const configuredSession = await authConfig.callbacks!.session!({ session, token } as any);
+      
+      // Ensure required fields are set
+      configuredSession.user.isImpersonating = token.isImpersonating === true;
+      
+      return configuredSession;
     }
   },
 })

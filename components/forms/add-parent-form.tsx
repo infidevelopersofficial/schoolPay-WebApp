@@ -1,7 +1,7 @@
 "use client"
 
 import { useActionState } from "react"
-import { addParentAction } from "@/app/(dashboard)/parents/actions"
+import { addParentAction } from "@/app/(dashboard)/dashboard/parents/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"

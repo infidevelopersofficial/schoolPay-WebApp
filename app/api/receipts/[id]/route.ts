@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import jsPDF from "jspdf";
 import { auth } from "@/lib/auth";
 import { getSchoolId } from "@/lib/tenant-context";
 
@@ -30,95 +30,110 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       return new NextResponse("Payment not found", { status: 404 });
     }
 
-    // Generate PDF
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([600, 400]);
+    if (session.user.role === "PARENT") {
+      const parent = await prisma.parent.findFirst({
+        where: { userId: session.user.id, schoolId }
+      });
+      if (!parent || payment.student.parentId !== parent.id) {
+        return new NextResponse("Forbidden", { status: 403 });
+      }
+    }
+
+    // Generate PDF using jsPDF
+    const doc = new jsPDF("landscape", "pt", "a4");
     
-    const { width, height } = page.getSize();
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-
     // Header
-    page.drawText(payment.school.name, {
-      x: 50,
-      y: height - 50,
-      size: 24,
-      font: boldFont,
-      color: rgb(0, 0, 0),
-    });
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.text(payment.school.name, 40, 50);
 
-    page.drawText("PAYMENT RECEIPT", {
-      x: width - 200,
-      y: height - 50,
-      size: 16,
-      font: boldFont,
-      color: rgb(0.2, 0.2, 0.2),
-    });
+    doc.setFontSize(16);
+    doc.text("GST TAX INVOICE / RECEIPT", 600, 50);
 
     // Separator
-    page.drawLine({
-      start: { x: 50, y: height - 80 },
-      end: { x: width - 50, y: height - 80 },
-      thickness: 1,
-      color: rgb(0.8, 0.8, 0.8),
-    });
+    doc.setLineWidth(1);
+    doc.line(40, 70, 800, 70);
+
+    // School Details
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`GSTIN: ${payment.school.gstin || "Applied For"}`, 40, 90);
+    doc.text(`SAC: 998314`, 40, 105);
 
     // Receipt details
-    const startY = height - 120;
-    const leftX = 50;
-    const rightX = 300;
+    doc.setFont("helvetica", "bold");
+    doc.text("Receipt No:", 40, 140);
+    doc.setFont("helvetica", "normal");
+    doc.text(payment.receiptNumber || payment.id.slice(0, 8), 120, 140);
 
-    const drawLabelValue = (label: string, value: string, yOffset: number) => {
-      page.drawText(label, { x: leftX, y: startY - yOffset, size: 10, font: boldFont, color: rgb(0.4, 0.4, 0.4) });
-      page.drawText(value, { x: leftX + 100, y: startY - yOffset, size: 12, font, color: rgb(0, 0, 0) });
-    };
+    doc.setFont("helvetica", "bold");
+    doc.text("Date:", 40, 160);
+    doc.setFont("helvetica", "normal");
+    const formattedDate = new Date(payment.date).toLocaleDateString("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" });
+    doc.text(formattedDate, 120, 160);
 
-    drawLabelValue("Receipt No:", payment.receiptNumber || payment.id.slice(0, 8), 0);
-    drawLabelValue("Date:", new Date(payment.date).toLocaleDateString(), 20);
-    drawLabelValue("Student:", payment.student.name, 40);
-    drawLabelValue("Class:", payment.student.class + (payment.student.section ? ` - ${payment.student.section}` : ""), 60);
+    doc.setFont("helvetica", "bold");
+    doc.text("Student:", 40, 180);
+    doc.setFont("helvetica", "normal");
+    doc.text(payment.student.name, 120, 180);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Class:", 40, 200);
+    doc.setFont("helvetica", "normal");
+    doc.text(payment.student.class + (payment.student.section ? ` - ${payment.student.section}` : ""), 120, 200);
 
     // Right side details
-    page.drawText("Amount Paid", { x: rightX, y: startY, size: 10, font: boldFont, color: rgb(0.4, 0.4, 0.4) });
-    page.drawText(`${payment.school.currency || "INR"} ${payment.amount.toLocaleString()}`, { 
-      x: rightX, 
-      y: startY - 25, 
-      size: 20, 
-      font: boldFont, 
-      color: rgb(0, 0.5, 0) 
-    });
-
-    page.drawText("Payment Method:", { x: rightX, y: startY - 50, size: 10, font: boldFont, color: rgb(0.4, 0.4, 0.4) });
-    page.drawText(payment.paymentMethod, { x: rightX + 100, y: startY - 50, size: 10, font, color: rgb(0, 0, 0) });
+    const rightX = 500;
+    
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Amount Paid", rightX, 140);
+    
+    doc.setFontSize(20);
+    doc.setTextColor(0, 128, 0); // Green color
+    doc.text(`INR ${payment.amount.toLocaleString("en-IN")}`, rightX, 165);
+    doc.setTextColor(0, 0, 0); // Reset color
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text("Payment Method:", rightX, 190);
+    doc.setFont("helvetica", "normal");
+    doc.text(payment.paymentMethod, rightX + 100, 190);
 
     if (payment.transactionId) {
-      page.drawText("Transaction ID:", { x: rightX, y: startY - 70, size: 10, font: boldFont, color: rgb(0.4, 0.4, 0.4) });
-      page.drawText(payment.transactionId, { x: rightX + 100, y: startY - 70, size: 10, font, color: rgb(0, 0, 0) });
+      doc.setFont("helvetica", "bold");
+      doc.text("Transaction ID:", rightX, 210);
+      doc.setFont("helvetica", "normal");
+      doc.text(payment.transactionId, rightX + 100, 210);
     }
 
     // Fee Type
-    page.drawText("Fee Description:", { x: leftX, y: startY - 100, size: 10, font: boldFont, color: rgb(0.4, 0.4, 0.4) });
-    page.drawText(payment.feeType, { x: leftX + 100, y: startY - 100, size: 12, font, color: rgb(0, 0, 0) });
+    doc.setFont("helvetica", "bold");
+    doc.text("Fee Description:", 40, 240);
+    doc.setFont("helvetica", "normal");
+    doc.text(payment.feeType, 130, 240);
+
+    // GST Breakdown
+    doc.setFont("helvetica", "bold");
+    doc.text("Tax Breakdown:", 40, 270);
+    doc.setFont("helvetica", "normal");
+    const baseAmount = payment.amount / 1.18; // Assuming amount includes 18% GST
+    const cgst = baseAmount * 0.09;
+    const sgst = baseAmount * 0.09;
+
+    doc.text(`Base Amount: INR ${baseAmount.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`, 40, 290);
+    doc.text(`CGST (9%): INR ${cgst.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`, 40, 305);
+    doc.text(`SGST (9%): INR ${sgst.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`, 40, 320);
 
     // Footer
-    page.drawLine({
-      start: { x: 50, y: 50 },
-      end: { x: width - 50, y: 50 },
-      thickness: 1,
-      color: rgb(0.8, 0.8, 0.8),
-    });
+    doc.setLineWidth(1);
+    doc.line(40, 500, 800, 500);
 
-    page.drawText("Thank you for your payment.", {
-      x: 50,
-      y: 30,
-      size: 10,
-      font: font,
-      color: rgb(0.5, 0.5, 0.5),
-    });
+    doc.text("Thank you for your payment. This is a computer-generated invoice.", 40, 520);
 
-    const pdfBytes = await pdfDoc.save();
+    const pdfBytes = doc.output("arraybuffer");
 
-    return new NextResponse(Buffer.from(pdfBytes), {
+    return new NextResponse(pdfBytes, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",

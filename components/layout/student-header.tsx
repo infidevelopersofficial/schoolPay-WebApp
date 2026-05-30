@@ -6,6 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { StudentMobileNav } from "./student-mobile-nav"
 import { ThemeToggle } from "./theme-toggle"
+import { NotificationBell } from "./notification-bell"
+
 
 interface StudentHeaderProps {
   userName?: string | null
@@ -43,14 +45,8 @@ export function StudentHeader({ userName, userEmail, userImage }: StudentHeaderP
 
       {/* Right side */}
       <div className="flex items-center gap-2 md:gap-3 ml-auto">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative h-9 w-9"
-          aria-label="Notifications"
-        >
-          <Bell className="h-5 w-5 text-muted-foreground" />
-        </Button>
+        <NotificationBell />
+
         <ThemeToggle />
 
         {/* User Profile */}

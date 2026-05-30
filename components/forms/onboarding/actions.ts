@@ -116,7 +116,7 @@ export async function completeOnboarding(formData: FormData) {
   });
 
   // Redirect to dashboard
-  redirect("/");
+  redirect("/dashboard");
     })
   } catch (e: any) {
     if (e.message === "NEXT_REDIRECT") throw e;

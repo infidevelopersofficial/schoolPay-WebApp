@@ -6,6 +6,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { MobileNav } from "./mobile-nav"
 import { ThemeToggle } from "./theme-toggle"
+import { NotificationBell } from "./notification-bell"
+import { useSession } from "next-auth/react"
+import { AlertTriangle } from "lucide-react"
+
 
 interface HeaderProps {
   userName?: string | null
@@ -24,11 +28,32 @@ function initials(name: string | null | undefined): string {
 }
 
 export function Header({ userName, userEmail, userImage }: HeaderProps) {
+  const { data: session, update } = useSession()
+  const isImpersonating = session?.user?.isImpersonating === true
+
   const displayName = userName ?? "User"
   const displayRole = userEmail ?? ""
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card px-4 md:px-6 gap-3">
+    <>
+      {isImpersonating && (
+        <div className="w-full bg-amber-500 text-white px-4 py-2 flex items-center justify-center text-sm font-medium sticky top-0 z-40">
+          <AlertTriangle className="w-4 h-4 mr-2" />
+          You are viewing this school as admin
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="ml-4 h-7 bg-white/20 hover:bg-white/30 text-white"
+            onClick={async () => {
+              await update({ exitImpersonation: true })
+              window.location.href = "/super-admin/tenants"
+            }}
+          >
+            Exit impersonation
+          </Button>
+        </div>
+      )}
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card px-4 md:px-6 gap-3">
       {/* Mobile nav trigger */}
       <MobileNav />
 
@@ -51,14 +76,8 @@ export function Header({ userName, userEmail, userImage }: HeaderProps) {
         >
           <MessageCircle className="h-5 w-5 text-muted-foreground" />
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative h-9 w-9"
-          aria-label="Notifications"
-        >
-          <Bell className="h-5 w-5 text-muted-foreground" />
-        </Button>
+        <NotificationBell />
+
         <ThemeToggle />
 
         {/* User Profile */}
@@ -78,5 +97,6 @@ export function Header({ userName, userEmail, userImage }: HeaderProps) {
         </div>
       </div>
     </header>
+    </>
   )
 }

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, KeyboardEvent } from "react"
 import { AttendanceStatus } from "@prisma/client"
-import { saveAttendanceAction, lockAttendanceAction } from "@/app/(dashboard)/attendance/actions"
+import { saveAttendanceAction, lockAttendanceAction } from "@/app/(dashboard)/dashboard/attendance/actions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"

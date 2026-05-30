@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { IndianRupee, Receipt, CheckCircle, AlertTriangle, FileText } from "lucide-react"
 import { InvoicePaymentCard } from "@/components/parent-portal/InvoicePaymentCard"
+import { ReceiptDownloadButton } from "@/components/parent-portal/ReceiptDownloadButton"
 
 export const metadata = {
   title: "Fees & Payments — Parent Portal",
@@ -143,6 +144,9 @@ export default async function ParentFeesPage() {
                             <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                               ₹{p.amount.toLocaleString("en-IN")}
                             </span>
+                            {p.status === "COMPLETED" && (
+                              <ReceiptDownloadButton payment={p} student={student} />
+                            )}
                           </div>
                         </div>
                       ))}

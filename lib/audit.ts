@@ -28,6 +28,9 @@ interface AuditLogParams {
     | "SCHOOL"
     | "EXAM_GROUP"
     | "GRADING_SCHEME"
+    | "COMMUNICATION_CAMPAIGN"
+    | "SURVEY"
+    | "SURVEY_RESPONSE"
   entityId: string
   oldValues?: unknown
   newValues?: unknown

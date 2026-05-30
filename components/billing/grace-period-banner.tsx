@@ -28,7 +28,7 @@ export async function GracePeriodBanner() {
         </span>
       </div>
       <Link 
-        href="/settings/billing" 
+        href="/dashboard/settings/billing" 
         className="text-xs bg-white text-red-600 px-3 py-1.5 rounded-md font-bold hover:bg-red-50 transition-colors"
       >
         {isPastDue ? "Update Payment" : "Upgrade Plan"}

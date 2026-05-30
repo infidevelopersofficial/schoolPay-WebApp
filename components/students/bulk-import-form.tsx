@@ -5,7 +5,7 @@ import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import { UploadCloud, AlertCircle, CheckCircle2, Loader2, Download, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { importStudentsAction } from "@/app/(dashboard)/students/import/actions";
+import { importStudentsAction } from "@/app/(dashboard)/dashboard/students/import/actions";
 
 export function BulkImportForm() {
   const [file, setFile] = useState<File | null>(null);

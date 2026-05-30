@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { bulkUpsertResultAction } from "@/app/(dashboard)/results/actions"
-import { toggleMarksLockAction, togglePublishResultsAction } from "@/app/(dashboard)/exams/actions"
+import { bulkUpsertResultAction } from "@/app/(dashboard)/dashboard/results/actions"
+import { toggleMarksLockAction, togglePublishResultsAction } from "@/app/(dashboard)/dashboard/exams/actions"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"

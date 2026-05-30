@@ -28,14 +28,27 @@ export default auth((req) => {
 
   if (!isLoggedIn) return
 
-  // Extract tenantType from the JWT session
-  const user = req.auth?.user as any
-  const tenantType = (user?.tenantType as TenantType) || "SCHOOL"
+  if (process.env.NODE_ENV === "development") {
+    console.log("[middleware] token shape:", JSON.stringify(req.auth))
+  }
+
+  // Extract tenantType from the session (Auth.js v5 returns the Session object in req.auth, not the raw JWT)
+  const session = req.auth as any
+  const sessionUser = session?.user || session // Fallback just in case req.auth is the raw token
+  const tenantType = (sessionUser?.tenantType as TenantType) || "SCHOOL"
   
   // Resolve the configuration matrix for this tenant
   const config = resolveTenantConfig(tenantType)
 
   const path = nextUrl.pathname
+
+  // ── Demo Expiry Check ──
+  if (sessionUser?.isDemo && sessionUser?.demoExpiresAt && path !== "/upgrade") {
+    const expiry = new Date(sessionUser.demoExpiresAt)
+    if (expiry < new Date()) {
+      return Response.redirect(new URL("/upgrade", nextUrl))
+    }
+  }
 
   // ── Route Guards based on Tenant Config ──
   

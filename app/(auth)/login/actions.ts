@@ -22,48 +22,48 @@ export async function authenticate(
   prevState: string | undefined,
   formData: FormData,
 ): Promise<string | undefined> {
-  const email = (formData.get("email") as string) ?? ""
+  const identifier = ((formData.get("identifier") as string) || (formData.get("email") as string)) ?? ""
 
   return measureAsync(
     "auth.login",
     async () => {
       try {
-        if (email) {
-          const rateLimit = await checkRateLimit(`login_${email}`, 5)
+        if (identifier) {
+          const rateLimit = await checkRateLimit(`login_${identifier}`, 5)
 
           if (!rateLimit.success) {
-            authLogger.warn({ email }, "Rate limit exceeded for login attempt")
-            setSentryAuthCtx({ email, event: "rate_limited", remainingAttempts: 0 })
-            addBreadcrumb("auth", "Login rate-limited", { email })
+            authLogger.warn({ identifier }, "Rate limit exceeded for login attempt")
+            setSentryAuthCtx({ email: identifier, event: "rate_limited", remainingAttempts: 0 })
+            addBreadcrumb("auth", "Login rate-limited", { identifier })
             return "Too many attempts. Please try again in 15 minutes."
           }
 
           addBreadcrumb("auth", "Login attempt", {
-            email,
+            identifier,
             remainingAttempts: rateLimit.remaining,
           })
-          setSentryAuthCtx({ email, event: "login_attempt", remainingAttempts: rateLimit.remaining })
+          setSentryAuthCtx({ email: identifier, event: "login_attempt", remainingAttempts: rateLimit.remaining })
         }
 
         await signIn("credentials", formData)
 
         // signIn throws NEXT_REDIRECT on success — this line is unreachable on
         // the happy path but satisfies TypeScript's return-type analysis.
-        authLogger.info({ email }, "Login succeeded")
-        setSentryAuthCtx({ email, event: "login_success" })
-        addBreadcrumb("auth", "Login successful", { email })
+        authLogger.info({ identifier }, "Login succeeded")
+        setSentryAuthCtx({ email: identifier, event: "login_success" })
+        addBreadcrumb("auth", "Login successful", { identifier })
       } catch (error) {
         if (error instanceof AuthError) {
           switch (error.type) {
             case "CredentialsSignin":
-              authLogger.warn({ email }, "Invalid credentials on login attempt")
-              setSentryAuthCtx({ email, event: "login_failed" })
-              addBreadcrumb("auth", "Login failed — invalid credentials", { email }, "warning")
-              return "Invalid email or password."
+              authLogger.warn({ identifier }, "Invalid credentials on login attempt")
+              setSentryAuthCtx({ email: identifier, event: "login_failed" })
+              addBreadcrumb("auth", "Login failed — invalid credentials", { identifier }, "warning")
+              return "Invalid credentials."
 
             default:
-              authLogger.error({ err: error, email }, "Unhandled AuthError during sign in")
-              captureAuthError(error, { email, event: "login_failed" })
+              authLogger.error({ err: error, identifier }, "Unhandled AuthError during sign in")
+              captureAuthError(error, { email: identifier, event: "login_failed" })
               return "Something went wrong. Please try again."
           }
         }

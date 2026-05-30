@@ -6,6 +6,8 @@ import { paymentLogger } from "@/lib/logger"
 import { measureAsync, THRESHOLDS } from "@/lib/observability/performance"
 import { addBreadcrumb, capturePaymentError, setSentryPaymentCtx } from "@/lib/observability/sentry-helpers"
 import { auth } from "@/lib/auth"
+import { publishEvent } from "@/lib/events/emitter"
+
 
 export const createPaymentSchema = z.object({
   studentId: z.string().min(1, "Student is required"),
@@ -16,6 +18,7 @@ export const createPaymentSchema = z.object({
   receiptNumber: z.string().optional(),
   date: z.string().optional(),
   remarks: z.string().optional(),
+  sessionId: z.string().optional(),
 })
 
 export type CreatePaymentInput = z.infer<typeof createPaymentSchema>
@@ -91,6 +94,18 @@ export async function createPayment(input: CreatePaymentInput) {
             throw new Error("Student not found")
           }
 
+          const recentPayment = await tx.payment.findFirst({
+            where: {
+              studentId: validated.studentId,
+              feeType: validated.feeType,
+              amount: validated.amount,
+              createdAt: { gt: new Date(Date.now() - 30 * 1000) }
+            }
+          })
+          if (recentPayment) {
+            throw new Error("Already paid: Duplicate payment detected.")
+          }
+
           const created = await tx.payment.create({
             data: {
               ...validated,
@@ -100,6 +115,7 @@ export async function createPayment(input: CreatePaymentInput) {
                 validated.receiptNumber ||
                 `RCP_${crypto.randomUUID().split("-")[0].toUpperCase()}`,
               status: "COMPLETED",
+              sessionId: validated.sessionId,
             },
           })
 
@@ -154,6 +170,57 @@ export async function createPayment(input: CreatePaymentInput) {
           paymentId: payment.id,
           receiptNumber: payment.receiptNumber,
         })
+
+        // Emit PAYMENT_RECEIVED event safely
+        try {
+          const studentObj = await prisma.student.findUnique({
+            where: { id: validated.studentId },
+            include: { parent: true }
+          })
+          
+          let parentUserId = studentObj?.parent?.userId || studentObj?.userId || null;
+          let parentEmail = studentObj?.parent?.email || studentObj?.email;
+
+          if (!parentUserId && parentEmail) {
+            const matchingUser = await prisma.user.findUnique({
+              where: { email: parentEmail }
+            });
+            parentUserId = matchingUser?.id || null;
+          }
+
+          if (parentEmail) {
+            await prisma.notification.create({
+              data: {
+                schoolId,
+                studentId: validated.studentId,
+                type: "PAYMENT_CONFIRM",
+                sentTo: parentEmail,
+                status: "SENT"
+              }
+            });
+            paymentLogger.info(`[PAYMENT_CONFIRM] Sent to ${parentEmail}`);
+          }
+
+          if (parentUserId && studentObj) {
+            await publishEvent({
+              eventType: "PAYMENT_RECEIVED",
+              entityType: "PAYMENT",
+              entityId: payment.id,
+              schoolId,
+              payload: {
+                userId: parentUserId,
+                schoolId,
+                studentName: studentObj.name,
+                invoiceNo: payment.receiptNumber,
+                amount: payment.amount,
+                paymentDate: payment.date,
+                paymentMethod: payment.paymentMethod
+              }
+            })
+          }
+        } catch (eventErr) {
+          paymentLogger.error({ err: eventErr }, "Failed to publish PAYMENT_RECEIVED event (non-blocking)")
+        }
 
         return payment
       } catch (err) {

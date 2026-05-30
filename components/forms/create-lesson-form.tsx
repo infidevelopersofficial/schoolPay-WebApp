@@ -1,7 +1,7 @@
 "use client"
 
 import { useActionState } from "react"
-import { createLessonAction } from "@/app/(dashboard)/lessons/actions"
+import { createLessonAction } from "@/app/(dashboard)/dashboard/lessons/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"

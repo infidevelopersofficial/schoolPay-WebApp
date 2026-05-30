@@ -20,13 +20,14 @@ const statusColors = {
 interface StudentsTableProps {
   data: {
     id: string;
+    studentId: string | null;
     name: string;
     email: string | null;
     class: string;
-    phone: string | null;
     feeStatus: string;
     avatar: string | null;
-    parent?: { name: string } | null;
+    parent?: { name: string; mobile: string | null } | null;
+    session?: { name: string } | null;
   }[]
 }
 
@@ -49,10 +50,11 @@ export function StudentsTable({ data }: StudentsTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead><DataTableSortHeader label="Student" sortKey="name" /></TableHead>
-            <TableHead>ID</TableHead>
+            <TableHead>Student ID</TableHead>
             <TableHead><DataTableSortHeader label="Class" sortKey="class" /></TableHead>
-            <TableHead>Parent/Guardian</TableHead>
-            <TableHead>Phone</TableHead>
+            <TableHead>Parent</TableHead>
+            <TableHead>Parent Mobile</TableHead>
+            <TableHead>Academic Year</TableHead>
             <TableHead><DataTableSortHeader label="Fee Status" sortKey="feeStatus" /></TableHead>
             <TableHead className="w-12">Actions</TableHead>
           </TableRow>
@@ -74,10 +76,11 @@ export function StudentsTable({ data }: StudentsTableProps) {
                   </div>
                 </div>
               </TableCell>
-              <TableCell className="font-mono text-xs text-muted-foreground">…{student.id.slice(-6)}</TableCell>
+              <TableCell className="font-mono text-xs text-muted-foreground">{student.studentId || `…${student.id.slice(-6)}`}</TableCell>
               <TableCell>{student.class}</TableCell>
               <TableCell>{student.parent?.name ?? "—"}</TableCell>
-              <TableCell>{student.phone ?? "—"}</TableCell>
+              <TableCell>{student.parent?.mobile ?? "—"}</TableCell>
+              <TableCell>{student.session?.name ?? "—"}</TableCell>
               <TableCell>
                 <Badge className={statusColors[student.feeStatus as keyof typeof statusColors] ?? "bg-gray-100 text-gray-700"}>
                   {student.feeStatus}

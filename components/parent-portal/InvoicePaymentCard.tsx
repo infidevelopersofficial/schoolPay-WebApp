@@ -25,6 +25,8 @@ interface InvoicePaymentCardProps {
 export function InvoicePaymentCard({ invoice, studentName }: InvoicePaymentCardProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const isOverdue = invoice.status !== "PAID" && invoice.status !== "CANCELLED" && invoice.dueDate && new Date(invoice.dueDate).getTime() < new Date().getTime();
+  const displayStatus = isOverdue ? "OVERDUE" : invoice.status;
 
   const handlePayment = async () => {
     try {
@@ -103,12 +105,14 @@ export function InvoicePaymentCard({ invoice, studentName }: InvoicePaymentCardP
           <Badge
             variant="outline"
             className={
-              invoice.status === "PAID"
+              displayStatus === "PAID"
                 ? "bg-emerald-100 text-emerald-700 border-emerald-200"
-                : "bg-red-100 text-red-700 border-red-200"
+                : displayStatus === "OVERDUE"
+                ? "bg-red-100 text-red-700 border-red-200 font-bold"
+                : "bg-amber-100 text-amber-700 border-amber-200"
             }
           >
-            {invoice.status}
+            {displayStatus}
           </Badge>
         </div>
       </CardHeader>
@@ -123,7 +127,9 @@ export function InvoicePaymentCard({ invoice, studentName }: InvoicePaymentCardP
           <div className="text-right">
             <p className="text-xs text-slate-500 mb-1">Due Date</p>
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              {invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString("en-IN") : "N/A"}
+              {invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString("en-IN", {
+                day: "2-digit", month: "2-digit", year: "numeric"
+              }) : "N/A"}
             </p>
           </div>
         </div>

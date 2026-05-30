@@ -1,7 +1,7 @@
 "use client"
 
 import { useActionState } from "react"
-import { addFeeAction } from "@/app/(dashboard)/fees/actions"
+import { addFeeAction } from "@/app/(dashboard)/dashboard/fees/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
