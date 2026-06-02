@@ -61,9 +61,11 @@ Parents and guardians authenticate through a dedicated, isolated interface at `/
 
 - **Student Management**: Enrollment, academic session linkage, and profile management.
 - **Fee Structure & Collection**: Term-based fee schedules, Razorpay integration (with webhook fallbacks & security hardening), automated PDF receipt generation (`jsPDF`), and overdue tracking.
+- **Financial Reports**: Date-range filtered daily settlement reports, outstanding fees, and complete collection exports (CSV/PDF).
+- **Automated Cron Jobs**: Scheduled background workers (via Vercel Cron) for daily fee reminders and attendance digests.
 - **Exams & Gradebook**: Phase 6B implementation with explicit academic year linkage, dynamic grading scales, and report cards.
 - **Attendance**: Phase 6A attendance tracking supporting daily registers, leave management, and reporting.
-- **Parent Portal**: Dedicated OTP-authenticated mobile-first PWA for parents to view fees, download receipts, and check attendance/grades.
+- **Parent Portal**: Dedicated OTP-authenticated mobile-first PWA for parents to view fees, download receipts, and check attendance/grades. Uses MSG91 SMS gateway for secure login.
 
 ---
 
@@ -306,6 +308,9 @@ Add all three to your Vercel project settings under **Settings → Environment V
 | `DATABASE_URL` | Transaction pooler URL (PgBouncer, port 6543) |
 | `DIRECT_URL` | Direct Postgres URL (port 5432, for migrations) |
 | `AUTH_SECRET` | Auth.js secret — generate with `openssl rand -base64 33` |
+| `MSG91_API_KEY` | MSG91 Authentication key for SMS OTP delivery |
+| `MSG91_TEMPLATE_ID` | Approved DLT Template ID for OTPs |
+| `CRON_SECRET` | Secure string to authenticate Vercel Cron endpoints |
 
 > `AUTH_URL` does **not** need to be set on Vercel — Auth.js v5 automatically infers it from `VERCEL_URL` on Vercel deployments.
 
