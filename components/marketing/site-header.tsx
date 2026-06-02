@@ -15,21 +15,15 @@ export function SiteHeader() {
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           <Link href="/#features" className="transition-colors hover:text-foreground/80 text-foreground/60">Features</Link>
           <Link href="/#pricing" className="transition-colors hover:text-foreground/80 text-foreground/60">Pricing</Link>
-          <Link href="/contact" className="transition-colors hover:text-foreground/80 text-foreground/60">Contact</Link>
         </nav>
         <div className="flex items-center gap-4">
           <Link href="/login">
-            <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
+            <Button variant="outline" size="sm" className="hidden sm:inline-flex">
               Login
             </Button>
           </Link>
           <Link href="/register?plan=free_demo">
-            <Button variant="outline" size="sm" className="hidden sm:inline-flex">
-              Book Demo
-            </Button>
-          </Link>
-          <Link href="/register?plan=free_demo">
-            <Button size="sm">Start Free Trial</Button>
+            <Button size="sm">Start Free Demo</Button>
           </Link>
         </div>
       </div>

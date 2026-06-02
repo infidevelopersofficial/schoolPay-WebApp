@@ -7,8 +7,9 @@ import { getSchoolId } from "@/lib/tenant-context";
 import { redirect } from "next/navigation";
 
 export async function completeOnboarding(formData: FormData) {
+  let success = false;
   try {
-    return await withTenantAuth(null, ["ADMIN"], async () => {
+    await withTenantAuth(null, ["ADMIN"], async () => {
       const session = await auth();
   if (!session) throw new Error("Unauthorized");
 
@@ -114,12 +115,13 @@ export async function completeOnboarding(formData: FormData) {
       }
     });
   });
-
-  // Redirect to dashboard
-  redirect("/dashboard");
     })
+    success = true;
   } catch (e: any) {
-    if (e.message === "NEXT_REDIRECT") throw e;
     return { error: e.message || "Unauthorized" }
+  }
+
+  if (success) {
+    redirect("/dashboard");
   }
 }

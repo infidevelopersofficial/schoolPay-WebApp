@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 export default function NotificationsSettingsPage() {
   const [loading, setLoading] = useState(false);
+  const [loadingAttendance, setLoadingAttendance] = useState(false);
 
   const handleSendReminders = async () => {
     setLoading(true);
@@ -49,6 +50,39 @@ export default function NotificationsSettingsPage() {
           <Button onClick={handleSendReminders} disabled={loading}>
             {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Bell className="w-4 h-4 mr-2" />}
             Send Reminders
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Bell className="w-5 h-5 text-muted-foreground" />
+            Daily Attendance Digest
+          </CardTitle>
+          <CardDescription>
+            Manually trigger the attendance digest to notify parents of students marked absent today.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button onClick={async () => {
+            setLoadingAttendance(true);
+            try {
+              const res = await fetch("/api/notifications/attendance-digest", { method: "POST" });
+              const data = await res.json();
+              if (res.ok) {
+                toast.success(data.message);
+              } else {
+                toast.error(data.error || "Failed to send attendance digest");
+              }
+            } catch (error) {
+              toast.error("An error occurred while sending attendance digest");
+            } finally {
+              setLoadingAttendance(false);
+            }
+          }} disabled={loadingAttendance}>
+            {loadingAttendance ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Bell className="w-4 h-4 mr-2" />}
+            Send Attendance Digest
           </Button>
         </CardContent>
       </Card>

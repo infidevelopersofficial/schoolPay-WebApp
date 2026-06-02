@@ -62,7 +62,7 @@ export function LoginForm() {
 
   const handleSendOtp = async () => {
     if (!identifier || !schoolCode) {
-      toast.error("Please enter school code and email");
+      toast.error("Please enter school code and registered mobile number");
       return;
     }
     setIsLoading(true);
@@ -70,7 +70,7 @@ export function LoginForm() {
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: identifier, schoolCode }),
+        body: JSON.stringify({ mobile: identifier, schoolCode }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -268,10 +268,10 @@ export function LoginForm() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="parent-email">Registered Email</Label>
+                <Label htmlFor="parent-mobile">Registered Mobile</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input id="parent-email" type="email" placeholder="parent@example.com" className="pl-9" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required />
+                  <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input id="parent-mobile" type="tel" placeholder="e.g. 9876543210" className="pl-9" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required pattern="^[6-9]\d{9}$" title="Please enter a valid 10-digit mobile number" />
                 </div>
               </div>
 

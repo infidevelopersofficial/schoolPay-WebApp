@@ -1,3 +1,8 @@
+"use client";
+
+import { useTransition } from "react"
+import { toast } from "sonner"
+import { deleteStudentAction } from "@/app/(dashboard)/dashboard/students/actions"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -32,6 +37,19 @@ interface StudentsTableProps {
 }
 
 export function StudentsTable({ data }: StudentsTableProps) {
+  const [isPending, startTransition] = useTransition()
+
+  const handleDelete = (id: string) => {
+    startTransition(async () => {
+      const result = await deleteStudentAction(id)
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        toast.success("Student removed successfully")
+      }
+    })
+  }
+
   if (data.length === 0) {
     return (
       <TableEmptyState
@@ -107,9 +125,7 @@ export function StudentsTable({ data }: StudentsTableProps) {
                     <DropdownMenuSeparator />
                     <DeleteConfirm
                       name={student.name}
-                      onConfirm={() => {
-                        // TODO: wire to deleteStudent server action
-                      }}
+                      onConfirm={() => handleDelete(student.id)}
                     />
                   </DropdownMenuContent>
                 </DropdownMenu>

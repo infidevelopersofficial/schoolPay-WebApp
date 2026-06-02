@@ -12,8 +12,9 @@ interface ReportGeneratorProps {
   schoolLogo?: string | null;
   reportName: string;
   description: string;
-  fetchData: () => Promise<any[]>;
+  fetchData: (startDate?: Date, endDate?: Date) => Promise<any[]>;
   columns: { header: string; key: string }[];
+  needsDateRange?: boolean;
 }
 
 export function ReportGenerator({
@@ -22,14 +23,25 @@ export function ReportGenerator({
   reportName,
   description,
   fetchData,
-  columns
+  columns,
+  needsDateRange = false
 }: ReportGeneratorProps) {
   const [loading, setLoading] = useState(false);
+  
+  // Default to current month
+  const now = new Date();
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+  
+  const [startDate, setStartDate] = useState<string>(firstDay.toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState<string>(now.toISOString().split('T')[0]);
 
   const generateCSV = async () => {
     try {
       setLoading(true);
-      const data = await fetchData();
+      const data = await fetchData(
+        needsDateRange && startDate ? new Date(startDate) : undefined,
+        needsDateRange && endDate ? new Date(endDate) : undefined
+      );
       
       let csvContent = "\uFEFF"; // UTF-8 BOM for Excel
       csvContent += columns.map(c => `"${c.header}"`).join(",") + "\n";
@@ -61,7 +73,10 @@ export function ReportGenerator({
   const generatePDF = async () => {
     try {
       setLoading(true);
-      const data = await fetchData();
+      const data = await fetchData(
+        needsDateRange && startDate ? new Date(startDate) : undefined,
+        needsDateRange && endDate ? new Date(endDate) : undefined
+      );
       
       const doc = new jsPDF("landscape");
       
@@ -78,8 +93,13 @@ export function ReportGenerator({
       doc.setFontSize(18);
       doc.text(schoolName, schoolLogo ? 40 : 14, 18);
       doc.setFontSize(12);
-      const dateRange = `Generated on: ${formatDate(new Date())}`; // Added date range per requirements
-      doc.text(`${reportName} - ${dateRange}`, schoolLogo ? 40 : 14, 26);
+      
+      let dateRangeStr = `Generated on: ${formatDate(new Date())}`;
+      if (needsDateRange && startDate && endDate) {
+        dateRangeStr = `Period: ${formatDate(new Date(startDate))} to ${formatDate(new Date(endDate))}`;
+      }
+      
+      doc.text(`${reportName} - ${dateRangeStr}`, schoolLogo ? 40 : 14, 26);
 
       const tableData = data.map(row => 
         columns.map(c => {
@@ -105,27 +125,46 @@ export function ReportGenerator({
   };
 
   return (
-    <div className="flex gap-2">
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className="gap-2 bg-transparent"
-        onClick={generateCSV}
-        disabled={loading}
-      >
-        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-        CSV
-      </Button>
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className="gap-2 bg-transparent"
-        onClick={generatePDF}
-        disabled={loading}
-      >
-        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-        PDF
-      </Button>
+    <div className="flex flex-col gap-3 w-full">
+      {needsDateRange && (
+        <div className="flex items-center gap-2 text-sm">
+          <input 
+            type="date" 
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+          />
+          <span className="text-muted-foreground">to</span>
+          <input 
+            type="date" 
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </div>
+      )}
+      <div className="flex gap-2">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="gap-2 bg-transparent flex-1"
+          onClick={generateCSV}
+          disabled={loading}
+        >
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+          CSV
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="gap-2 bg-transparent flex-1"
+          onClick={generatePDF}
+          disabled={loading}
+        >
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+          PDF
+        </Button>
+      </div>
     </div>
   );
 }

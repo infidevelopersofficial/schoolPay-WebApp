@@ -4,7 +4,7 @@ import { Filter } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ReportGenerator } from "@/components/reports/report-generator"
-import { getFeeCollectionReport, getOutstandingFeesReport } from "./actions"
+import { getFeeCollectionReport, getOutstandingFeesReport, getDailySettlementReport, getAttendanceSummaryReport } from "./actions"
 import { getTenantContext } from "@/lib/tenant-context"
 import { prisma as db } from "@/lib/prisma"
 
@@ -64,6 +64,32 @@ export default async function ReportsPage() {
                         { header: "Method", key: "paymentMethod" },
                         { header: "Amount", key: "amount" }
                       ]}
+                      needsDateRange={true}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Daily Settlement Report */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Daily Settlement Report</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">Aggregated payments by method for reconciliation</p>
+                  <div className="flex gap-2">
+                    <ReportGenerator 
+                      schoolName={schoolName}
+                      schoolLogo={tenant?.logoUrl}
+                      reportName="Daily Settlement Report"
+                      description="Aggregated payments by method for reconciliation"
+                      fetchData={getDailySettlementReport}
+                      columns={[
+                        { header: "Payment Method", key: "paymentMethod" },
+                        { header: "No. of Transactions", key: "transactionCount" },
+                        { header: "Total Amount", key: "totalAmount" }
+                      ]}
+                      needsDateRange={true}
                     />
                   </div>
                 </CardContent>
@@ -92,6 +118,36 @@ export default async function ReportsPage() {
                         { header: "Paid", key: "paidAmount" },
                         { header: "Pending", key: "pendingAmount" }
                       ]}
+                      needsDateRange={false}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Attendance Summary Report */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Attendance Summary Report</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">Student attendance totals across a period</p>
+                  <div className="flex gap-2">
+                    <ReportGenerator 
+                      schoolName={schoolName}
+                      schoolLogo={tenant?.logoUrl}
+                      reportName="Attendance Summary Report"
+                      description="Student attendance totals across a period"
+                      fetchData={getAttendanceSummaryReport}
+                      columns={[
+                        { header: "Class", key: "class" },
+                        { header: "Student Name", key: "studentName" },
+                        { header: "Admission No", key: "admissionNumber" },
+                        { header: "Present Days", key: "presentDays" },
+                        { header: "Absent Days", key: "absentDays" },
+                        { header: "Late Days", key: "lateDays" },
+                        { header: "Total Working Days", key: "totalWorkingDays" }
+                      ]}
+                      needsDateRange={true}
                     />
                   </div>
                 </CardContent>

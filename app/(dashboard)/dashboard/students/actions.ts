@@ -3,7 +3,7 @@
 import { withTenantAuth } from "@/lib/tenant-auth"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
-import { createStudent, createStudentSchema } from "@/lib/dal/students"
+import { createStudent, createStudentSchema, deleteStudent as deleteStudentDal } from "@/lib/dal/students"
 
 export async function addStudentAction(prevState: any, formData: FormData) {
   try {
@@ -28,6 +28,25 @@ export async function addStudentAction(prevState: any, formData: FormData) {
         }
         if (e?.code === "P2002") return { error: "A student with this email already exists" }
         return { error: "Failed to create student" }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}
+
+export async function deleteStudentAction(id: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const session = await auth()
+      if (!session) return { error: "Unauthorized" }
+
+      try {
+        await deleteStudentDal(id)
+        revalidatePath("/dashboard/students")
+        return { success: true }
+      } catch (e: any) {
+        return { error: "Failed to delete student" }
       }
     })
   } catch (e: any) {

@@ -1,3 +1,8 @@
+"use client";
+
+import { useTransition } from "react"
+import { toast } from "sonner"
+import { deleteParentAction } from "@/app/(dashboard)/dashboard/parents/actions"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -21,6 +26,19 @@ interface ParentsTableProps {
 }
 
 export function ParentsTable({ data }: ParentsTableProps) {
+  const [isPending, startTransition] = useTransition()
+
+  const handleDelete = (id: string) => {
+    startTransition(async () => {
+      const result = await deleteParentAction(id)
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        toast.success("Parent removed successfully")
+      }
+    })
+  }
+
   if (data.length === 0) {
     return (
       <TableEmptyState
@@ -94,9 +112,7 @@ export function ParentsTable({ data }: ParentsTableProps) {
                     <DropdownMenuSeparator />
                     <DeleteConfirm
                       name={parent.name}
-                      onConfirm={() => {
-                        // TODO: wire to deleteParent server action
-                      }}
+                      onConfirm={() => handleDelete(parent.id)}
                     />
                   </DropdownMenuContent>
                 </DropdownMenu>

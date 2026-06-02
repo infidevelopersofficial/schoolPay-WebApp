@@ -3,7 +3,7 @@
 import { withTenantAuth } from "@/lib/tenant-auth"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
-import { createParent, createParentSchema } from "@/lib/dal/parents"
+import { createParent, createParentSchema, deleteParent as deleteParentDal } from "@/lib/dal/parents"
 import { prisma } from "@/lib/prisma"
 import { sendMail } from "@/lib/mail"
 import crypto from "crypto"
@@ -94,4 +94,23 @@ export async function generateParentInvitation(parentId: string) {
       return { error: "Failed to generate parent invitation." }
     }
   })
+}
+
+export async function deleteParentAction(id: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const session = await auth()
+      if (!session) return { error: "Unauthorized" }
+
+      try {
+        await deleteParentDal(id)
+        revalidatePath("/dashboard/parents")
+        return { success: true }
+      } catch (e: any) {
+        return { error: "Failed to delete parent" }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
 }

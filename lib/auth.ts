@@ -68,7 +68,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
              }
              
              const parent = await prisma.parent.findFirst({
-               where: { email: identifier, school: { OR: [{schoolCode: schoolCode}, {tenantId: schoolCode}, {slug: schoolCode}] } },
+               where: { mobile: identifier, school: { OR: [{schoolCode: schoolCode}, {tenantId: schoolCode}, {slug: schoolCode}] } },
                include: { user: true }
              });
              if (parent && parent.user) {
