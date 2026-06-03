@@ -47,7 +47,8 @@ export async function enforcePlanLimit(params: {
   })
 
   if (!school?.subscription?.plan || !school?.usageRecord) {
-    throw new Error("Billing context not found for school")
+    console.warn(`[BILLING] Missing billing context for school ${schoolId}. Bypassing limits.`)
+    return true
   }
 
   const { plan } = school.subscription

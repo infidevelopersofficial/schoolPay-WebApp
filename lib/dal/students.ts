@@ -144,9 +144,6 @@ export async function createStudent(input: CreateStudentInput) {
         let parentRecord = await tx.parent.findUnique({
           where: { email_schoolId: { email: validated.parentEmail, schoolId } }
         })
-        if (parentRecord) {
-          throw new Error("A parent account with this email already exists.")
-        }
         if (!parentRecord) {
           parentRecord = await tx.parent.create({
             data: {
@@ -200,7 +197,7 @@ export async function createStudent(input: CreateStudentInput) {
         // 6. Send Welcome Email (simulated/async in background)
         if (typeof window === 'undefined') {
           // Dynamic import to avoid edge runtime issues if this gets bundled
-          const nodemailer = require("nodemailer");
+          const nodemailer = await import("nodemailer");
           const transporter = nodemailer.createTransport({
             host: process.env.EMAIL_SMTP_SERVER,
             port: parseInt(process.env.EMAIL_SMTP_PORT || "587"),
