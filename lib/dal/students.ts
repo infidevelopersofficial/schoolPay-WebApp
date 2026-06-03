@@ -170,6 +170,8 @@ export async function createStudent(input: CreateStudentInput) {
         if (lastStudent && lastStudent.studentId) {
           const parts = lastStudent.studentId.split('-');
           if (parts.length >= 2) prefix = parts[0];
+        } else if (school?.schoolCode) {
+          prefix = school.schoolCode;
         } else if (school?.name) {
           prefix = school.name.substring(0, 3).toUpperCase();
         }
