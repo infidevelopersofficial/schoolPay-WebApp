@@ -23,8 +23,9 @@ export async function addTeacherAction(prevState: any, formData: FormData) {
         revalidatePath("/dashboard/teachers")
         return { success: true }
       } catch (e: any) {
+        console.error("Error creating teacher:", e)
         if (e?.code === "P2002") return { error: "A teacher with this email already exists" }
-        return { error: "Failed to create teacher" }
+        return { error: `Failed to create teacher: ${e?.message || e}` }
       }
     })
   } catch (e: any) {

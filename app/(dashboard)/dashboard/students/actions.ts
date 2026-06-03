@@ -23,11 +23,12 @@ export async function addStudentAction(prevState: any, formData: FormData) {
         revalidatePath("/dashboard/students")
         return { success: true }
       } catch (e: any) {
+        console.error("Error creating student:", e)
         if (e?.message === "A parent account with this email already exists.") {
           return { error: e.message }
         }
         if (e?.code === "P2002") return { error: "A student with this email already exists" }
-        return { error: "Failed to create student" }
+        return { error: `Failed to create student: ${e?.message || e}` }
       }
     })
   } catch (e: any) {
