@@ -16,12 +16,12 @@ export const createTeacherSchema = z.object({
   phone: z.string().min(1, "Phone is required"),
   subject: z.string().min(1, "Subject is required"),
   class: z.string().min(1, "Class is required"),
-  dateOfBirth: z.string().optional(),
-  gender: z.string().optional(),
-  address: z.string().optional(),
-  qualification: z.string().optional(),
-  experience: z.string().optional(),
-  joiningDate: z.string().optional(),
+  dateOfBirth: z.string().optional().transform(v => v === "" ? undefined : v),
+  gender: z.string().optional().transform(v => v === "" ? undefined : v),
+  address: z.string().optional().transform(v => v === "" ? undefined : v),
+  qualification: z.string().optional().transform(v => v === "" ? undefined : v),
+  experience: z.string().optional().transform(v => v === "" ? undefined : v),
+  joiningDate: z.string().optional().transform(v => v === "" ? undefined : v),
   salary: z.coerce.number().optional(),
 })
 

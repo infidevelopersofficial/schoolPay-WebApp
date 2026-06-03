@@ -18,11 +18,11 @@ export const createStudentSchema = z.object({
   name: z.string().min(1, "Name is required"),
   dateOfBirth: z.string().min(1, "Date of Birth is required"),
   class: z.string().min(1, "Class is required"),
-  admissionNumber: z.string().optional(),
+  admissionNumber: z.string().optional().transform(v => v === "" ? undefined : v),
   parentName: z.string().min(1, "Parent Name is required"),
   parentEmail: z.string().email("Valid email required"),
-  parentMobile: z.string().regex(/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number"),
-  sessionId: z.string().optional(),
+  parentMobile: z.string().regex(/^[0-9]{10}$/, "Please enter a valid 10-digit mobile number"),
+  sessionId: z.string().optional().transform(v => v === "" ? undefined : v),
   totalFees: z.coerce.number().default(0),
 })
 
