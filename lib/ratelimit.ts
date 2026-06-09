@@ -52,3 +52,13 @@ export const activationLockLimit = createRateLimiter({
   prefix: "ratelimit:activation",
   analytics: true,
 }) as Ratelimit;
+
+/**
+ * 5. Tenant Onboarding & Slug Protection
+ * Strict limit to prevent spam and brute-force slug probing.
+ */
+export const onboardingRateLimit = createRateLimiter({
+  limiter: Ratelimit.slidingWindow(3, "1 m"), // 3 requests per minute per IP
+  prefix: "ratelimit:onboarding",
+  analytics: true,
+}) as Ratelimit;

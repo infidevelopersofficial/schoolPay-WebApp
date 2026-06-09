@@ -18,6 +18,7 @@ interface AuditLogParams {
     | "SUBJECT"
     | "PAYMENT"
     | "FEE"
+    | "FEE_STRUCTURE"
     | "EXAM"
     | "RESULT"
     | "ATTENDANCE"

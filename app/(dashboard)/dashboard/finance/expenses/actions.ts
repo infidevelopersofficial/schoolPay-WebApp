@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth"
 import { getTenantContext, TenantError } from "@/lib/tenant-context"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { getExpenseStats, getExpensesList, getMonthlyExpenseChartData } from "@/lib/dal/expenses"
 
 const ALLOWED_ROLES = ["SUPER_ADMIN", "ADMIN", "ACCOUNTANT"]
 
@@ -13,6 +14,10 @@ const ExpenseSchema = z.object({
   description: z.string().optional(),
   amount: z.coerce.number().positive("Amount must be positive"),
   expenseDate: z.coerce.date(),
+  vendorName: z.string().optional(),
+  receiptUrl: z.string().optional(),
+  isRecurring: z.coerce.boolean().default(false),
+  recurrenceType: z.string().optional(),
 })
 
 export async function createExpense(formData: FormData) {
@@ -26,6 +31,10 @@ export async function createExpense(formData: FormData) {
     description: formData.get("description"),
     amount: formData.get("amount"),
     expenseDate: formData.get("expenseDate"),
+    vendorName: formData.get("vendorName"),
+    receiptUrl: formData.get("receiptUrl"),
+    isRecurring: formData.get("isRecurring"),
+    recurrenceType: formData.get("recurrenceType"),
   })
 
   if (!parsed.success) {
@@ -36,14 +45,22 @@ export async function createExpense(formData: FormData) {
   const userId = (session?.user as any)?.id as string
   if (!userId) throw new TenantError("Not authenticated")
 
+  // Amount is submitted as rupees, convert to paise
+  const amountPaise = Math.round(parsed.data.amount * 100)
+
   await prisma.expense.create({
     data: {
       schoolId: ctx.schoolId,
       createdById: userId,
       category: parsed.data.category,
       description: parsed.data.description || null,
-      amount: parsed.data.amount,
+      amount: amountPaise,
       expenseDate: parsed.data.expenseDate,
+      vendorName: parsed.data.vendorName || null,
+      receiptUrl: parsed.data.receiptUrl || null,
+      isRecurring: parsed.data.isRecurring,
+      recurrenceType: parsed.data.isRecurring ? (parsed.data.recurrenceType || "MONTHLY") : null,
+      lastGeneratedAt: parsed.data.isRecurring ? new Date() : null, // Set initial generation time
     },
   })
 
@@ -57,7 +74,6 @@ export async function deleteExpense(expenseId: string) {
     throw new TenantError("Access denied: Insufficient permissions.")
   }
 
-  // Verify the expense belongs to this tenant
   const expense = await prisma.expense.findFirst({
     where: { id: expenseId, schoolId: ctx.schoolId },
   })
@@ -72,37 +88,23 @@ export async function deleteExpense(expenseId: string) {
   return { success: true }
 }
 
-export async function getExpenses(filters?: { category?: string; from?: string; to?: string }) {
+export async function getDashboardData() {
   const ctx = await getTenantContext()
   if (!ALLOWED_ROLES.includes(ctx.schoolRole || "")) {
     throw new TenantError("Access denied: Insufficient permissions.")
   }
 
-  const where: any = { schoolId: ctx.schoolId }
+  const currentYear = new Date().getFullYear()
 
-  if (filters?.category) {
-    where.category = filters.category
-  }
-  if (filters?.from || filters?.to) {
-    where.expenseDate = {}
-    if (filters.from) where.expenseDate.gte = new Date(filters.from)
-    if (filters.to) where.expenseDate.lte = new Date(filters.to)
-  }
-
-  const expenses = await prisma.expense.findMany({
-    where,
-    orderBy: { expenseDate: "desc" },
-    include: { createdBy: { select: { name: true } } },
-    take: 200,
-  })
-
-  const categories = await prisma.expense.groupBy({
-    by: ["category"],
-    where: { schoolId: ctx.schoolId },
-  })
+  const [stats, list, chartData] = await Promise.all([
+    getExpenseStats(ctx.schoolId),
+    getExpensesList(ctx.schoolId),
+    getMonthlyExpenseChartData(ctx.schoolId, currentYear)
+  ])
 
   return {
-    expenses,
-    categories: categories.map((c: any) => c.category),
+    stats,
+    expenses: list,
+    chartData
   }
 }

@@ -1,29 +1,16 @@
 "use client"
 
-import { useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
-import { AddFeeForm } from "@/components/forms"
+import Link from "next/link"
 
 export function FeesPageClient() {
-  const [showAddForm, setShowAddForm] = useState(false)
-
-  const handleSuccess = useCallback(() => {
-    setShowAddForm(false)
-  }, [])
-
   return (
-    <>
-      <Button className="gap-2" onClick={() => setShowAddForm(true)}>
+    <Link href="/dashboard/fees/wizard" passHref>
+      <Button className="gap-2">
         <Plus className="h-4 w-4" />
-        Add Fee Type
+        Create Fee Structure
       </Button>
-
-      <AddFeeForm 
-        open={showAddForm} 
-        onOpenChange={setShowAddForm} 
-        onSuccess={handleSuccess} 
-      />
-    </>
+    </Link>
   )
 }

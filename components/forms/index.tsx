@@ -2,8 +2,6 @@
 export { AddStudentForm } from "./add-student-form"
 export { AddTeacherForm } from "./add-teacher-form"
 export { RecordPaymentForm } from "./record-payment-form"
-export { AddFeeForm } from "./add-fee-form"
-
 // Export all additional forms
 export {
   AddParentForm,

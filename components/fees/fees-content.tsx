@@ -9,14 +9,22 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { MoreHorizontal, Pencil, Trash2, Plus, Search, Filter, Download } from "lucide-react"
 import { Input } from "@/components/ui/input"
 
-interface Fee {
+interface FeeStructure {
   id: string
-  type: string
-  amount: number
-  description: string
-  frequency: string
-  dueDate?: string | null
-  className?: string | null
+  name: string
+  description?: string | null
+  items: {
+    id: string
+    name: string
+    amount: number
+    frequency: string
+  }[]
+  mappings: {
+    class: {
+      name: string
+      section: string
+    }
+  }[]
 }
 
 const dummyDiscounts = [
@@ -32,11 +40,11 @@ const dummyPenalties = [
   { id: "PEN003", name: "Overdue (30 days)", amount: 200, description: "Additional ₹200 after 30 days overdue", applicableTo: "All Fees" },
 ]
 
-export function FeesContent({ fees }: { fees: Fee[] }) {
+export function FeesContent({ feeStructures }: { feeStructures: FeeStructure[] }) {
   return (
     <Tabs defaultValue="fee-types" className="space-y-4">
       <TabsList>
-        <TabsTrigger value="fee-types">Fee Types</TabsTrigger>
+        <TabsTrigger value="fee-types">Fee Structures</TabsTrigger>
         <TabsTrigger value="discounts">Discounts</TabsTrigger>
         <TabsTrigger value="penalties">Penalties</TabsTrigger>
       </TabsList>
@@ -45,7 +53,7 @@ export function FeesContent({ fees }: { fees: Fee[] }) {
         <div className="flex items-center gap-4">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search fee types..." className="pl-10" />
+            <Input placeholder="Search fee structures..." className="pl-10" />
           </div>
           <Button variant="outline" className="gap-2 bg-transparent">
             <Filter className="h-4 w-4" />
@@ -61,34 +69,45 @@ export function FeesContent({ fees }: { fees: Fee[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Fee Type</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Frequency</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Class</TableHead>
+                <TableHead>Structure Name</TableHead>
+                <TableHead>Items</TableHead>
+                <TableHead>Classes Mapped</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {fees.length === 0 ? (
+              {feeStructures.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                    No fee types found.
+                  <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                    No fee structures found.
                   </TableCell>
                 </TableRow>
-              ) : fees.map((fee) => (
-                <TableRow key={fee.id}>
-                  <TableCell className="font-medium">{fee.type}</TableCell>
+              ) : feeStructures.map((structure) => (
+                <TableRow key={structure.id}>
                   <TableCell>
-                    <span className="font-semibold text-primary">₹{fee.amount}</span>
+                    <div className="font-medium">{structure.name}</div>
+                    <div className="text-sm text-muted-foreground max-w-xs truncate">{structure.description}</div>
                   </TableCell>
-                  <TableCell className="max-w-xs truncate">{fee.description}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{fee.frequency}</Badge>
+                    <div className="flex flex-col gap-1">
+                      {structure.items.map(item => (
+                        <div key={item.id} className="text-sm">
+                          {item.name}: <span className="font-semibold text-primary">₹{(item.amount / 100).toLocaleString()}</span> <Badge variant="outline" className="text-[10px] h-4 px-1">{item.frequency}</Badge>
+                        </div>
+                      ))}
+                    </div>
                   </TableCell>
-                  <TableCell className="text-sm">{fee.dueDate || "-"}</TableCell>
-                  <TableCell className="text-sm">{fee.className || "All"}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {structure.mappings.length > 0 ? structure.mappings.map((m, idx) => (
+                        <Badge key={idx} variant="secondary">
+                          {m.class.name} {m.class.section}
+                        </Badge>
+                      )) : (
+                        <span className="text-sm text-muted-foreground">None</span>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

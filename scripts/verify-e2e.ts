@@ -3,7 +3,7 @@ import { registerTenant } from "../app/(auth)/register/actions";
 import { completeOnboarding } from "../components/forms/onboarding/actions";
 import { createTeacher } from "../lib/dal/teachers";
 import { createStudent } from "../lib/dal/students";
-import { importStudentsAction } from "../app/(dashboard)/dashboard/students/import/actions";
+import { importStudentsBatchAction } from "../app/(dashboard)/dashboard/students/import/actions";
 import { createPayment } from "../lib/dal/payments";
 import { createParent } from "../lib/dal/parents";
 import { createLead, convertLeadToStudent } from "../lib/dal/leads";

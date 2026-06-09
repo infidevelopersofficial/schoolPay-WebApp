@@ -2,6 +2,7 @@ import { getTenantContext } from "@/lib/tenant-context";
 import { SchoolDashboard } from "@/components/dashboards/school-dashboard";
 import { CoachingDashboard } from "@/components/dashboards/coaching-dashboard";
 import { TutorDashboard } from "@/components/dashboards/tutor-dashboard";
+import { ActivationChecklist } from "@/components/dashboards/activation-checklist";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import type { Metadata } from "next";
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  const { tenantType, onboardingStatus } = await getTenantContext();
+  const { tenantType, onboardingStatus, schoolId } = await getTenantContext();
 
   // Show onboarding alert if setup not complete
   const showSetupAlert = onboardingStatus !== "COMPLETED";
@@ -37,6 +38,11 @@ export default async function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Post-Onboarding Checklist (Mocked condition for testing, ideally based on actual data presence) */}
+      {!showSetupAlert && (
+        <ActivationChecklist isComplete={false} schoolId={schoolId} tenantType={tenantType} />
       )}
 
       {/* Tenant-specific Dashboard */}

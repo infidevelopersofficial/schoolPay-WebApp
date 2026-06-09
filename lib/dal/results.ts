@@ -190,3 +190,81 @@ export async function bulkUpsertResults(input: z.infer<typeof bulkUpsertResultSc
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
   )
 }
+
+export async function getResultsExamGroups() {
+  return await withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return prisma.examGroup.findMany({
+      where: { schoolId },
+      include: {
+        session: true,
+        gradingScheme: true,
+        exams: {
+          include: {
+            subject: true,
+            batch: true,
+          }
+        }
+      },
+      orderBy: { createdAt: "desc" }
+    })
+  })
+}
+
+export async function getExamsByGroup(examGroupId: string) {
+  return await withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return prisma.exam.findMany({
+      where: { examGroupId, schoolId },
+      include: {
+        subject: true,
+        batch: true,
+        session: true,
+      },
+      orderBy: { date: "asc" }
+    })
+  })
+}
+
+export async function getStudentsForExam(examId: string) {
+  return await withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    const exam = await prisma.exam.findUnique({
+      where: { id: examId, schoolId },
+      include: { batch: true }
+    })
+
+    if (!exam) return []
+
+    // Students enrolled in this batch
+    const enrollments = await prisma.enrollment.findMany({
+      where: { batchId: exam.batchId, schoolId, status: "ACTIVE" },
+      include: {
+        student: true,
+      }
+    })
+
+    // Existing results for this exam
+    const results = await prisma.result.findMany({
+      where: { examId, schoolId }
+    })
+
+    return enrollments.map(e => {
+      const result = results.find(r => r.studentId === e.studentId)
+      return {
+        student: e.student,
+        result: result || null
+      }
+    })
+  })
+}
+
+export async function getGradingSchemes() {
+  return await withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return prisma.gradingScheme.findMany({
+      where: { schoolId },
+      include: { bands: { orderBy: { minMarks: "desc" } } }
+    })
+  })
+}

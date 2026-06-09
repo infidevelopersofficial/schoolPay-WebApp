@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { getExpenses } from "./actions"
+import { getDashboardData } from "./actions"
 import ExpensesClient from "./expenses-client"
 
 export const metadata: Metadata = {
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 }
 
 export default async function ExpensesPage() {
-  const data = await getExpenses()
+  const data = await getDashboardData()
 
   return (
     <div className="space-y-8 p-6 md:p-10 max-w-7xl mx-auto">
@@ -21,7 +21,11 @@ export default async function ExpensesPage() {
         </p>
       </div>
 
-      <ExpensesClient expenses={data.expenses} categories={data.categories} />
+      <ExpensesClient 
+        expenses={data.expenses} 
+        stats={data.stats} 
+        chartData={data.chartData} 
+      />
     </div>
   )
 }
