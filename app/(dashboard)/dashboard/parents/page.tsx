@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import { ParentsTable } from "@/components/parents/parents-table"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { ParentsPageClient } from "@/components/parents/parents-page-client"
 import { getParents } from "@/lib/dal/parents"
 import { TableSkeleton } from "@/components/ui/table-skeleton"
 import { DataTableShell } from "@/components/ui/data-table/data-table-shell"
@@ -24,14 +24,7 @@ export default async function ParentsPage(props: {
       description="Manage parent and guardian information"
       breadcrumbs={[{ label: "People" }]}
       search={<DataTableSearch query={query} placeholder="Search parents..." />}
-      actions={
-        <Button className="gap-2" asChild>
-          <Link href="/dashboard/parents/new">
-            <Plus className="h-4 w-4" />
-            Add Parent
-          </Link>
-        </Button>
-      }
+      actions={<ParentsPageClient />}
     >
       <Suspense key={query + currentPage} fallback={<TableSkeleton />}>
         <ParentDataFetcher page={currentPage} search={query} />

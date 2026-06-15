@@ -29,7 +29,7 @@ export function RegisterForm() {
     adminEmail: "",
     adminPassword: "",
     phone: "",
-    tenantType: "K12_SCHOOL",
+    tenantType: "SCHOOL",
     schoolCode: "",
   });
 
@@ -52,7 +52,7 @@ export function RegisterForm() {
     try {
       if (isFreeDemo) {
         // Direct creation for free demo
-        const res = await fetch("/api/super-admin/tenants/create", {
+        const res = await fetch("/api/public/register-tenant", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -176,9 +176,9 @@ export function RegisterForm() {
                 onChange={e => setFormData({...formData, tenantType: e.target.value})}
                 required
               >
-                <option value="K12_SCHOOL">K-12 School</option>
-                <option value="COACHING_CLASS">Coaching Class</option>
-                <option value="TUTOR">Private Tutor</option>
+                <option value="SCHOOL">K-12 School</option>
+                <option value="COACHING_CENTER">Coaching Class</option>
+                <option value="PRIVATE_TUTOR">Private Tutor</option>
               </select>
             </div>
             <div className="space-y-2">

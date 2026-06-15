@@ -1,0 +1,15 @@
+| Module | Create | Read | Update | Delete | Status |
+| ------ | ------ | ---- | ------ | ------ | ------ |
+| Students | No | No | No | No | Incomplete |
+| Teachers | No | No | No | No | Incomplete |
+| Parents | No | No | No | No | Incomplete |
+| Classes | No | No | No | No | Incomplete |
+| Subjects | No | No | No | No | Incomplete |
+| Lessons | No | No | No | No | Incomplete |
+| Attendance | No | No | No | No | Incomplete |
+| Fees | No | No | No | No | Incomplete |
+| Payments | No | No | No | No | Incomplete |
+| Results | No | No | No | No | Incomplete |
+| Events | No | No | No | No | Incomplete |
+| Messages | No | No | No | No | Incomplete |
+| Communications | No | No | No | No | Incomplete |

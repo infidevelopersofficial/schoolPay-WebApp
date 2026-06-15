@@ -43,7 +43,7 @@ export async function completeWizardOnboarding(formData: FormData): Promise<Acti
       
       if (school.onboardingStatus === "COMPLETED") {
         alreadyCompleted = true;
-        return;
+        return { success: true };
       }
 
       const validationResult = onboardingSchema.safeParse(Object.fromEntries(formData));

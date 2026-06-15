@@ -143,17 +143,46 @@ export const prisma = (globalForPrisma.prisma ?? createPrismaClient()).$extends(
           ]
 
           if (modelsWithSchoolId.includes(model)) {
-            // Apply native Postgres Row-Level Security via sequential transaction
-            // The empty string '' is used for System Context (bypassing RLS)
-            const [, result] = await (globalForPrisma.prisma ?? prisma).$transaction([
-              (globalForPrisma.prisma ?? prisma).$executeRawUnsafe(`SELECT set_config('app.current_tenant', '${store.schoolId}', TRUE)`),
-              query(args) as any
-            ])
-            return result
+            // We enforce tenant isolation at the Prisma runtime level.
+            // Executing `set_config` inside an array $transaction for every query 
+            // caused P2028 connection exhaustion when mixed with interactive DAL transactions.
+            
+            if (store.schoolId !== "") {
+              // 1. Bulk Operations & Safe Reads
+              if (operation === "findMany" || operation === "findFirst" || operation === "findFirstOrThrow" || operation === "count" || operation === "aggregate" || operation === "groupBy" || operation === "updateMany" || operation === "deleteMany") {
+                args.where = { ...args.where, schoolId: store.schoolId }
+              }
+              // 2. Safe Creates
+              else if (operation === "create" || operation === "createMany") {
+                if (Array.isArray(args.data)) {
+                  args.data = args.data.map(d => ({ ...d, schoolId: store.schoolId }))
+                } else {
+                  args.data = { ...args.data, schoolId: store.schoolId }
+                }
+              }
+              // 3. Unsafe Reads (findUnique) -> Rewrite to findFirst to avoid type errors while maintaining isolation
+              else if (operation === "findUnique" || operation === "findUniqueOrThrow") {
+                args.where = { ...args.where, schoolId: store.schoolId }
+                const safeOp = operation === "findUnique" ? "findFirst" : "findFirstOrThrow"
+                return (prisma as any)[model][safeOp](args)
+              }
+              // 4. Unsafe Writes (update, delete) -> Pre-flight Ownership Check
+              else if (operation === "update" || operation === "delete") {
+                // Verify ownership before mutating
+                const existing = await (prisma as any)[model].findFirst({
+                  where: { ...args.where },
+                  select: { schoolId: true }
+                })
+                if (!existing || existing.schoolId !== store.schoolId) {
+                  throw new Error(`PrismaClientKnownRequestError: Record to ${operation} not found or belongs to another tenant.`)
+                }
+                // Safely proceed
+              }
+            }
           }
         }
         
-        // Default execution (unprotected / non-tenant model)
+        // Execute the query securely
         return query(args)
       }
     }

@@ -1,33 +1,40 @@
 "use server"
 
-import { withTenantAuth } from "@/lib/tenant-auth"
 import { auth } from "@/lib/auth"
+import { getTenantContext } from "@/lib/tenant-context"
 import { revalidatePath } from "next/cache"
 import { createTeacher, createTeacherSchema, deleteTeacher as deleteTeacherDal } from "@/lib/dal/teachers"
+import { tenantContext } from "@/lib/prisma"
 
 export async function addTeacherAction(prevState: any, formData: FormData) {
   try {
-    return await withTenantAuth(null, ["ADMIN"], async () => {
-      const session = await auth()
-      if (!session) return { error: "Unauthorized" }
+    const session = await auth()
+    if (!session?.user) return { error: "Unauthorized" }
 
-      const raw = Object.fromEntries(formData.entries())
-      const result = createTeacherSchema.safeParse(raw)
+    const { schoolId, schoolRole } = await getTenantContext()
+    if (!schoolId) return { error: "No active school" }
+    if (schoolRole !== "ADMIN" && session.user.role !== "SUPER_ADMIN") {
+      return { error: "Unauthorized role" }
+    }
 
-      if (!result.success) {
-        return { error: "Validation failed", fieldErrors: result.error.flatten().fieldErrors }
-      }
+    const raw = Object.fromEntries(formData.entries())
+    const result = createTeacherSchema.safeParse(raw)
 
-      try {
+    if (!result.success) {
+      return { error: "Validation failed", fieldErrors: result.error.flatten().fieldErrors }
+    }
+
+    try {
+      await tenantContext.run({ schoolId }, async () => {
         await createTeacher(result.data)
-        revalidatePath("/dashboard/teachers")
-        return { success: true }
-      } catch (e: any) {
-        console.error("Error creating teacher:", e)
-        if (e?.code === "P2002") return { error: "A teacher with this email already exists" }
-        return { error: `Failed to create teacher: ${e?.message || e}` }
-      }
-    })
+      })
+      revalidatePath("/dashboard/teachers")
+      return { success: true }
+    } catch (e: any) {
+      console.error("Error creating teacher:", e)
+      if (e?.code === "P2002") return { error: "A teacher with this email already exists" }
+      return { error: `Failed to create teacher: ${e?.message || e}` }
+    }
   } catch (e: any) {
     return { error: e.message || "Unauthorized" }
   }
@@ -35,18 +42,24 @@ export async function addTeacherAction(prevState: any, formData: FormData) {
 
 export async function deleteTeacherAction(id: string) {
   try {
-    return await withTenantAuth(null, ["ADMIN"], async () => {
-      const session = await auth()
-      if (!session) return { error: "Unauthorized" }
+    const session = await auth()
+    if (!session?.user) return { error: "Unauthorized" }
 
-      try {
+    const { schoolId, schoolRole } = await getTenantContext()
+    if (!schoolId) return { error: "No active school" }
+    if (schoolRole !== "ADMIN" && session.user.role !== "SUPER_ADMIN") {
+      return { error: "Unauthorized role" }
+    }
+
+    try {
+      await tenantContext.run({ schoolId }, async () => {
         await deleteTeacherDal(id)
-        revalidatePath("/dashboard/teachers")
-        return { success: true }
-      } catch (e: any) {
-        return { error: "Failed to delete teacher" }
-      }
-    })
+      })
+      revalidatePath("/dashboard/teachers")
+      return { success: true }
+    } catch (e: any) {
+      return { error: "Failed to delete teacher" }
+    }
   } catch (e: any) {
     return { error: e.message || "Unauthorized" }
   }

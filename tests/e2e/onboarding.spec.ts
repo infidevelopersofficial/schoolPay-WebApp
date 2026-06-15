@@ -12,7 +12,7 @@ test.describe('Onboarding E2E Validation', () => {
   test.setTimeout(120000); // 120 seconds to account for Neon DB cold starts
 
   let user: User;
-  let school;
+  let school: any;
   const password = 'Password123!';
 
   test.beforeEach(async ({ page }) => {

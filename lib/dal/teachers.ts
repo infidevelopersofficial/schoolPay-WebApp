@@ -4,6 +4,7 @@ import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
 import { withDAL } from "@/lib/dal/utils"
 import { getSchoolId } from "@/lib/tenant-context"
+import bcrypt from "bcryptjs"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
 import { enforcePlanLimit } from "@/lib/billing/limits"
@@ -96,6 +97,18 @@ export async function createTeacher(input: CreateTeacherInput) {
     "teachers.create",
     async () => {
       const teacher = await prisma.$transaction(async (tx) => {
+        // Create user account for the teacher to log in
+        const hashedPassword = await bcrypt.hash(validated.phone, 10) // default password is phone
+        const user = await tx.user.create({
+          data: {
+            name: validated.name,
+            email: validated.email,
+            phone: validated.phone,
+            hashedPassword,
+            role: "TEACHER"
+          }
+        })
+
         const created = await tx.teacher.create({
           data: {
             ...validated,
@@ -103,6 +116,15 @@ export async function createTeacher(input: CreateTeacherInput) {
             dateOfBirth: validated.dateOfBirth ? new Date(validated.dateOfBirth) : undefined,
             joiningDate: validated.joiningDate ? new Date(validated.joiningDate) : new Date(),
           },
+        })
+
+        await tx.userSchool.create({
+          data: {
+            userId: user.id,
+            schoolId,
+            role: "TEACHER",
+            staffId: created.id
+          }
         })
 
         // Authoritative source of usage sync

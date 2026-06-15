@@ -82,3 +82,4 @@ export async function updateClass(id: string, data: Partial<CreateClassInput>) {
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
 }
+export async function deleteClass(id: string) { const schoolId = await getSchoolId(); return withDAL('classes.delete', async () => { const oldData = await prisma.class.findUnique({ where: { id } }); if (oldData?.schoolId !== schoolId) throw new Error('Class not found'); await prisma.class.delete({ where: { id } }); await recordAuditLog({ action: 'SOFT_DELETE', entityType: 'CLASS', entityId: id, schoolId, oldValues: oldData }); return { success: true }; }); }

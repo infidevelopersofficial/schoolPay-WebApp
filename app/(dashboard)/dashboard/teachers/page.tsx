@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import { TeachersTable } from "@/components/teachers/teachers-table"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { TeachersPageClient } from "@/components/teachers/teachers-page-client"
 import { getTeachers } from "@/lib/dal/teachers"
 import { TableSkeleton } from "@/components/ui/table-skeleton"
 import { DataTableShell } from "@/components/ui/data-table/data-table-shell"
@@ -24,14 +24,7 @@ export default async function TeachersPage(props: {
       description="Manage teacher records and assignments"
       breadcrumbs={[{ label: "People" }]}
       search={<DataTableSearch query={query} placeholder="Search teachers..." />}
-      actions={
-        <Button className="gap-2" asChild>
-          <Link href="/dashboard/teachers/new">
-            <Plus className="h-4 w-4" />
-            Add Teacher
-          </Link>
-        </Button>
-      }
+      actions={<TeachersPageClient />}
     >
       <Suspense key={query + currentPage} fallback={<TableSkeleton />}>
         <TeacherDataFetcher page={currentPage} search={query} />

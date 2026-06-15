@@ -1,7 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { createClass, createClassSchema, getClasses } from "@/lib/dal/classes"
+import { createClass, createClassSchema, getClasses, deleteClass } from "@/lib/dal/classes"
 import { withTenantAuth } from "@/lib/tenant-auth"
 
 export async function addClassAction(_prevState: unknown, formData: FormData) {
@@ -31,5 +31,17 @@ export async function getClassesAction() {
     })
   } catch (e: any) {
     throw new Error(e.message || "Unauthorized")
+  }
+}
+
+export async function deleteClassAction(id: string) {
+  try {
+    return await withTenantAuth("hasClasses", ["ADMIN"], async () => {
+      await deleteClass(id)
+      revalidatePath("/dashboard/classes")
+      return { success: true }
+    })
+  } catch (e: any) {
+    return { error: "Failed to delete class" }
   }
 }
