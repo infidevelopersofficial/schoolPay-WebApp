@@ -22,7 +22,7 @@ export async function ActivationChecklist({ isComplete, schoolId, tenantType }: 
     { title: "Academic Session Configured", done: sessionCount > 0, link: "/dashboard/settings" },
     { title: "Upload Logo & Branding", done: !!school?.logoUrl, link: "/dashboard/settings" },
     { title: tenantType === "SCHOOL" ? "Configure Fees" : "Configure Courses", done: feeCount > 0, link: "/dashboard/fees" },
-    { title: "Add Teachers", done: teacherCount > 0, link: "/dashboard/staff" },
+    { title: "Add Teachers", done: teacherCount > 0, link: "/dashboard/teachers" },
     { title: "Add Students", done: studentCount > 0, link: "/dashboard/students" },
     { title: "Connect Payment Gateway", done: !!school?.razorpayOrderId, link: "/dashboard/settings" },
   ];

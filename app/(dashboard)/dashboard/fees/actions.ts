@@ -131,6 +131,63 @@ export async function generateInvoicesAction(structureId: string) {
             data: newMappings,
             skipDuplicates: true, // Idempotency
           })
+
+          // Generate corresponding Invoice records
+          const invoicesMap = new Map<string, any>()
+          
+          for (const mapping of newMappings) {
+            const key = `${mapping.studentId}_${mapping.dueDate.toISOString()}`
+            if (!invoicesMap.has(key)) {
+              invoicesMap.set(key, {
+                studentId: mapping.studentId,
+                dueDate: mapping.dueDate,
+                lineItems: [],
+                total: 0
+              })
+            }
+            const inv = invoicesMap.get(key)
+            const itemDef = structure.items.find(i => i.id === mapping.feeItemId)
+            inv.lineItems.push({
+              description: itemDef?.name || "Fee",
+              qty: 1,
+              rate: mapping.amount,
+              amount: mapping.amount
+            })
+            inv.total += mapping.amount
+          }
+
+          // Prevent duplicate invoices for the same student + due date
+          const existingInvoices = await prisma.invoice.findMany({
+            where: {
+              schoolId,
+              studentId: { in: Array.from(new Set(newMappings.map(m => m.studentId))) }
+            },
+            select: { studentId: true, dueDate: true }
+          })
+
+          const existingSet = new Set(existingInvoices.map(i => `${i.studentId}_${i.dueDate.toISOString()}`))
+
+          const invoicesToCreate: any[] = []
+          for (const [key, inv] of invoicesMap.entries()) {
+            if (!existingSet.has(key)) {
+              invoicesToCreate.push({
+                invoiceNo: `INV-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+                studentId: inv.studentId,
+                schoolId,
+                lineItems: inv.lineItems,
+                subtotal: inv.total,
+                total: inv.total,
+                dueDate: inv.dueDate,
+                status: "DRAFT"
+              })
+            }
+          }
+
+          if (invoicesToCreate.length > 0) {
+            await prisma.invoice.createMany({
+              data: invoicesToCreate
+            })
+          }
         }
 
         revalidatePath("/dashboard/fees")

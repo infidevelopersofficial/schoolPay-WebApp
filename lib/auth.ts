@@ -191,17 +191,17 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             user = await prisma.user.findFirst({
               where: {
                 OR: [
-                  { email: { equals: identifier, mode: "insensitive" } },
+                  { email: identifier },
                   { phone: identifier },
-                  { schools: { some: { staffId: { equals: identifier, mode: "insensitive" } } } }
+                  { schools: { some: { staffId: identifier } } }
                 ],
                 schools: {
                   some: {
                     school: {
                       OR: [
-                        { slug: { equals: schoolCode, mode: "insensitive" } },
-                        { tenantId: { equals: schoolCode, mode: "insensitive" } },
-                        { schoolCode: { equals: schoolCode, mode: "insensitive" } }
+                        { slug: schoolCode },
+                        { tenantId: schoolCode },
+                        { schoolCode: schoolCode }
                       ]
                     }
                   }
@@ -225,7 +225,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             user = await prisma.user.findFirst({
               where: {
                 OR: [
-                  { email: { equals: identifier, mode: "insensitive" } },
+                  { email: identifier },
                   { phone: identifier }
                 ]
               }

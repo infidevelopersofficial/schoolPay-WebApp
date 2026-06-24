@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 import { addTeacherAction } from "@/app/(dashboard)/dashboard/teachers/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,6 +18,9 @@ interface AddTeacherFormProps {
 
 export function AddTeacherForm({ open, onOpenChange, onSuccess }: AddTeacherFormProps) {
   const [state, formAction, isPending] = useActionState(addTeacherAction, null)
+  const [subject, setSubject] = useState("")
+  const [assignedClass, setAssignedClass] = useState("")
+  const [gender, setGender] = useState("")
 
   useFormEffect(state, {
     successMessage: "Teacher added successfully!",
@@ -32,6 +35,11 @@ export function AddTeacherForm({ open, onOpenChange, onSuccess }: AddTeacherForm
           <DialogTitle>Add New Teacher</DialogTitle>
         </DialogHeader>
         <form action={formAction} className="space-y-4">
+          {/* Hidden inputs so shadcn Select values are included in FormData for server actions */}
+          <input type="hidden" name="subject" value={subject} />
+          <input type="hidden" name="class" value={assignedClass} />
+          <input type="hidden" name="gender" value={gender} />
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Full Name <span className="text-red-500">*</span></Label>
@@ -47,7 +55,7 @@ export function AddTeacherForm({ open, onOpenChange, onSuccess }: AddTeacherForm
             </div>
             <div className="space-y-2">
               <Label>Subject <span className="text-red-500">*</span></Label>
-              <Select name="subject">
+              <Select value={subject} onValueChange={setSubject}>
                 <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
                 <SelectContent>
                   {["Mathematics", "English", "Science", "History", "Geography", "Physics", "Chemistry", "Biology", "Computer Science", "Physical Education"].map(s => (
@@ -55,10 +63,13 @@ export function AddTeacherForm({ open, onOpenChange, onSuccess }: AddTeacherForm
                   ))}
                 </SelectContent>
               </Select>
+              {(state as any)?.fieldErrors?.subject && (
+                <p className="text-xs text-red-500">{(state as any).fieldErrors.subject[0]}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Assigned Class <span className="text-red-500">*</span></Label>
-              <Select name="class">
+              <Select value={assignedClass} onValueChange={setAssignedClass}>
                 <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                 <SelectContent>
                   {["9A", "9B", "10A", "10B", "11A", "11B", "12A", "12B"].map(c => (
@@ -66,10 +77,13 @@ export function AddTeacherForm({ open, onOpenChange, onSuccess }: AddTeacherForm
                   ))}
                 </SelectContent>
               </Select>
+              {(state as any)?.fieldErrors?.class && (
+                <p className="text-xs text-red-500">{(state as any).fieldErrors.class[0]}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Gender</Label>
-              <Select name="gender">
+              <Select value={gender} onValueChange={setGender}>
                 <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Male">Male</SelectItem>
@@ -103,6 +117,9 @@ export function AddTeacherForm({ open, onOpenChange, onSuccess }: AddTeacherForm
             <Label>Address</Label>
             <Input name="address" placeholder="123 Main St, City, State" />
           </div>
+          {(state as any)?.error && (
+            <p className="text-sm text-red-500 font-medium">{(state as any).error}</p>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
               Cancel

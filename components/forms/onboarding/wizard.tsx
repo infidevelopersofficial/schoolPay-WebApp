@@ -34,7 +34,23 @@ export function OnboardingWizard({ tenantType }: { tenantType: string }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleNext = () => setStep(s => s + 1);
+  const handleNext = () => {
+    // Client-side validation before moving to next step
+    if (step === 1) {
+      if (formData.slug.length < 3) {
+        return toast({ variant: "destructive", title: "Validation Error", description: "Workspace URL must be at least 3 characters." });
+      }
+      if (!/^[a-z0-9-]+$/.test(formData.slug)) {
+        return toast({ variant: "destructive", title: "Validation Error", description: "Workspace URL can only contain lowercase letters, numbers, and hyphens." });
+      }
+      const BLOCKED_SLUGS = ["admin", "api", "app", "dashboard", "support", "billing", "settings", "root", "system", "www", "test"];
+      if (BLOCKED_SLUGS.includes(formData.slug)) {
+        return toast({ variant: "destructive", title: "Validation Error", description: "This Workspace URL is reserved and cannot be used." });
+      }
+    }
+    
+    setStep(s => s + 1);
+  };
   const handleBack = () => setStep(s => s - 1);
 
   const handleSubmit = () => {
