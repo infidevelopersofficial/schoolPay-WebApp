@@ -92,6 +92,8 @@ model School {
   usageRecord               UsageRecord?
   userDevices               UserDevice[]
   users                     UserSchool[]
+  teacherSubjects           TeacherSubject[]
+  teacherClassAssignments   TeacherClassAssignment[]
 
   @@index([slug])
   @@index([type])
@@ -295,32 +297,32 @@ model Student {
 }
 
 model Teacher {
-  id            String    @id @default(cuid())
-  name          String
-  email         String
-  phone         String
-  subject       String
-  class         String
-  dateOfBirth   DateTime?
-  gender        String?
-  address       String?
-  qualification String?
-  experience    String?
-  joiningDate   DateTime? @default(now())
-  salary        Float?
-  avatar        String?
-  isActive      Boolean   @default(true)
-  schoolId      String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  batches       Batch[]
-  exams         Exam[]
-  lessons       Lesson[]
-  school        School    @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  id               String                   @id @default(cuid())
+  name             String
+  email            String
+  phone            String
+  dateOfBirth      DateTime?
+  gender           String?
+  address          String?
+  qualification    String?
+  experience       String?
+  joiningDate      DateTime?                @default(now())
+  salary           Float?
+  avatar           String?
+  isActive         Boolean                  @default(true)
+  schoolId         String
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  batches          Batch[]
+  exams            Exam[]
+  lessons          Lesson[]
+  school           School                   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  subjects         TeacherSubject[]
+  classAssignments TeacherClassAssignment[]
+  classes          Class[]
 
   @@unique([email, schoolId])
   @@index([schoolId])
-  @@index([subject])
 }
 
 model Parent {
@@ -353,7 +355,7 @@ model Class {
   section                   String
   strength                  Int                        @default(0)
   capacity                  Int                        @default(40)
-  classTeacher              String?
+  classTeacherId            String?
   room                      String?
   schoolId                  String
   createdAt                 DateTime                   @default(now())
@@ -361,8 +363,45 @@ model Class {
   school                    School                     @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   discountRules             DiscountRule[]
   feeStructureClassMappings FeeStructureClassMapping[]
+  classTeacher              Teacher?                   @relation(fields: [classTeacherId], references: [id])
+  teacherClassAssignments   TeacherClassAssignment[]
 
   @@unique([name, section, schoolId])
+  @@index([schoolId])
+}
+
+model TeacherSubject {
+  id        String   @id @default(cuid())
+  schoolId  String
+  teacherId String
+  subjectId String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school  School  @relation(fields: [schoolId], references: [id])
+  teacher Teacher @relation(fields: [teacherId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
+
+  @@unique([teacherId, subjectId])
+  @@index([schoolId])
+}
+
+model TeacherClassAssignment {
+  id             String   @id @default(cuid())
+  schoolId       String
+  teacherId      String
+  classId        String
+  isClassTeacher Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  school  School  @relation(fields: [schoolId], references: [id])
+  teacher Teacher @relation(fields: [teacherId], references: [id])
+  class   Class   @relation(fields: [classId], references: [id])
+
+  @@unique([teacherId, classId])
   @@index([schoolId])
 }
 
@@ -423,19 +462,20 @@ model Enrollment {
 }
 
 model Subject {
-  id          String       @id @default(cuid())
-  name        String
-  code        String
-  teacher     String?
-  classes     Int          @default(0)
-  students    Int          @default(0)
-  description String?
-  schoolId    String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  assignments Assignment[]
-  exams       Exam[]
-  school      School       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  id              String           @id @default(cuid())
+  name            String
+  code            String
+  teacher         String?
+  classes         Int              @default(0)
+  students        Int              @default(0)
+  description     String?
+  schoolId        String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  assignments     Assignment[]
+  exams           Exam[]
+  school          School           @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  teacherSubjects TeacherSubject[]
 
   @@unique([code, schoolId])
   @@index([schoolId])

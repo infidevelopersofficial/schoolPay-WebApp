@@ -4,11 +4,13 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search, Filter, Download } from "lucide-react"
 import { getClasses } from "@/lib/dal/classes"
+import { getTeachers } from "@/lib/dal/teachers"
 
 export const metadata = { title: "Classes | SchoolPay" }
 
 export default async function ClassesPage() {
   const classes = await getClasses()
+  const { teachers } = await getTeachers({ limit: 1000 })
 
   return (
     <div className="space-y-6">
@@ -17,7 +19,7 @@ export default async function ClassesPage() {
           <h1 className="text-2xl font-bold text-foreground">Classes</h1>
           <p className="text-sm text-muted-foreground">Manage class sections and assignments</p>
         </div>
-        <ClassesPageClient />
+        <ClassesPageClient teachers={teachers} />
       </div>
 
       <div className="flex items-center gap-4">

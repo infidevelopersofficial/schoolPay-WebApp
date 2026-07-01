@@ -1,19 +1,13 @@
-const { Client } = require('pg');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 async function main() {
-  const client = new Client({
-    connectionString: "postgresql://neondb_owner:npg_uEtm5aNXBv7R@ep-holy-violet-aq4enfxv-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-  });
-  await client.connect();
-
-  const res = await client.query(`
-    SELECT column_name 
+  const result = await prisma.$queryRaw`
+    SELECT is_nullable, data_type 
     FROM information_schema.columns 
-    WHERE table_name = 'Exam'
-  `);
-  console.log(res.rows.map(r => r.column_name));
-
-  await client.end();
+    WHERE table_name = 'Class' AND column_name = 'classTeacher';
+  `;
+  console.log(JSON.stringify(result, null, 2));
 }
 
-main().catch(console.error);
+main().catch(console.error).finally(() => prisma.$disconnect());

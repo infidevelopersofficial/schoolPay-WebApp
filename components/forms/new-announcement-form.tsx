@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 import { createAnnouncementAction } from "@/app/(dashboard)/dashboard/announcements/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +13,10 @@ import { useFormEffect } from "@/lib/hooks/use-form-effect"
 
 export function NewAnnouncementForm({ open, onOpenChange, onSuccess }: any) {
   const [state, formAction, isPending] = useActionState(createAnnouncementAction, null)
+  
+  const [category, setCategory] = useState("GENERAL")
+  const [priority, setPriority] = useState("LOW")
+  const [targetAudience, setTargetAudience] = useState("ALL")
 
   useFormEffect(state, {
     successMessage: "Announcement posted successfully!",
@@ -26,6 +30,11 @@ export function NewAnnouncementForm({ open, onOpenChange, onSuccess }: any) {
       <DialogContent className="max-w-lg">
         <DialogHeader><DialogTitle>New Announcement</DialogTitle></DialogHeader>
         <form action={formAction} className="space-y-4">
+          {/* Hidden inputs for native FormData extraction */}
+          <input type="hidden" name="category" value={category} />
+          <input type="hidden" name="priority" value={priority} />
+          <input type="hidden" name="targetAudience" value={targetAudience} />
+          
           <div className="space-y-2">
             <Label>Title <span className="text-red-500">*</span></Label>
             <Input name="title" required />
@@ -33,7 +42,7 @@ export function NewAnnouncementForm({ open, onOpenChange, onSuccess }: any) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Category <span className="text-red-500">*</span></Label>
-              <Select name="category" defaultValue="GENERAL">
+              <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="GENERAL">General</SelectItem>
@@ -47,7 +56,7 @@ export function NewAnnouncementForm({ open, onOpenChange, onSuccess }: any) {
             </div>
             <div className="space-y-2">
               <Label>Priority <span className="text-red-500">*</span></Label>
-              <Select name="priority" defaultValue="LOW">
+              <Select value={priority} onValueChange={setPriority}>
                 <SelectTrigger><SelectValue placeholder="Select priority" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="LOW">Low</SelectItem>
@@ -60,7 +69,7 @@ export function NewAnnouncementForm({ open, onOpenChange, onSuccess }: any) {
           </div>
           <div className="space-y-2">
             <Label>Target Audience <span className="text-red-500">*</span></Label>
-            <Select name="targetAudience" defaultValue="ALL">
+            <Select value={targetAudience} onValueChange={setTargetAudience}>
               <SelectTrigger><SelectValue placeholder="Select target" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">Everyone</SelectItem>

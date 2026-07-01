@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 import { addStudentAction } from "@/app/(dashboard)/dashboard/students/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,6 +18,10 @@ interface AddStudentFormProps {
 
 export function AddStudentForm({ open, onOpenChange, onSuccess }: AddStudentFormProps) {
   const [state, formAction, isPending] = useActionState(addStudentAction, null)
+  
+  // State for Selects to pair with hidden inputs
+  const [selectedClass, setSelectedClass] = useState("")
+  const [selectedGender, setSelectedGender] = useState("")
 
   useFormEffect(state, {
     successMessage: "Student added successfully!",
@@ -32,6 +36,9 @@ export function AddStudentForm({ open, onOpenChange, onSuccess }: AddStudentForm
           <DialogTitle>Add New Student</DialogTitle>
         </DialogHeader>
         <form action={formAction} className="space-y-4">
+          <input type="hidden" name="class" value={selectedClass} />
+          <input type="hidden" name="gender" value={selectedGender} />
+          
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Full Name <span className="text-red-500">*</span></Label>
@@ -47,7 +54,7 @@ export function AddStudentForm({ open, onOpenChange, onSuccess }: AddStudentForm
             </div>
             <div className="space-y-2">
               <Label>Class <span className="text-red-500">*</span></Label>
-              <Select name="class">
+              <Select value={selectedClass} onValueChange={setSelectedClass}>
                 <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                 <SelectContent>
                   {["9A", "9B", "10A", "10B", "11A", "11B", "12A", "12B"].map(c => (
@@ -57,12 +64,16 @@ export function AddStudentForm({ open, onOpenChange, onSuccess }: AddStudentForm
               </Select>
             </div>
             <div className="space-y-2">
+              <Label>Section</Label>
+              <Input name="section" placeholder="e.g. A" />
+            </div>
+            <div className="space-y-2">
               <Label>Date of Birth</Label>
               <Input name="dateOfBirth" type="date" />
             </div>
             <div className="space-y-2">
               <Label>Gender</Label>
-              <Select name="gender">
+              <Select value={selectedGender} onValueChange={setSelectedGender}>
                 <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Male">Male</SelectItem>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 import { createEventAction } from "@/app/(dashboard)/dashboard/events/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +13,8 @@ import { useFormEffect } from "@/lib/hooks/use-form-effect"
 
 export function CreateEventForm({ open, onOpenChange, onSuccess }: any) {
   const [state, formAction, isPending] = useActionState(createEventAction, null)
+  
+  const [type, setType] = useState("OTHER")
 
   useFormEffect(state, {
     successMessage: "Event created successfully!",
@@ -26,6 +28,9 @@ export function CreateEventForm({ open, onOpenChange, onSuccess }: any) {
       <DialogContent className="max-w-lg">
         <DialogHeader><DialogTitle>Create Event</DialogTitle></DialogHeader>
         <form action={formAction} className="space-y-4">
+          {/* Hidden inputs for native FormData extraction */}
+          <input type="hidden" name="type" value={type} />
+          
           <div className="space-y-2">
             <Label>Event Name <span className="text-red-500">*</span></Label>
             <Input name="name" required />
@@ -42,7 +47,7 @@ export function CreateEventForm({ open, onOpenChange, onSuccess }: any) {
           </div>
           <div className="space-y-2">
             <Label>Type <span className="text-red-500">*</span></Label>
-            <Select name="type" defaultValue="OTHER">
+            <Select value={type} onValueChange={setType}>
               <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="MEETING">Meeting</SelectItem>

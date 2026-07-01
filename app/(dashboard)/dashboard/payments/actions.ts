@@ -4,6 +4,8 @@ import { withTenantAuth } from "@/lib/tenant-auth"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 import { createPayment, createPaymentSchema } from "@/lib/dal/payments"
+import { prisma } from "@/lib/prisma"
+import { getSchoolId } from "@/lib/tenant-context"
 
 export async function recordPaymentAction(prevState: any, formData: FormData) {
   try {
@@ -26,6 +28,39 @@ export async function recordPaymentAction(prevState: any, formData: FormData) {
   } catch (e) {
     return { error: "Failed to record payment" }
   }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}
+
+export async function getFeeTypesAction() {
+  try {
+    return await withTenantAuth(null, ["ADMIN", "TEACHER"], async () => {
+      const schoolId = await getSchoolId()
+      // Fetch unique fee item names
+      const feeItems = await prisma.feeItem.findMany({
+        where: { feeStructure: { schoolId } },
+        select: { name: true },
+        distinct: ['name']
+      })
+      // Also fetch Fee types as fallback
+      const fees = await prisma.fee.findMany({
+        where: { schoolId },
+        select: { type: true },
+        distinct: ['type']
+      })
+      
+      const allTypes = new Set([
+        ...feeItems.map(f => f.name),
+        ...fees.map(f => f.type),
+        "Tuition Fee",
+        "Transport Fee",
+        "Library Fee",
+        "Examination Fee"
+      ])
+      
+      return { success: true, feeTypes: Array.from(allTypes) }
     })
   } catch (e: any) {
     return { error: e.message || "Unauthorized" }

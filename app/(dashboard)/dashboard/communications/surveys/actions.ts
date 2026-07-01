@@ -11,9 +11,16 @@ import {
   submitSurveyResponse,
   getSurveyAnalytics,
 } from "@/lib/dal/surveys";
+import { withTenantAuth } from "@/lib/tenant-auth";
 
 export async function listSurveysAction(page = 1, limit = 10) {
-  return await listSurveys(page, limit);
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      return await listSurveys(page, limit);
+    });
+  } catch (e: any) {
+    throw new Error(e.message || "Failed to list surveys");
+  }
 }
 
 export async function createSurveyAction(input: {
@@ -28,9 +35,15 @@ export async function createSurveyAction(input: {
     isRequired?: boolean;
   }[];
 }) {
-  const result = await createSurvey(input);
-  revalidatePath("/dashboard/communications/surveys");
-  return result;
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const result = await createSurvey(input);
+      revalidatePath("/dashboard/communications/surveys");
+      return result;
+    });
+  } catch (e: any) {
+    return { error: e.message || "Failed to create survey" };
+  }
 }
 
 export async function updateSurveyAction(
@@ -48,42 +61,79 @@ export async function updateSurveyAction(
     }[];
   }
 ) {
-  const result = await updateSurvey(id, input);
-  revalidatePath("/dashboard/communications/surveys");
-  return result;
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const result = await updateSurvey(id, input);
+      revalidatePath("/dashboard/communications/surveys");
+      return result;
+    });
+  } catch (e: any) {
+    return { error: e.message || "Failed to update survey" };
+  }
 }
 
 export async function publishSurveyAction(id: string) {
-  const result = await publishSurvey(id);
-  revalidatePath("/dashboard/communications/surveys");
-  revalidatePath("/parent/surveys");
-  return result;
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const result = await publishSurvey(id);
+      revalidatePath("/dashboard/communications/surveys");
+      revalidatePath("/parent/surveys");
+      return result;
+    });
+  } catch (e: any) {
+    throw new Error(e.message || "Failed to publish survey");
+  }
 }
 
 export async function closeSurveyAction(id: string) {
-  const result = await closeSurvey(id);
-  revalidatePath("/dashboard/communications/surveys");
-  revalidatePath("/parent/surveys");
-  return result;
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const result = await closeSurvey(id);
+      revalidatePath("/dashboard/communications/surveys");
+      revalidatePath("/parent/surveys");
+      return result;
+    });
+  } catch (e: any) {
+    throw new Error(e.message || "Failed to close survey");
+  }
 }
 
 export async function deleteSurveyAction(id: string) {
-  const result = await deleteSurvey(id);
-  revalidatePath("/dashboard/communications/surveys");
-  revalidatePath("/parent/surveys");
-  return result;
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const result = await deleteSurvey(id);
+      revalidatePath("/dashboard/communications/surveys");
+      revalidatePath("/parent/surveys");
+      return result;
+    });
+  } catch (e: any) {
+    throw new Error(e.message || "Failed to delete survey");
+  }
 }
 
 export async function submitSurveyResponseAction(
   surveyId: string,
   answers: { questionId: string; answer: any }[]
 ) {
-  const result = await submitSurveyResponse(surveyId, answers);
-  revalidatePath("/parent/surveys");
-  return result;
+  try {
+    return await withTenantAuth(null, null, async () => {
+      const result = await submitSurveyResponse(surveyId, answers);
+      revalidatePath("/parent/surveys");
+      return result;
+    });
+  } catch (e: any) {
+    throw new Error(e.message || "Failed to submit survey response");
+  }
 }
 
 export async function getSurveyAnalyticsAction(id: string) {
-  return await getSurveyAnalytics(id);
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      return await getSurveyAnalytics(id);
+    });
+  } catch (e: any) {
+    throw new Error(e.message || "Failed to get survey analytics");
+  }
 }
+
 

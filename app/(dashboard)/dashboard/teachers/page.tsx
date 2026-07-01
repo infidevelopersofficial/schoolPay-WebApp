@@ -8,6 +8,8 @@ import { DataTableShell } from "@/components/ui/data-table/data-table-shell"
 import { DataTableSearch } from "@/components/ui/data-table/data-table-search"
 import { DataTablePagination } from "@/components/ui/data-table/data-table-pagination"
 import Link from "next/link"
+import { getClasses } from "@/lib/dal/classes"
+import { getSubjects } from "@/lib/dal/subjects"
 
 export const metadata = { title: "Teachers | SchoolPay" }
 
@@ -17,6 +19,9 @@ export default async function TeachersPage(props: {
   const searchParams = await props.searchParams
   const currentPage = Number(searchParams?.page) || 1
   const query = searchParams?.query || ""
+  
+  const classes = await getClasses()
+  const subjects = await getSubjects()
 
   return (
     <DataTableShell
@@ -24,7 +29,7 @@ export default async function TeachersPage(props: {
       description="Manage teacher records and assignments"
       breadcrumbs={[{ label: "People" }]}
       search={<DataTableSearch query={query} placeholder="Search teachers..." />}
-      actions={<TeachersPageClient />}
+      actions={<TeachersPageClient classes={classes} subjects={subjects} />}
     >
       <Suspense key={query + currentPage} fallback={<TableSkeleton />}>
         <TeacherDataFetcher page={currentPage} search={query} />

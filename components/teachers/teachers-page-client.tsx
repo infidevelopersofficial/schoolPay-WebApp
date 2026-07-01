@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { AddTeacherForm } from "@/components/forms/add-teacher-form"
 
-export function TeachersPageClient() {
+export function TeachersPageClient({ classes = [], subjects = [] }: { classes?: any[], subjects?: any[] }) {
   const [showAddForm, setShowAddForm] = useState(false)
   const router = useRouter()
 
@@ -20,6 +20,8 @@ export function TeachersPageClient() {
         open={showAddForm}
         onOpenChange={setShowAddForm}
         onSuccess={() => router.refresh()}
+        classes={classes}
+        subjects={subjects}
       />
     </>
   )

@@ -3,7 +3,7 @@
 import { withTenantAuth } from "@/lib/tenant-auth"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
-import { createStudent, createStudentSchema, deleteStudent as deleteStudentDal } from "@/lib/dal/students"
+import { createStudent, createStudentSchema, deleteStudent as deleteStudentDal, getStudents } from "@/lib/dal/students"
 
 export async function addStudentAction(prevState: any, formData: FormData) {
   try {
@@ -48,6 +48,32 @@ export async function deleteStudentAction(id: string) {
         return { success: true }
       } catch (e: any) {
         return { error: "Failed to delete student" }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}
+
+export async function searchStudentsAction(query: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN", "TEACHER"], async () => {
+      const session = await auth()
+      if (!session) return { error: "Unauthorized" }
+
+      try {
+        const result = await getStudents({ search: query, limit: 10 })
+        return {
+          success: true,
+          students: result.students.map(s => ({
+            id: s.id,
+            name: s.name,
+            studentId: s.studentId,
+            class: s.class,
+          }))
+        }
+      } catch (e: any) {
+        return { error: "Failed to search students" }
       }
     })
   } catch (e: any) {

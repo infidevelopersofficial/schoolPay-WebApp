@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
+import { withTenantAuth } from "@/lib/tenant-auth"
 
 const updateProfileSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -21,66 +22,70 @@ const changePasswordSchema = z.object({
 })
 
 export async function updateProfileAction(prevState: any, formData: FormData) {
-  const session = await auth()
-  if (!session?.user?.id) return { error: "Unauthorized" }
-
-  const raw = Object.fromEntries(formData.entries())
-  const result = updateProfileSchema.safeParse(raw)
-
-  if (!result.success) {
-    return { error: "Validation failed", fieldErrors: result.error.flatten().fieldErrors }
-  }
-
   try {
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: {
-        name: result.data.name,
-        avatar: result.data.avatar || undefined,
-      },
+    return await withTenantAuth(null, null, async () => {
+      const session = await auth()
+      if (!session?.user?.id) throw new Error("Unauthorized")
+
+      const raw = Object.fromEntries(formData.entries())
+      const result = updateProfileSchema.safeParse(raw)
+
+      if (!result.success) {
+        return { error: "Validation failed", fieldErrors: result.error.flatten().fieldErrors }
+      }
+
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: {
+          name: result.data.name,
+          avatar: result.data.avatar || undefined,
+        },
+      })
+      revalidatePath("/dashboard/profile")
+      revalidatePath("/dashboard")
+      return { success: true }
     })
-    revalidatePath("/dashboard/profile")
-    revalidatePath("/dashboard")
-    return { success: true }
-  } catch (e) {
-    return { error: "Failed to update profile" }
+  } catch (e: any) {
+    return { error: e.message || "Failed to update profile" }
   }
 }
 
 export async function changePasswordAction(prevState: any, formData: FormData) {
-  const session = await auth()
-  if (!session?.user?.id) return { error: "Unauthorized" }
-
-  const raw = Object.fromEntries(formData.entries())
-  const result = changePasswordSchema.safeParse(raw)
-
-  if (!result.success) {
-    return { error: "Validation failed", fieldErrors: result.error.flatten().fieldErrors }
-  }
-
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { hashedPassword: true },
+    return await withTenantAuth(null, null, async () => {
+      const session = await auth()
+      if (!session?.user?.id) throw new Error("Unauthorized")
+
+      const raw = Object.fromEntries(formData.entries())
+      const result = changePasswordSchema.safeParse(raw)
+
+      if (!result.success) {
+        return { error: "Validation failed", fieldErrors: result.error.flatten().fieldErrors }
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { hashedPassword: true },
+      })
+
+      if (!user?.hashedPassword) {
+        return { error: "Cannot change password for OAuth accounts" }
+      }
+
+      const isValid = await bcrypt.compare(result.data.currentPassword, user.hashedPassword)
+      if (!isValid) {
+        return { error: "Current password is incorrect" }
+      }
+
+      const hashedPassword = await bcrypt.hash(result.data.newPassword, 12)
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: { hashedPassword },
+      })
+
+      return { success: true, message: "Password changed successfully" }
     })
-
-    if (!user?.hashedPassword) {
-      return { error: "Cannot change password for OAuth accounts" }
-    }
-
-    const isValid = await bcrypt.compare(result.data.currentPassword, user.hashedPassword)
-    if (!isValid) {
-      return { error: "Current password is incorrect" }
-    }
-
-    const hashedPassword = await bcrypt.hash(result.data.newPassword, 12)
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: { hashedPassword },
-    })
-
-    return { success: true, message: "Password changed successfully" }
-  } catch (e) {
-    return { error: "Failed to change password" }
+  } catch (e: any) {
+    return { error: e.message || "Failed to change password" }
   }
 }

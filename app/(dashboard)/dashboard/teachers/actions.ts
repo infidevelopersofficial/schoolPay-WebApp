@@ -1,40 +1,49 @@
 "use server"
 
-import { auth } from "@/lib/auth"
-import { getTenantContext } from "@/lib/tenant-context"
 import { revalidatePath } from "next/cache"
 import { createTeacher, createTeacherSchema, deleteTeacher as deleteTeacherDal } from "@/lib/dal/teachers"
-import { tenantContext } from "@/lib/prisma"
+import { withTenantAuth } from "@/lib/tenant-auth"
 
 export async function addTeacherAction(prevState: any, formData: FormData) {
   try {
-    const session = await auth()
-    if (!session?.user) return { error: "Unauthorized" }
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const raw = Object.fromEntries(formData.entries())
+      
+      // Parse arrays that come from standard multiselect or custom JSON hidden fields
+      const subjectIds = formData.getAll("subjectIds") as string[]
+      
+      let classAssignments = undefined
+      const classAssignmentsData = formData.get("classAssignmentsData") as string
+      if (classAssignmentsData) {
+        try {
+          classAssignments = JSON.parse(classAssignmentsData)
+        } catch (e) {
+          return { error: "Validation failed", fieldErrors: { classAssignments: ["Invalid JSON payload for class assignments"] } }
+        }
+      }
 
-    const { schoolId, schoolRole } = await getTenantContext()
-    if (!schoolId) return { error: "No active school" }
-    if (schoolRole !== "ADMIN" && session.user.role !== "SUPER_ADMIN") {
-      return { error: "Unauthorized role" }
-    }
+      const payload = {
+        ...raw,
+        subjectIds: subjectIds.length > 0 ? subjectIds : undefined,
+        classAssignments,
+      }
 
-    const raw = Object.fromEntries(formData.entries())
-    const result = createTeacherSchema.safeParse(raw)
+      const result = createTeacherSchema.safeParse(payload)
 
-    if (!result.success) {
-      return { error: "Validation failed", fieldErrors: result.error.flatten().fieldErrors }
-    }
+      if (!result.success) {
+        return { error: "Validation failed", fieldErrors: result.error.flatten().fieldErrors }
+      }
 
-    try {
-      await tenantContext.run({ schoolId }, async () => {
+      try {
         await createTeacher(result.data)
-      })
-      revalidatePath("/dashboard/teachers")
-      return { success: true }
-    } catch (e: any) {
-      console.error("Error creating teacher:", e)
-      if (e?.code === "P2002") return { error: "A teacher with this email already exists" }
-      return { error: `Failed to create teacher: ${e?.message || e}` }
-    }
+        revalidatePath("/dashboard/teachers")
+        return { success: true }
+      } catch (e: any) {
+        console.error("Error creating teacher:", e)
+        if (e?.code === "P2002") return { error: "A teacher with this email already exists" }
+        return { error: `Failed to create teacher: ${e?.message || e}` }
+      }
+    })
   } catch (e: any) {
     return { error: e.message || "Unauthorized" }
   }
@@ -42,24 +51,15 @@ export async function addTeacherAction(prevState: any, formData: FormData) {
 
 export async function deleteTeacherAction(id: string) {
   try {
-    const session = await auth()
-    if (!session?.user) return { error: "Unauthorized" }
-
-    const { schoolId, schoolRole } = await getTenantContext()
-    if (!schoolId) return { error: "No active school" }
-    if (schoolRole !== "ADMIN" && session.user.role !== "SUPER_ADMIN") {
-      return { error: "Unauthorized role" }
-    }
-
-    try {
-      await tenantContext.run({ schoolId }, async () => {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      try {
         await deleteTeacherDal(id)
-      })
-      revalidatePath("/dashboard/teachers")
-      return { success: true }
-    } catch (e: any) {
-      return { error: "Failed to delete teacher" }
-    }
+        revalidatePath("/dashboard/teachers")
+        return { success: true }
+      } catch (e: any) {
+        return { error: "Failed to delete teacher" }
+      }
+    })
   } catch (e: any) {
     return { error: e.message || "Unauthorized" }
   }

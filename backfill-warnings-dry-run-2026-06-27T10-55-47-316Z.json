@@ -1,0 +1,38 @@
+{
+  "report": {
+    "teacherSubjectsCreated": 0,
+    "teacherClassAssignmentsCreated": 0,
+    "classTeacherIdUpdates": 0,
+    "warningsCount": 4
+  },
+  "warnings": [
+    {
+      "type": "MISSING_SUBJECT",
+      "schoolId": "cmqb0jgs60003m0wagcea7lef",
+      "teacherId": "cmqesohne0000x4wahjn69ju6",
+      "teacherName": "Test Teacher",
+      "legacyValue": "Mathematics"
+    },
+    {
+      "type": "MISSING_CLASS_FOR_TEACHER",
+      "schoolId": "cmqb0jgs60003m0wagcea7lef",
+      "teacherId": "cmqesohne0000x4wahjn69ju6",
+      "teacherName": "Test Teacher",
+      "legacyValue": "10A"
+    },
+    {
+      "type": "MISSING_SUBJECT",
+      "schoolId": "cmqb0jhum0004m0wai5jmi063",
+      "teacherId": "cmqqtp934000104l8ab90sldk",
+      "teacherName": "Joe",
+      "legacyValue": "Science"
+    },
+    {
+      "type": "MISSING_CLASS_FOR_TEACHER",
+      "schoolId": "cmqb0jhum0004m0wai5jmi063",
+      "teacherId": "cmqqtp934000104l8ab90sldk",
+      "teacherName": "Joe",
+      "legacyValue": "10A"
+    }
+  ]
+}

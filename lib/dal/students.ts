@@ -18,6 +18,7 @@ export const createStudentSchema = z.object({
   name: z.string().min(1, "Name is required"),
   dateOfBirth: z.string().min(1, "Date of Birth is required"),
   class: z.string().min(1, "Class is required"),
+  section: z.string().optional(),
   admissionNumber: z.string().optional().transform(v => v === "" ? undefined : v),
   parentName: z.string().min(1, "Parent Name is required"),
   parentEmail: z.string().email("Valid email required"),
@@ -181,6 +182,7 @@ export async function createStudent(input: CreateStudentInput) {
           data: {
             name: validated.name,
             class: validated.class,
+            section: validated.section,
             dateOfBirth: new Date(validated.dateOfBirth),
             admissionNumber: validated.admissionNumber,
             studentId: generatedStudentId,

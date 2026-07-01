@@ -13,6 +13,7 @@ export const createClassSchema = z.object({
   name: z.string().min(1, "Class name is required"),
   section: z.string().min(1, "Section is required"),
   classTeacher: z.string().optional(),
+  classTeacherId: z.string().optional(),
   room: z.string().optional(),
   capacity: z.coerce.number().default(40),
 })
@@ -34,13 +35,27 @@ export async function getClasses() {
   })
 }
 
+import { setClassTeacher } from "./teachers"
+
 export async function createClass(input: CreateClassInput) {
   const schoolId = await getSchoolId()
   const validated = createClassSchema.parse(input)
   return withDAL(
     "classes.create",
     async () => {
-      const cls = await prisma.class.create({ data: { ...validated, schoolId } })
+      const { classTeacherId, ...rest } = validated
+      
+      const cls = await prisma.class.create({ 
+        data: { 
+          ...rest, 
+          classTeacherLegacy: rest.classTeacher,
+          schoolId 
+        } 
+      })
+
+      if (classTeacherId) {
+        await setClassTeacher(cls.id, classTeacherId)
+      }
 
       await recordAuditLog({
         action: "CREATE",
@@ -65,7 +80,19 @@ export async function updateClass(id: string, data: Partial<CreateClassInput>) {
       const oldData = await prisma.class.findUnique({ where: { id } })
       if (oldData?.schoolId !== schoolId) throw new Error("Class not found")
 
-      const cls = await prisma.class.update({ where: { id }, data })
+      const { classTeacherId, ...rest } = data
+      
+      const cls = await prisma.class.update({ 
+        where: { id }, 
+        data: {
+          ...rest,
+          classTeacherLegacy: rest.classTeacher !== undefined ? rest.classTeacher : undefined
+        } 
+      })
+
+      if (classTeacherId !== undefined) {
+        await setClassTeacher(cls.id, classTeacherId)
+      }
 
       await recordAuditLog({
         action: "UPDATE",

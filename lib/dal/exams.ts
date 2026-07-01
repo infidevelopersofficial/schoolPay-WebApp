@@ -170,6 +170,15 @@ export async function createExam(input: z.infer<typeof createExamSchema>) {
       });
       if (!group) throw new Error("Exam group not found or belongs to another school")
 
+      const [batch, subject, session] = await Promise.all([
+        prisma.batch.findUnique({ where: { id: validated.batchId, schoolId } }),
+        prisma.subject.findUnique({ where: { id: validated.subjectId, schoolId } }),
+        prisma.academicSession.findUnique({ where: { id: validated.sessionId, schoolId } })
+      ])
+      if (!batch) throw new Error("Batch not found or belongs to another school")
+      if (!subject) throw new Error("Subject not found or belongs to another school")
+      if (!session) throw new Error("Session not found or belongs to another school")
+
       const exam = await prisma.exam.create({
         data: { ...validated, schoolId },
       })

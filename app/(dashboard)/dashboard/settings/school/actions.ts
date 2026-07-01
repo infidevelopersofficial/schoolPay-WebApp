@@ -2,45 +2,38 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getSchoolId } from "@/lib/tenant-context";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { withTenantAuth } from "@/lib/tenant-auth";
 
 export async function updateSchoolProfile(formData: FormData) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { error: "Unauthorized" };
-  }
-
-  const schoolId = await getSchoolId();
-  if (!schoolId) {
-    return { error: "No active school" };
-  }
-
-  const name = formData.get("name") as string;
-  const address = formData.get("address") as string;
-  const phone = formData.get("phone") as string;
-  const email = formData.get("email") as string;
-  const gstin = formData.get("gstin") as string;
-  const logoUrl = formData.get("logoUrl") as string;
-
   try {
-    await prisma.school.update({
-      where: { id: schoolId },
-      data: {
-        name,
-        address,
-        phone,
-        email,
-        gstin,
-        logoUrl: logoUrl || null
-      }
-    });
+    return await withTenantAuth(null, ["ADMIN"], async (config, schoolId) => {
+      const name = formData.get("name") as string;
+      const address = formData.get("address") as string;
+      const phone = formData.get("phone") as string;
+      const email = formData.get("email") as string;
+      const gstin = formData.get("gstin") as string;
+      const logoUrl = formData.get("logoUrl") as string;
 
-    revalidatePath("/dashboard");
+      await prisma.school.update({
+        where: { id: schoolId },
+        data: {
+          name,
+          address,
+          phone,
+          email,
+          gstin,
+          logoUrl: logoUrl || null
+        }
+      });
 
-    return { success: true };
-  } catch (error) {
+      revalidatePath("/dashboard");
+
+      return { success: true };
+    })
+  } catch (error: any) {
     console.error("Failed to update school profile", error);
-    return { error: "Failed to update school profile" };
+    return { error: error.message || "Failed to update school profile" };
   }
 }
+

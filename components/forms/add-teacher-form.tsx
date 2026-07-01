@@ -7,20 +7,47 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Loader2 } from "lucide-react"
+import { Loader2, Check } from "lucide-react"
 import { useFormEffect } from "@/lib/hooks/use-form-effect"
+import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface AddTeacherFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess?: () => void
+  classes?: any[]
+  subjects?: any[]
 }
 
-export function AddTeacherForm({ open, onOpenChange, onSuccess }: AddTeacherFormProps) {
+export function AddTeacherForm({ open, onOpenChange, onSuccess, classes = [], subjects = [] }: AddTeacherFormProps) {
   const [state, formAction, isPending] = useActionState(addTeacherAction, null)
-  const [subject, setSubject] = useState("")
-  const [assignedClass, setAssignedClass] = useState("")
+  
+  // Replace scalar subject/class state with arrays
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([])
+  const [classAssignments, setClassAssignments] = useState<{classId: string, isClassTeacher: boolean}[]>([])
+  
   const [gender, setGender] = useState("")
+
+  const toggleSubject = (id: string) => {
+    setSelectedSubjectIds(prev => 
+      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+    )
+  }
+
+  const toggleClass = (id: string) => {
+    setClassAssignments(prev => {
+      const exists = prev.find(p => p.classId === id)
+      if (exists) return prev.filter(p => p.classId !== id)
+      return [...prev, { classId: id, isClassTeacher: false }]
+    })
+  }
+
+  const toggleClassTeacher = (id: string) => {
+    setClassAssignments(prev => prev.map(p => 
+      p.classId === id ? { ...p, isClassTeacher: !p.isClassTeacher } : p
+    ))
+  }
 
   useFormEffect(state, {
     successMessage: "Teacher added successfully!",
@@ -35,10 +62,11 @@ export function AddTeacherForm({ open, onOpenChange, onSuccess }: AddTeacherForm
           <DialogTitle>Add New Teacher</DialogTitle>
         </DialogHeader>
         <form action={formAction} className="space-y-4">
-          {/* Hidden inputs so shadcn Select values are included in FormData for server actions */}
-          <input type="hidden" name="subject" value={subject} />
-          <input type="hidden" name="class" value={assignedClass} />
           <input type="hidden" name="gender" value={gender} />
+          {selectedSubjectIds.map(id => (
+            <input key={id} type="hidden" name="subjectIds" value={id} />
+          ))}
+          <input type="hidden" name="classAssignmentsData" value={JSON.stringify(classAssignments)} />
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -53,32 +81,62 @@ export function AddTeacherForm({ open, onOpenChange, onSuccess }: AddTeacherForm
               <Label>Phone <span className="text-red-500">*</span></Label>
               <Input name="phone" placeholder="+1234567890" required />
             </div>
-            <div className="space-y-2">
-              <Label>Subject <span className="text-red-500">*</span></Label>
-              <Select value={subject} onValueChange={setSubject}>
-                <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
-                <SelectContent>
-                  {["Mathematics", "English", "Science", "History", "Geography", "Physics", "Chemistry", "Biology", "Computer Science", "Physical Education"].map(s => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {(state as any)?.fieldErrors?.subject && (
-                <p className="text-xs text-red-500">{(state as any).fieldErrors.subject[0]}</p>
+            <div className="space-y-2 col-span-2">
+              <Label>Subjects <span className="text-red-500">*</span></Label>
+              <div className="flex flex-wrap gap-2 p-2 border rounded-md max-h-[120px] overflow-y-auto bg-background">
+                {subjects.map(s => {
+                  const isSelected = selectedSubjectIds.includes(s.id)
+                  return (
+                    <Badge 
+                      key={s.id} 
+                      variant={isSelected ? "default" : "outline"}
+                      className="cursor-pointer"
+                      onClick={() => toggleSubject(s.id)}
+                    >
+                      {s.name}
+                      {isSelected && <Check className="ml-1 h-3 w-3" />}
+                    </Badge>
+                  )
+                })}
+                {subjects.length === 0 && <span className="text-sm text-muted-foreground">No subjects found.</span>}
+              </div>
+              {(state as any)?.fieldErrors?.subjectIds && (
+                <p className="text-xs text-red-500">{(state as any).fieldErrors.subjectIds[0]}</p>
               )}
             </div>
-            <div className="space-y-2">
-              <Label>Assigned Class <span className="text-red-500">*</span></Label>
-              <Select value={assignedClass} onValueChange={setAssignedClass}>
-                <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
-                <SelectContent>
-                  {["9A", "9B", "10A", "10B", "11A", "11B", "12A", "12B"].map(c => (
-                    <SelectItem key={c} value={c}>Grade {c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {(state as any)?.fieldErrors?.class && (
-                <p className="text-xs text-red-500">{(state as any).fieldErrors.class[0]}</p>
+
+            <div className="space-y-2 col-span-2">
+              <Label>Assigned Classes <span className="text-red-500">*</span></Label>
+              <div className="flex flex-wrap gap-2 p-2 border rounded-md max-h-[160px] overflow-y-auto bg-background">
+                {classes.map(c => {
+                  const assignment = classAssignments.find(a => a.classId === c.id)
+                  const isSelected = !!assignment
+                  
+                  return (
+                    <div key={c.id} className={`flex items-center gap-1 p-1 border rounded-md ${isSelected ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                      <Badge 
+                        variant={isSelected ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => toggleClass(c.id)}
+                      >
+                        {c.name}
+                        {isSelected && <Check className="ml-1 h-3 w-3" />}
+                      </Badge>
+                      {isSelected && (
+                        <div 
+                          className={`text-xs px-2 py-0.5 rounded-full cursor-pointer ml-1 transition-colors ${assignment.isClassTeacher ? 'bg-amber-100 text-amber-800 font-medium' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
+                          onClick={() => toggleClassTeacher(c.id)}
+                        >
+                          {assignment.isClassTeacher ? 'Class Teacher' : 'Make Class Teacher'}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+                {classes.length === 0 && <span className="text-sm text-muted-foreground">No classes found.</span>}
+              </div>
+              {(state as any)?.fieldErrors?.classAssignments && (
+                <p className="text-xs text-red-500">{(state as any).fieldErrors.classAssignments[0]}</p>
               )}
             </div>
             <div className="space-y-2">
