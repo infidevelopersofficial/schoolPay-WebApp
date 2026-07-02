@@ -24,7 +24,7 @@ function VerifyEmailForm() {
     executeEmailVerification(token)
       .then(res => {
         if (!isSubscribed) return
-        if (res.success) {
+        if ("success" in res && res.success) {
           setStatus("success")
           setMessage(res.message)
         } else {

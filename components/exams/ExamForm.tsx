@@ -69,7 +69,7 @@ export function ExamForm({ open, onOpenChange, examGroups, batches, subjects, ac
       formData.append("maxMarks", values.maxMarks.toString())
 
       const result = await createExamAction(null, formData)
-      if (!result.success) throw new Error(result.error)
+      if (!result.success) throw new Error("error" in result ? String(result.error) : "Failed to create exam")
 
       toast.success("Exam scheduled successfully")
       onOpenChange(false)

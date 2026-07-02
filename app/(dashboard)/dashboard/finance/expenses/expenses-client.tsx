@@ -61,7 +61,7 @@ export default function ExpensesClient({ expenses, stats, chartData }: {
     
     try {
       const res = await createExpense(formData)
-      if (res.success) {
+      if ("success" in res && res.success) {
         toast.success("Expense recorded successfully")
         setIsModalOpen(false)
         e.currentTarget.reset()
@@ -81,7 +81,7 @@ export default function ExpensesClient({ expenses, stats, chartData }: {
     if (!confirm("Are you sure you want to delete this expense?")) return
     try {
       const res = await deleteExpense(id)
-      if (res.success) toast.success("Expense deleted")
+      if ("success" in res && res.success) toast.success("Expense deleted")
       else toast.error(res.error)
     } catch (err: any) {
       toast.error(err.message || "An error occurred")

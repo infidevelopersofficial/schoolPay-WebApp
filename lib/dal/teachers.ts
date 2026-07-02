@@ -57,6 +57,10 @@ export async function getTeachers(opts?: {
           skip: (page - 1) * limit,
           take: limit,
           orderBy: { createdAt: "desc" },
+          include: {
+            subjects: { include: { subject: true } },
+            classAssignments: { include: { class: true } }
+          }
         }),
         prisma.teacher.count({ where }),
       ]).then(([teachers, total]) => ({
@@ -114,13 +118,11 @@ export async function createTeacher(input: CreateTeacherInput) {
           }
         })
 
-        const { subjectIds, classAssignments, ...teacherData } = validated
+        const { subjectIds, classAssignments, subject, class: classLegacy, ...teacherData } = validated
         
         const created = await tx.teacher.create({
           data: {
             ...teacherData,
-            subject: teacherData.subject || "N/A", // fallback for legacy column
-            class: teacherData.class || "N/A",     // fallback for legacy column
             schoolId,
             dateOfBirth: teacherData.dateOfBirth ? new Date(teacherData.dateOfBirth) : undefined,
             joiningDate: teacherData.joiningDate ? new Date(teacherData.joiningDate) : new Date(),
@@ -210,15 +212,21 @@ export async function updateTeacher(id: string, data: Partial<CreateTeacherInput
       const oldData = await prisma.teacher.findUnique({ where: { id } })
       if (oldData?.schoolId !== schoolId) throw new Error("Teacher not found")
 
-      const teacher = await prisma.teacher.update({ where: { id }, data })
+      const { subject, class: classLegacy, subjectIds, classAssignments, dateOfBirth, joiningDate, ...updateData } = data
+      const parsedUpdateData = {
+        ...updateData,
+        ...(dateOfBirth && { dateOfBirth: new Date(dateOfBirth) }),
+        ...(joiningDate && { joiningDate: new Date(joiningDate) })
+      }
+      const teacher = await prisma.teacher.update({ where: { id }, data: parsedUpdateData })
 
       await recordAuditLog({
         action: "UPDATE",
         entityType: "TEACHER",
         entityId: id,
         schoolId,
-        oldValues: { name: oldData?.name, subject: oldData?.subject },
-        newValues: { name: teacher.name, subject: teacher.subject },
+        oldValues: { name: oldData?.name },
+        newValues: { name: teacher.name },
         description: `Updated teacher: ${teacher.name}`,
       })
 

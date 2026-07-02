@@ -52,7 +52,7 @@ export async function getBatches(opts?: { isActive?: boolean; teacherId?: string
         },
         orderBy: { createdAt: "desc" },
         include: {
-          teacher: { select: { name: true, subject: true } },
+          teacher: { select: { name: true } },
           _count: { select: { enrollments: true } },
         },
       }),
@@ -70,7 +70,7 @@ export async function getBatch(id: string) {
       prisma.batch.findUnique({
         where: { id },
         include: {
-          teacher: { select: { name: true, subject: true } },
+          teacher: { select: { name: true } },
           enrollments: {
             include: { student: { select: { id: true, name: true, class: true, feeStatus: true } } },
             where: { status: "ACTIVE" },

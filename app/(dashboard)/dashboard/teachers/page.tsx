@@ -40,9 +40,20 @@ export default async function TeachersPage(props: {
 
 async function TeacherDataFetcher({ page, search }: { page: number; search: string }) {
   const { teachers, totalPages } = await getTeachers({ page, limit: 10, search })
+  const formattedTeachers = teachers.map(t => ({
+    id: t.id,
+    name: t.name,
+    email: t.email,
+    phone: t.phone,
+    avatar: t.avatar,
+    isActive: t.isActive,
+    subject: t.subjects?.map(s => s.subject.name).join(", ") || "N/A",
+    class: t.classAssignments?.map(c => `${c.class.name}-${c.class.section}`).join(", ") || "N/A",
+  }))
+
   return (
     <>
-      <TeachersTable data={teachers} />
+      <TeachersTable data={formattedTeachers} />
       <DataTablePagination currentPage={page} totalPages={totalPages} />
     </>
   )

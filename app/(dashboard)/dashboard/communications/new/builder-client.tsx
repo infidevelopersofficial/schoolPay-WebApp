@@ -159,10 +159,11 @@ export default function CampaignBuilderClient({ batches, classes }: CampaignBuil
         audienceFilter: formData.audienceFilter,
       })
 
-      if (!result?.id) throw new Error("Failed to create campaign record.")
+      if (result && "error" in result) throw new Error(String(result.error))
+      if (!result || !("id" in result) || !result.id) throw new Error("Failed to create campaign record.")
 
       if (shouldQueue) {
-        await queueCampaignAction(result.id)
+        await queueCampaignAction(result.id as string)
         toast.success("Campaign queued and processing started!")
       } else {
         toast.success("Campaign draft saved successfully!")

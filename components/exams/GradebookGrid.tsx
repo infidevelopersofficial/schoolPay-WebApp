@@ -70,9 +70,9 @@ export default function GradebookGrid({ exam, students, initialResults, activeSe
       if (overrideReason) formData.append("overrideReason", overrideReason)
 
       const result = await bulkUpsertResultAction(formData)
-      if (!result.success) throw new Error(result.error)
+      if (!result.success) throw new Error("error" in result ? String(result.error) : "Failed to update grades")
 
-      toast.success(`Saved! ${result.upsertedCount} records updated.`)
+      toast.success(`Saved! ${"upsertedCount" in result ? result.upsertedCount : 0} records updated.`)
       setOverrideReason("")
     } catch (error: any) {
       toast.error(error.message)
@@ -84,7 +84,7 @@ export default function GradebookGrid({ exam, students, initialResults, activeSe
   const handleLockToggle = async () => {
     try {
       const result = await toggleMarksLockAction(exam.id, !exam.marksLocked)
-      if (!result.success) throw new Error(result.error)
+      if (!result.success) throw new Error("error" in result ? String(result.error) : "Failed to toggle lock")
       toast.success(exam.marksLocked ? "Exam unlocked" : "Exam locked")
     } catch (error: any) {
       toast.error(error.message)
@@ -94,7 +94,7 @@ export default function GradebookGrid({ exam, students, initialResults, activeSe
   const handlePublishToggle = async () => {
     try {
       const result = await togglePublishResultsAction(exam.id, !exam.resultsPublished)
-      if (!result.success) throw new Error(result.error)
+      if (!result.success) throw new Error("error" in result ? String(result.error) : "Failed to publish grades")
       toast.success(exam.resultsPublished ? "Results unpublished" : "Results published")
     } catch (error: any) {
       toast.error(error.message)

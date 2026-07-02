@@ -31,10 +31,10 @@ export function SchoolProfileForm({ initialData }: { initialData: any }) {
       formData.set("logoUrl", logoUrl); // Add the base64 logo
       
       const res = await updateSchoolProfile(formData);
-      if (res.success) {
+      if ("success" in res && res.success) {
         toast.success("School profile updated successfully");
       } else {
-        toast.error(res.error || "Failed to update profile");
+        toast.error("error" in res ? String(res.error) : "Failed to update profile");
       }
     } catch (error) {
       toast.error("An error occurred");

@@ -53,7 +53,7 @@ export function ExamGroupForm({ open, onOpenChange, gradingSchemes, activeSessio
       }
 
       const result = await createExamGroupAction(formData)
-      if (!result.success) throw new Error(result.error)
+      if (!result.success) throw new Error("error" in result ? String(result.error) : "Failed to create exam group")
 
       toast.success("Exam group created successfully")
       onOpenChange(false)

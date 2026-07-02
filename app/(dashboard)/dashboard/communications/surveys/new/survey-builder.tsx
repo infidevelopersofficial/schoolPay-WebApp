@@ -277,10 +277,11 @@ export default function SurveyBuilder({ batches, classes }: SurveyBuilderProps) 
         })),
       })
 
-      if (!result?.id) throw new Error("Failed to create survey.")
+      if (result && "error" in result) throw new Error(String(result.error))
+      if (!result || !("id" in result) || !result.id) throw new Error("Failed to create survey.")
 
       if (shouldPublish) {
-        await publishSurveyAction(result.id)
+        await publishSurveyAction(result.id as string)
         toast.success("Survey published and active for parents!")
         // Show share modal
         const shareUrl = `${window.location.origin}/surveys/${result.id}`

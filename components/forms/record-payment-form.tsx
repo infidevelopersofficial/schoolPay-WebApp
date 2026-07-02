@@ -47,7 +47,7 @@ export function RecordPaymentForm({ open, onOpenChange, onSuccess }: RecordPayme
   useEffect(() => {
     if (open && feeTypes.length === 0) {
       getFeeTypesAction().then((res) => {
-        if (res.success && res.feeTypes) {
+        if ("success" in res && res.success && res.feeTypes) {
           setFeeTypes(res.feeTypes)
         }
       })
@@ -63,7 +63,7 @@ export function RecordPaymentForm({ open, onOpenChange, onSuccess }: RecordPayme
       }
       setLoadingStudents(true)
       const res = await searchStudentsAction(studentQuery)
-      if (res.success && res.students) {
+      if ("success" in res && res.success && res.students) {
         setStudents(res.students)
       }
       setLoadingStudents(false)

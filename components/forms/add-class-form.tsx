@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 import { addClassAction } from "@/app/(dashboard)/dashboard/classes/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

@@ -29,6 +29,7 @@ export async function getClasses() {
       prisma.class.findMany({
         where: { schoolId },
         orderBy: [{ name: "asc" }, { section: "asc" }],
+        include: { classTeacher: { select: { name: true } } },
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
@@ -43,12 +44,11 @@ export async function createClass(input: CreateClassInput) {
   return withDAL(
     "classes.create",
     async () => {
-      const { classTeacherId, ...rest } = validated
+      const { classTeacherId, classTeacher, ...rest } = validated
       
       const cls = await prisma.class.create({ 
         data: { 
           ...rest, 
-          classTeacherLegacy: rest.classTeacher,
           schoolId 
         } 
       })
@@ -80,14 +80,11 @@ export async function updateClass(id: string, data: Partial<CreateClassInput>) {
       const oldData = await prisma.class.findUnique({ where: { id } })
       if (oldData?.schoolId !== schoolId) throw new Error("Class not found")
 
-      const { classTeacherId, ...rest } = data
+      const { classTeacherId, classTeacher, ...rest } = data
       
       const cls = await prisma.class.update({ 
         where: { id }, 
-        data: {
-          ...rest,
-          classTeacherLegacy: rest.classTeacher !== undefined ? rest.classTeacher : undefined
-        } 
+        data: rest
       })
 
       if (classTeacherId !== undefined) {

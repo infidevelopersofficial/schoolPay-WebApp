@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import type { Class } from "@prisma/client"
 
 interface ClassesTableProps {
-  data: Class[]
+  data: (Class & { classTeacher?: { name: string } | null })[]
 }
 
 export function ClassesTable({ data }: ClassesTableProps) {
@@ -40,7 +40,7 @@ export function ClassesTable({ data }: ClassesTableProps) {
                     <p className="text-xs text-muted-foreground">{classItem.section}</p>
                   </div>
                 </TableCell>
-                <TableCell>{classItem.classTeacher ?? "—"}</TableCell>
+                <TableCell>{classItem.classTeacher?.name ?? "—"}</TableCell>
                 <TableCell className="font-medium">{classItem.strength}</TableCell>
                 <TableCell>{classItem.capacity}</TableCell>
                 <TableCell>{classItem.room ?? "—"}</TableCell>
