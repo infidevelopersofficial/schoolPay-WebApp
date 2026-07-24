@@ -15,7 +15,7 @@ export const onboardingSchema = z.object({
     }),
   
   tenantType: z.enum(["SCHOOL", "COACHING_CENTER", "PRIVATE_TUTOR"], {
-    errorMap: () => ({ message: "Invalid Tenant Type" })
+    message: "Invalid Tenant Type"
   }),
   
   region: z.string().min(1, "Region is required"),

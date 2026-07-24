@@ -40,7 +40,7 @@ export function FeeWizard({ classes, sessions }: { classes: any[], sessions: any
   const [generatedStructureId, setGeneratedStructureId] = useState<string | null>(null)
 
   const form = useForm<z.infer<typeof step1Schema>>({
-    resolver: zodResolver(step1Schema),
+    resolver: zodResolver(step1Schema) as any,
     defaultValues: {
       name: "",
       description: "",

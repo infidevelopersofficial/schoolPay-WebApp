@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ShieldCheck, Twitter, Facebook, Instagram, Linkedin } from "lucide-react"
+import { ShieldCheck } from "lucide-react"
 
 export function SiteFooter() {
   return (

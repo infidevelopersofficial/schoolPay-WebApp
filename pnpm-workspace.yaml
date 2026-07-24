@@ -1,9 +1,0 @@
-allowBuilds:
-  '@firebase/util': false
-  '@prisma/engines': false
-  '@sentry/cli': false
-  core-js: false
-  esbuild: false
-  prisma: false
-  protobufjs: false
-  sharp: false

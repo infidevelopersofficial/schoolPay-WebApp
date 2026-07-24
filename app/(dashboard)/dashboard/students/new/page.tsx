@@ -33,7 +33,7 @@ export default function NewStudentPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<CreateStudentInput>({
-    resolver: zodResolver(createStudentSchema),
+    resolver: zodResolver(createStudentSchema) as any,
     defaultValues: {
       name: "",
       dateOfBirth: "",

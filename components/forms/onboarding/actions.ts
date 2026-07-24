@@ -48,8 +48,8 @@ export async function completeWizardOnboarding(formData: FormData): Promise<Acti
 
       const validationResult = onboardingSchema.safeParse(Object.fromEntries(formData));
       if (!validationResult.success) {
-        console.error("ONBOARDING VALIDATION FAILED:", validationResult.error.errors);
-        throw new Error(validationResult.error.errors[0].message);
+        console.error("ONBOARDING VALIDATION FAILED:", validationResult.error.issues);
+        throw new Error(validationResult.error.issues[0].message);
       }
       
       const parsedData = validationResult.data;

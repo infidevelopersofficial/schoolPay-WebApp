@@ -22,7 +22,7 @@ export function DashboardChart({ data }: { data: any[] }) {
           tickFormatter={(value) => `₹${value}`}
         />
         <Tooltip 
-          formatter={(value: number) => formatCurrency(value)}
+          formatter={(value: any) => formatCurrency(value)}
           cursor={{ fill: "transparent" }}
         />
         <Bar

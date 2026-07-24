@@ -45,7 +45,7 @@ export function FinanceChart({ data }: FinanceChartProps) {
                   tickFormatter={(v) => (v >= 1000 ? `$${(v / 1000).toFixed(0)}K` : `$${v}`)}
                 />
                 <Tooltip
-                  formatter={(value: number) => [`$${value.toLocaleString()}`, "Collected"]}
+                  formatter={(value: any) => [`$${value.toLocaleString()}`, "Collected"]}
                   contentStyle={{ fontSize: 12 }}
                 />
                 <Line

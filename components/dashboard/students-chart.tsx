@@ -58,7 +58,7 @@ export function StudentsChart({ boys, girls, other, total }: StudentsChartProps)
                       <Cell key={entry.name} fill={COLORS[entry.name as keyof typeof COLORS] ?? "#d1d5db"} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: number) => [value.toLocaleString(), ""]} />
+                  <Tooltip formatter={(value: any) => [value.toLocaleString(), ""]} />
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex items-center justify-center">

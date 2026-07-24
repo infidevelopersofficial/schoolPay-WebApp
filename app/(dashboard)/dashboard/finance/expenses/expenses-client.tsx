@@ -151,7 +151,7 @@ export default function ExpensesClient({ expenses, stats, chartData }: {
                 <RechartsTooltip 
                   cursor={{fill: '#1e293b'}}
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc', borderRadius: '8px' }}
-                  formatter={(value: number) => [`₹${(value/100).toLocaleString('en-IN')}`, undefined]}
+                  formatter={(value: any) => [`₹${(value/100).toLocaleString('en-IN')}`, undefined]}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
                 <Bar dataKey="income" name="Income" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
@@ -186,7 +186,7 @@ export default function ExpensesClient({ expenses, stats, chartData }: {
                   </Pie>
                   <RechartsTooltip 
                     contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc', borderRadius: '8px' }}
-                    formatter={(value: number) => [`₹${(value/100).toLocaleString('en-IN')}`, undefined]}
+                    formatter={(value: any) => [`₹${(value/100).toLocaleString('en-IN')}`, undefined]}
                   />
                   <Legend 
                     layout="vertical" 

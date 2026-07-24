@@ -4,7 +4,7 @@ import type { Metadata, Viewport } from "next"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
-import { Toaster } from "sonner"
+import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
 
 // Use a static fallback className instead of remote font fetches to support offline sandboxed builds
