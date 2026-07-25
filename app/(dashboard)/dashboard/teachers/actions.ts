@@ -64,3 +64,46 @@ export async function deleteTeacherAction(id: string) {
     return { error: e.message || "Unauthorized" }
   }
 }
+
+import { createClass } from "@/lib/dal/classes"
+import { createSubject } from "@/lib/dal/subjects"
+
+export async function createClassInlineForTeacherAction(name: string, section: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      if (!name.trim() || !section.trim()) {
+        return { error: "Class name and section are required" }
+      }
+      try {
+        const cls = await createClass({ name: name.trim(), section: section.trim(), capacity: 40 })
+        revalidatePath("/dashboard/teachers")
+        return { success: true, classItem: cls }
+      } catch (e: any) {
+        console.error("Error creating class inline:", e)
+        return { error: e?.message || "Failed to create class" }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}
+
+export async function createSubjectInlineForTeacherAction(name: string, code: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      if (!name.trim() || !code.trim()) {
+        return { error: "Subject name and code are required" }
+      }
+      try {
+        const sub = await createSubject({ name: name.trim(), code: code.trim().toUpperCase() })
+        revalidatePath("/dashboard/teachers")
+        return { success: true, subjectItem: sub }
+      } catch (e: any) {
+        console.error("Error creating subject inline:", e)
+        return { error: e?.message || "Failed to create subject" }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}

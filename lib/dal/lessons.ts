@@ -22,16 +22,16 @@ export const createLessonSchema = z.object({
 export async function getLessons() {
   return withTenantRead(async () => {
     const schoolId = await getSchoolId()
-  return withDAL(
-    "lessons.getAll",
-    () =>
-      prisma.lesson.findMany({
-        where: { schoolId },
-        orderBy: { createdAt: "desc" },
-        include: { teacher: { select: { name: true } } },
-      }),
-    { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
-  )
+    return withDAL(
+      "lessons.getAll",
+      () =>
+        prisma.lesson.findMany({
+          where: { schoolId },
+          orderBy: { createdAt: "desc" },
+          include: { teacher: { select: { name: true } } },
+        }),
+      { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
+    )
   })
 }
 
@@ -40,10 +40,26 @@ export async function createLesson(input: z.infer<typeof createLessonSchema>) {
   const validated = createLessonSchema.parse(input)
   return withDAL(
     "lessons.create",
-    () =>
-      prisma.lesson.create({
+    async () => {
+      if (validated.teacherId && validated.date && validated.time) {
+        const conflict = await prisma.lesson.findFirst({
+          where: {
+            schoolId,
+            teacherId: validated.teacherId,
+            date: validated.date,
+            time: validated.time,
+            status: { not: "CANCELLED" },
+          },
+        })
+        if (conflict) {
+          throw new Error(`Schedule conflict: Teacher already has a lesson ("${conflict.title}") at ${validated.time} on ${validated.date}`)
+        }
+      }
+
+      return prisma.lesson.create({
         data: { ...validated, schoolId, status: "SCHEDULED" },
-      }),
+      })
+    },
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
 }

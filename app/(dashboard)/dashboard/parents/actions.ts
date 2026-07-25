@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 import { createParent, createParentSchema, deleteParent as deleteParentDal } from "@/lib/dal/parents"
+import { createStudent } from "@/lib/dal/students"
 import { prisma } from "@/lib/prisma"
 import { sendMail } from "@/lib/mail"
 import crypto from "crypto"
@@ -11,7 +12,11 @@ import { withTenantAuth } from "@/lib/tenant-auth"
 export async function addParentAction(prevState: any, formData: FormData) {
   try {
     return await withTenantAuth(null, ["ADMIN"], async () => {
-      const raw = Object.fromEntries(formData.entries())
+      const raw: any = Object.fromEntries(formData.entries())
+      const studentIds = formData.getAll("studentIds") as string[]
+      if (studentIds && studentIds.length > 0) {
+        raw.studentIds = studentIds
+      }
       const result = createParentSchema.safeParse(raw)
 
       if (!result.success) {
@@ -29,6 +34,28 @@ export async function addParentAction(prevState: any, formData: FormData) {
     })
   } catch (e: any) {
     return { error: e.message || "Unauthorized" }
+  }
+}
+
+export async function createStudentInlineForParentAction(name: string, classStr: string, admissionNumber?: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async (config, schoolId) => {
+      const student = await createStudent({
+        name,
+        class: classStr,
+        dateOfBirth: "2015-01-01",
+        admissionNumber,
+        parentName: "Pending Assignment",
+        parentEmail: `pending_${Date.now()}@school.com`,
+        parentMobile: "0000000000",
+        totalFees: 0,
+        sessionId: undefined,
+      })
+      revalidatePath("/dashboard/parents")
+      return { success: true, studentItem: student }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Failed to create student inline" }
   }
 }
 

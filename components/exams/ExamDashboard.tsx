@@ -17,6 +17,7 @@ export default function ExamDashboard({
   initialExams,
   batches,
   subjects,
+  teachers = [],
   gradingSchemes,
   activeSessionId,
 }: any) {
@@ -48,6 +49,7 @@ export default function ExamDashboard({
         examGroups={initialExamGroups}
         batches={batches}
         subjects={subjects}
+        teachers={teachers}
         activeSessionId={activeSessionId}
       />
 

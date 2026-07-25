@@ -4,6 +4,7 @@ import { withTenantAuth } from "@/lib/tenant-auth"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 import { createStudent, createStudentSchema, deleteStudent as deleteStudentDal, getStudents } from "@/lib/dal/students"
+import { getClasses, createClass } from "@/lib/dal/classes"
 
 export async function addStudentAction(prevState: any, formData: FormData) {
   try {
@@ -74,6 +75,66 @@ export async function searchStudentsAction(query: string) {
         }
       } catch (e: any) {
         return { error: "Failed to search students" }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}
+
+export async function getClassesForStudentAction() {
+  try {
+    return await withTenantAuth(null, ["ADMIN", "TEACHER"], async () => {
+      const session = await auth()
+      if (!session) return { error: "Unauthorized" }
+
+      try {
+        const classes = await getClasses()
+        return {
+          success: true,
+          classes: classes.map(c => ({
+            id: c.id,
+            name: c.name,
+            section: c.section,
+            label: `Class ${c.name} - ${c.section}`,
+            val: `${c.name}-${c.section}`,
+          }))
+        }
+      } catch (e: any) {
+        return { error: "Failed to load classes" }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}
+
+export async function createClassInlineAction(name: string, section: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const session = await auth()
+      if (!session) return { error: "Unauthorized" }
+
+      try {
+        const newClass = await createClass({
+          name: name.trim(),
+          section: section.trim().toUpperCase() || "A",
+          capacity: 40,
+        })
+        revalidatePath("/dashboard/students/new")
+        revalidatePath("/dashboard/classes")
+        return {
+          success: true,
+          classItem: {
+            id: newClass.id,
+            name: newClass.name,
+            section: newClass.section,
+            label: `Class ${newClass.name} - ${newClass.section}`,
+            val: `${newClass.name}-${newClass.section}`,
+          }
+        }
+      } catch (e: any) {
+        return { error: e.message || "Failed to create class inline" }
       }
     })
   } catch (e: any) {

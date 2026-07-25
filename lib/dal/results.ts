@@ -115,7 +115,21 @@ export async function bulkUpsertResults(input: z.infer<typeof bulkUpsertResultSc
           }
         };
 
+        const studentIds = validated.results.map(r => r.studentId)
+        const validStudents = await tx.student.findMany({
+          where: { id: { in: studentIds }, schoolId },
+          select: { id: true }
+        })
+        const validStudentIdsSet = new Set(validStudents.map(s => s.id))
+
         for (const res of validated.results) {
+          if (!validStudentIdsSet.has(res.studentId)) {
+            throw new Error(`Student ${res.studentId} not found or does not belong to this school`)
+          }
+          if (res.marks !== null && (res.marks < 0 || res.marks > exam.maxMarks)) {
+            throw new Error(`Score ${res.marks} is out of bounds for student ${res.studentId}. Must be between 0 and ${exam.maxMarks}.`)
+          }
+
           const existing = existingMap.get(res.studentId)
           
           if (existing) {

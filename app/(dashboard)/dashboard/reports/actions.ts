@@ -4,7 +4,7 @@ import { prisma as db } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { withTenantAuth } from "@/lib/tenant-auth";
 
-export async function getFeeCollectionReport(startDate?: Date, endDate?: Date) {
+export async function getFeeCollectionReport(startDate?: Date, endDate?: Date, classFilter?: string) {
   return await withTenantAuth(null, ["ADMIN"], async (config, schoolId) => {
     const whereClause: any = { schoolId, status: "COMPLETED" };
     
@@ -19,6 +19,10 @@ export async function getFeeCollectionReport(startDate?: Date, endDate?: Date) {
         gte: start,
         lte: end
       };
+    }
+    
+    if (classFilter) {
+      whereClause.student = { class: classFilter };
     }
     
     const payments = await db.payment.findMany({
@@ -39,10 +43,14 @@ export async function getFeeCollectionReport(startDate?: Date, endDate?: Date) {
   });
 }
 
-export async function getOutstandingFeesReport() {
+export async function getOutstandingFeesReport(startDate?: Date, endDate?: Date, classFilter?: string) {
   return await withTenantAuth(null, ["ADMIN"], async (config, schoolId) => {
+    const whereClause: any = { schoolId, pendingAmount: { gt: 0 } };
+    if (classFilter) {
+      whereClause.class = classFilter;
+    }
     const students = await db.student.findMany({
-      where: { schoolId, pendingAmount: { gt: 0 } },
+      where: whereClause,
       orderBy: { name: "asc" }
     });
 
@@ -58,7 +66,7 @@ export async function getOutstandingFeesReport() {
   });
 }
 
-export async function getDailySettlementReport(startDate?: Date, endDate?: Date) {
+export async function getDailySettlementReport(startDate?: Date, endDate?: Date, classFilter?: string) {
   return await withTenantAuth(null, ["ADMIN"], async (config, schoolId) => {
     const whereClause: any = { schoolId, status: "COMPLETED" };
     
@@ -69,6 +77,10 @@ export async function getDailySettlementReport(startDate?: Date, endDate?: Date)
       end.setHours(23, 59, 59, 999);
       
       whereClause.date = { gte: start, lte: end };
+    }
+    
+    if (classFilter) {
+      whereClause.student = { class: classFilter };
     }
     
     const payments = await db.payment.findMany({
@@ -106,7 +118,7 @@ export async function getDailySettlementReport(startDate?: Date, endDate?: Date)
   });
 }
 
-export async function getAttendanceSummaryReport(startDate?: Date, endDate?: Date) {
+export async function getAttendanceSummaryReport(startDate?: Date, endDate?: Date, classFilter?: string) {
   return await withTenantAuth(null, ["ADMIN"], async (config, schoolId) => {
     const whereClause: any = { schoolId };
     
@@ -117,6 +129,10 @@ export async function getAttendanceSummaryReport(startDate?: Date, endDate?: Dat
       end.setHours(23, 59, 59, 999);
       
       whereClause.date = { gte: start, lte: end };
+    }
+    
+    if (classFilter) {
+      whereClause.student = { class: classFilter };
     }
     
     const records = await db.attendance.findMany({

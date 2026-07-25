@@ -46,8 +46,8 @@ export function MarkEntry({ examGroup }: { examGroup: any }) {
     const marks = val === "" ? null : parseFloat(val)
     if (marks !== null && isNaN(marks)) return
     
-    if (marks !== null && selectedExam && marks > selectedExam.maxMarks) {
-      toast.error(`Marks cannot exceed max marks (${selectedExam.maxMarks})`)
+    if (marks !== null && selectedExam && (marks < 0 || marks > selectedExam.maxMarks)) {
+      toast.error(`Marks must be between 0 and ${selectedExam.maxMarks}`)
       return
     }
 

@@ -33,6 +33,7 @@ export async function createExamAction(state: any, formData: FormData) {
         ...raw,
         startTime: startTimeStr ? new Date(`${date}T${startTimeStr}`) : undefined,
         endTime: endTimeStr ? new Date(`${date}T${endTimeStr}`) : undefined,
+        teacherId: raw.teacherId ? (raw.teacherId as string) : undefined,
       }
 
       const result = createExamSchema.safeParse(payload)

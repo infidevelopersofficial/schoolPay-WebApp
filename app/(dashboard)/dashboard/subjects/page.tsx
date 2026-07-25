@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import { SubjectsTable } from "@/components/subjects/subjects-table"
 import { SubjectsPageClient } from "@/components/subjects/subjects-page-client"
 import { getSubjects } from "@/lib/dal/subjects"
+import { getTeachers } from "@/lib/dal/teachers"
 import { TableSkeleton } from "@/components/ui/table-skeleton"
 import { DataTableShell } from "@/components/ui/data-table/data-table-shell"
 import { DataTableSearch } from "@/components/ui/data-table/data-table-search"
@@ -14,13 +15,15 @@ export default async function SubjectsPage(props: {
   const searchParams = await props.searchParams
   const query = searchParams?.query || ""
 
+  const { teachers = [] } = await getTeachers({ limit: 500 })
+
   return (
     <DataTableShell
       title="Subjects"
       description="Manage subjects and curriculum"
       breadcrumbs={[{ label: "Academics" }]}
       search={<DataTableSearch query={query} placeholder="Search subjects..." />}
-      actions={<SubjectsPageClient />}
+      actions={<SubjectsPageClient teachers={teachers} />}
     >
       <Suspense key={query} fallback={<TableSkeleton />}>
         <SubjectDataFetcher search={query} />

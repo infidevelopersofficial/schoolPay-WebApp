@@ -1,6 +1,7 @@
 import { getExamGroups, getExams } from "@/lib/dal/exams"
 import { getBatches } from "@/lib/dal/batches"
 import { getSubjects } from "@/lib/dal/subjects"
+import { getTeachers } from "@/lib/dal/teachers"
 import { getActiveSession } from "@/lib/dal/core"
 import ExamDashboard from "@/components/exams/ExamDashboard"
 import { getGradingSchemes } from "@/lib/dal/grading"
@@ -15,6 +16,7 @@ export default async function ExamsPage() {
   const exams = await getExams()
   const batches = await getBatches()
   const subjects = await getSubjects()
+  const { teachers = [] } = await getTeachers({ limit: 500 })
   const gradingSchemes = await getGradingSchemes()
 
   return (
@@ -29,6 +31,7 @@ export default async function ExamsPage() {
         initialExams={exams}
         batches={batches}
         subjects={subjects}
+        teachers={teachers}
         gradingSchemes={gradingSchemes}
         activeSessionId={session?.id || ""}
       />

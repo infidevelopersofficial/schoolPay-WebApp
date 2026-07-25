@@ -47,8 +47,8 @@ async function TeacherDataFetcher({ page, search }: { page: number; search: stri
     phone: t.phone,
     avatar: t.avatar,
     isActive: t.isActive,
-    subject: t.subjects?.map(s => s.subject.name).join(", ") || "N/A",
-    class: t.classAssignments?.map(c => `${c.class.name}-${c.class.section}`).join(", ") || "N/A",
+    subject: t.subjects?.filter(s => s.isActive)?.map(s => s.subject.name).join(", ") || (t as any).subject || "N/A",
+    class: t.classAssignments?.filter(c => c.isActive)?.map(c => `${c.class.name}-${c.class.section}`).join(", ") || (t as any).class || "N/A",
   }))
 
   return (

@@ -1,7 +1,7 @@
 "use client"
 
 import { useActionState, useState, useEffect } from "react"
-import { recordPaymentAction, getFeeTypesAction } from "@/app/(dashboard)/dashboard/payments/actions"
+import { recordPaymentAction, getFeeTypesAction, getStudentPendingFeesAction } from "@/app/(dashboard)/dashboard/payments/actions"
 import { searchStudentsAction } from "@/app/(dashboard)/dashboard/students/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -31,10 +31,13 @@ export function RecordPaymentForm({ open, onOpenChange, onSuccess }: RecordPayme
 
   // Data fetching state
   const [feeTypes, setFeeTypes] = useState<string[]>([])
+  const [pendingFees, setPendingFees] = useState<any[]>([])
+  const [selectedPendingFee, setSelectedPendingFee] = useState<any>(null)
   
   // Form field state (controlled for hidden inputs)
   const [feeType, setFeeType] = useState<string>("")
   const [paymentMethod, setPaymentMethod] = useState<string>("")
+  const [amount, setAmount] = useState<string>("")
 
   // Combobox state
   const [studentOpen, setStudentOpen] = useState(false)
@@ -50,9 +53,23 @@ export function RecordPaymentForm({ open, onOpenChange, onSuccess }: RecordPayme
         if ("success" in res && res.success && res.feeTypes) {
           setFeeTypes(res.feeTypes)
         }
-      })
+       })
     }
   }, [open, feeTypes.length])
+
+  // Fetch pending fees when student is selected
+  useEffect(() => {
+    if (selectedStudent?.id) {
+      getStudentPendingFeesAction(selectedStudent.id).then((res) => {
+        if ("success" in res && res.success && res.pendingFees) {
+          setPendingFees(res.pendingFees)
+        }
+      })
+    } else {
+      setPendingFees([])
+      setSelectedPendingFee(null)
+    }
+  }, [selectedStudent])
 
   // Debounce student search
   useEffect(() => {
@@ -80,6 +97,9 @@ export function RecordPaymentForm({ open, onOpenChange, onSuccess }: RecordPayme
       setSelectedStudent(null)
       setPaymentMethod("")
       setFeeType("")
+      setAmount("")
+      setPendingFees([])
+      setSelectedPendingFee(null)
     }
   }, [open])
 
@@ -94,7 +114,9 @@ export function RecordPaymentForm({ open, onOpenChange, onSuccess }: RecordPayme
           {/* Hidden inputs for native FormData extraction */}
           <input type="hidden" name="studentId" value={selectedStudent?.id || ""} />
           <input type="hidden" name="paymentMethod" value={paymentMethod} />
-          <input type="hidden" name="feeType" value={feeType} />
+          <input type="hidden" name="feeType" value={selectedPendingFee ? selectedPendingFee.feeType : feeType} />
+          <input type="hidden" name="feeMappingId" value={selectedPendingFee?.type === "MAPPING" ? selectedPendingFee.id : ""} />
+          <input type="hidden" name="invoiceId" value={selectedPendingFee?.type === "INVOICE" ? selectedPendingFee.id : ""} />
 
           <div className="space-y-2 flex flex-col">
             <Label>Student <span className="text-red-500">*</span></Label>
@@ -151,11 +173,35 @@ export function RecordPaymentForm({ open, onOpenChange, onSuccess }: RecordPayme
 
           <div className="space-y-2">
             <Label>Fee Type <span className="text-red-500">*</span></Label>
-            <Select value={feeType} onValueChange={setFeeType} required>
+            <Select
+              value={feeType}
+              onValueChange={(val) => {
+                setFeeType(val)
+                const match = pendingFees.find((p) => p.name === val || p.feeType === val)
+                if (match) {
+                  setSelectedPendingFee(match)
+                  setAmount(match.amount.toString())
+                } else {
+                  setSelectedPendingFee(null)
+                }
+              }}
+              required
+            >
               <SelectTrigger>
-                <SelectValue placeholder="Select fee type" />
+                <SelectValue placeholder="Select fee type or pending bill" />
               </SelectTrigger>
               <SelectContent>
+                {pendingFees.length > 0 && (
+                  <>
+                    <div className="px-2 py-1 text-xs font-semibold text-primary bg-primary/5">Pending Bills & Invoices</div>
+                    {pendingFees.map((p) => (
+                      <SelectItem key={p.id} value={p.name}>
+                        {p.name} — ₹{p.amount}
+                      </SelectItem>
+                    ))}
+                    <div className="px-2 py-1 text-xs font-semibold text-muted-foreground mt-1 border-t pt-2">General Fee Types</div>
+                  </>
+                )}
                 {feeTypes.map((type) => (
                   <SelectItem key={type} value={type}>
                     {type}
@@ -168,7 +214,7 @@ export function RecordPaymentForm({ open, onOpenChange, onSuccess }: RecordPayme
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Amount <span className="text-red-500">*</span></Label>
-              <Input name="amount" type="number" placeholder="5000" required />
+              <Input name="amount" type="number" step="0.01" placeholder="5000" value={amount} onChange={(e) => setAmount(e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label>Date</Label>

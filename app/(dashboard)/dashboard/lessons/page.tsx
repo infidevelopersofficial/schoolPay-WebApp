@@ -1,5 +1,8 @@
 import { Suspense } from "react"
 import { getLessons } from "@/lib/dal/lessons"
+import { getClasses } from "@/lib/dal/classes"
+import { getSubjects } from "@/lib/dal/subjects"
+import { getTeachers } from "@/lib/dal/teachers"
 import { LessonsContent } from "@/components/lessons/lessons-content"
 import { LessonsPageClient } from "@/components/lessons/lessons-page-client"
 import { Button } from "@/components/ui/button"
@@ -15,6 +18,16 @@ export default async function LessonsPage(props: {
   const searchParams = await props.searchParams
   const query = searchParams?.query || ""
 
+  const [classesRes, subjectsRes, teachersRes] = await Promise.all([
+    getClasses(),
+    getSubjects(),
+    getTeachers({ limit: 500 }),
+  ])
+
+  const classes = classesRes || []
+  const subjects = subjectsRes || []
+  const teachers = teachersRes?.teachers || []
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -22,7 +35,7 @@ export default async function LessonsPage(props: {
           <h1 className="text-2xl font-bold text-foreground">Lessons</h1>
           <p className="text-sm text-muted-foreground">Manage lesson plans and schedules</p>
         </div>
-        <LessonsPageClient />
+        <LessonsPageClient classes={classes} subjects={subjects} teachers={teachers} />
       </div>
 
       <div className="flex items-center gap-4">

@@ -184,6 +184,36 @@ export async function createTeacher(input: CreateTeacherInput) {
                })
             }
           }
+        } else if (classLegacy && classLegacy.trim()) {
+          let normClass = classLegacy.trim()
+          let normSection = "A"
+          if (normClass.includes("-")) {
+            const parts = normClass.split("-").map(p => p.trim())
+            if (parts[0]) normClass = parts[0]
+            if (parts[1]) normSection = parts[1]
+          }
+          let existingClass = await tx.class.findFirst({
+            where: {
+              schoolId,
+              name: { equals: normClass, mode: "insensitive" },
+              section: { equals: normSection, mode: "insensitive" }
+            }
+          })
+          if (!existingClass) {
+            existingClass = await tx.class.create({
+              data: {
+                name: normClass,
+                section: normSection,
+                capacity: 40,
+                schoolId,
+              }
+            })
+          }
+          await tx.teacherClassAssignment.upsert({
+            where: { teacherId_classId: { teacherId: created.id, classId: existingClass.id } },
+            create: { teacherId: created.id, classId: existingClass.id, schoolId, isActive: true, isClassTeacher: false },
+            update: { isActive: true, schoolId }
+          })
         }
 
         return created
@@ -218,7 +248,74 @@ export async function updateTeacher(id: string, data: Partial<CreateTeacherInput
         ...(dateOfBirth && { dateOfBirth: new Date(dateOfBirth) }),
         ...(joiningDate && { joiningDate: new Date(joiningDate) })
       }
-      const teacher = await prisma.teacher.update({ where: { id }, data: parsedUpdateData })
+      
+      const teacher = await prisma.$transaction(async (tx) => {
+        const updated = await tx.teacher.update({ where: { id }, data: parsedUpdateData })
+
+        if (subjectIds !== undefined) {
+          const existing = await tx.teacherSubject.findMany({
+            where: { teacherId: id, schoolId, isActive: true }
+          })
+          const existingIds = existing.map(e => e.subjectId)
+          const toRemove = existingIds.filter(sid => !subjectIds.includes(sid))
+          if (toRemove.length > 0) {
+            await tx.teacherSubject.updateMany({
+              where: { teacherId: id, schoolId, subjectId: { in: toRemove } },
+              data: { isActive: false }
+            })
+          }
+          for (const subjectId of subjectIds) {
+            await tx.teacherSubject.upsert({
+              where: { teacherId_subjectId: { teacherId: id, subjectId } },
+              create: { teacherId: id, subjectId, schoolId, isActive: true },
+              update: { isActive: true, schoolId }
+            })
+          }
+        }
+
+        if (classAssignments !== undefined) {
+          const existing = await tx.teacherClassAssignment.findMany({
+            where: { teacherId: id, schoolId, isActive: true }
+          })
+          const existingIds = existing.map(e => e.classId)
+          const newIds = classAssignments.map(a => a.classId)
+          const toRemove = existingIds.filter(cid => !newIds.includes(cid))
+          if (toRemove.length > 0) {
+            await tx.teacherClassAssignment.updateMany({
+              where: { teacherId: id, schoolId, classId: { in: toRemove } },
+              data: { isActive: false, isClassTeacher: false }
+            })
+          }
+          for (const assignment of classAssignments) {
+            await tx.teacherClassAssignment.upsert({
+              where: { teacherId_classId: { teacherId: id, classId: assignment.classId } },
+              create: { teacherId: id, classId: assignment.classId, schoolId, isActive: true, isClassTeacher: assignment.isClassTeacher },
+              update: { isActive: true, schoolId }
+            })
+            if (assignment.isClassTeacher) {
+               await tx.teacherClassAssignment.updateMany({
+                 where: { classId: assignment.classId, schoolId, teacherId: { not: id } },
+                 data: { isClassTeacher: false }
+               })
+               await tx.teacherClassAssignment.updateMany({
+                 where: { teacherId: id, classId: assignment.classId, schoolId },
+                 data: { isClassTeacher: true }
+               })
+               await tx.class.update({
+                 where: { id: assignment.classId, schoolId },
+                 data: { classTeacherId: id }
+               })
+            } else {
+               await tx.teacherClassAssignment.updateMany({
+                 where: { teacherId: id, classId: assignment.classId, schoolId },
+                 data: { isClassTeacher: false }
+               })
+            }
+          }
+        }
+
+        return updated
+      })
 
       await recordAuditLog({
         action: "UPDATE",

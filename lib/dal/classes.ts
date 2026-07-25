@@ -53,8 +53,22 @@ export async function createClass(input: CreateClassInput) {
         } 
       })
 
-      if (classTeacherId) {
-        await setClassTeacher(cls.id, classTeacherId)
+      let targetTeacherId = classTeacherId;
+      if (!targetTeacherId && classTeacher) {
+        const tObj = await prisma.teacher.findFirst({
+          where: {
+            schoolId,
+            OR: [
+              { id: classTeacher },
+              { name: { equals: classTeacher, mode: "insensitive" } }
+            ]
+          }
+        });
+        if (tObj) targetTeacherId = tObj.id;
+      }
+
+      if (targetTeacherId) {
+        await setClassTeacher(cls.id, targetTeacherId)
       }
 
       await recordAuditLog({
@@ -87,8 +101,22 @@ export async function updateClass(id: string, data: Partial<CreateClassInput>) {
         data: rest
       })
 
-      if (classTeacherId !== undefined) {
-        await setClassTeacher(cls.id, classTeacherId)
+      let targetTeacherId = classTeacherId;
+      if (targetTeacherId === undefined && classTeacher) {
+        const tObj = await prisma.teacher.findFirst({
+          where: {
+            schoolId,
+            OR: [
+              { id: classTeacher },
+              { name: { equals: classTeacher, mode: "insensitive" } }
+            ]
+          }
+        });
+        if (tObj) targetTeacherId = tObj.id;
+      }
+
+      if (targetTeacherId !== undefined) {
+        await setClassTeacher(cls.id, targetTeacherId)
       }
 
       await recordAuditLog({

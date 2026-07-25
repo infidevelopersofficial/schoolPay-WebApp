@@ -68,7 +68,7 @@ export async function markBulkAttendance(input: BulkAttendanceInput, userId: str
 
       // Pre-fetch parent emails for notification alerts in 1 query ($O(1)$)
       const students = await db.student.findMany({
-        where: { id: { in: studentIds } },
+        where: { id: { in: studentIds }, schoolId },
         select: {
           id: true,
           name: true,
@@ -77,6 +77,9 @@ export async function markBulkAttendance(input: BulkAttendanceInput, userId: str
           parent: { select: { email: true, userId: true } }
         }
       })
+      if (students.length !== studentIds.length) {
+        throw new Error("One or more student records not found or unauthorized for this school")
+      }
       const studentMap = new Map(students.map(s => [s.id, s]))
 
       let presentCount = 0;

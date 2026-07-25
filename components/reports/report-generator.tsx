@@ -12,9 +12,11 @@ interface ReportGeneratorProps {
   schoolLogo?: string | null;
   reportName: string;
   description: string;
-  fetchData: (startDate?: Date, endDate?: Date) => Promise<any[]>;
+  fetchData: (startDate?: Date, endDate?: Date, classFilter?: string) => Promise<any[]>;
   columns: { header: string; key: string }[];
   needsDateRange?: boolean;
+  classes?: { id: string; name: string; section?: string }[];
+  needsClassFilter?: boolean;
 }
 
 export function ReportGenerator({
@@ -24,7 +26,9 @@ export function ReportGenerator({
   description,
   fetchData,
   columns,
-  needsDateRange = false
+  needsDateRange = false,
+  classes = [],
+  needsClassFilter = false,
 }: ReportGeneratorProps) {
   const [loading, setLoading] = useState(false);
   
@@ -34,13 +38,15 @@ export function ReportGenerator({
   
   const [startDate, setStartDate] = useState<string>(firstDay.toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState<string>(now.toISOString().split('T')[0]);
+  const [selectedClass, setSelectedClass] = useState<string>("");
 
   const generateCSV = async () => {
     try {
       setLoading(true);
       const data = await fetchData(
         needsDateRange && startDate ? new Date(startDate) : undefined,
-        needsDateRange && endDate ? new Date(endDate) : undefined
+        needsDateRange && endDate ? new Date(endDate) : undefined,
+        selectedClass || undefined
       );
       
       let csvContent = "\uFEFF"; // UTF-8 BOM for Excel
@@ -75,7 +81,8 @@ export function ReportGenerator({
       setLoading(true);
       const data = await fetchData(
         needsDateRange && startDate ? new Date(startDate) : undefined,
-        needsDateRange && endDate ? new Date(endDate) : undefined
+        needsDateRange && endDate ? new Date(endDate) : undefined,
+        selectedClass || undefined
       );
       
       const doc = new jsPDF("landscape");
@@ -97,6 +104,9 @@ export function ReportGenerator({
       let dateRangeStr = `Generated on: ${formatDate(new Date())}`;
       if (needsDateRange && startDate && endDate) {
         dateRangeStr = `Period: ${formatDate(new Date(startDate))} to ${formatDate(new Date(endDate))}`;
+      }
+      if (selectedClass) {
+        dateRangeStr += ` | Class: ${selectedClass}`;
       }
       
       doc.text(`${reportName} - ${dateRangeStr}`, schoolLogo ? 40 : 14, 26);
@@ -141,6 +151,22 @@ export function ReportGenerator({
             onChange={(e) => setEndDate(e.target.value)}
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
           />
+        </div>
+      )}
+      {(needsClassFilter && classes.length > 0) && (
+        <div className="flex items-center gap-2 text-sm">
+          <select
+            value={selectedClass}
+            onChange={(e) => setSelectedClass(e.target.value)}
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
+            <option value="">All Classes</option>
+            {classes.map((c) => (
+              <option key={c.id} value={`${c.name}${c.section ? ` ${c.section}` : ""}`}>
+                {c.name}{c.section ? ` ${c.section}` : ""}
+              </option>
+            ))}
+          </select>
         </div>
       )}
       <div className="flex gap-2">

@@ -38,7 +38,7 @@ export default async function AttendancePage({
 
   if (selectedBatchId) {
     const enrollments = await prisma.enrollment.findMany({
-      where: { batchId: selectedBatchId, status: "ACTIVE" },
+      where: { batchId: selectedBatchId, schoolId, status: "ACTIVE" },
       include: { student: { select: { id: true, name: true, rollNumber: true } } },
       orderBy: { student: { name: "asc" } }
     })

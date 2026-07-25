@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { CreateLessonForm } from "@/components/forms"
 
-export function LessonsPageClient() {
+export function LessonsPageClient({ classes = [], subjects = [], teachers = [] }: any) {
   const [showCreateForm, setShowCreateForm] = useState(false)
 
   const handleSuccess = useCallback(() => {
@@ -23,6 +23,9 @@ export function LessonsPageClient() {
         open={showCreateForm} 
         onOpenChange={setShowCreateForm} 
         onSuccess={handleSuccess} 
+        classes={classes}
+        subjects={subjects}
+        teachers={teachers}
       />
     </>
   )

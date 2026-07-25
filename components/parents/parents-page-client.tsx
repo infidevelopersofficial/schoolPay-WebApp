@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { AddParentForm } from "@/components/forms/add-parent-form"
 
-export function ParentsPageClient() {
+export function ParentsPageClient({ students = [] }: { students?: any[] }) {
   const [showAddForm, setShowAddForm] = useState(false)
   const router = useRouter()
 
@@ -20,6 +20,7 @@ export function ParentsPageClient() {
         open={showAddForm}
         onOpenChange={setShowAddForm}
         onSuccess={() => router.refresh()}
+        students={students}
       />
     </>
   )

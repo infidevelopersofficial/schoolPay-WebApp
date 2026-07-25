@@ -3,6 +3,7 @@ import { ParentsTable } from "@/components/parents/parents-table"
 import { Button } from "@/components/ui/button"
 import { ParentsPageClient } from "@/components/parents/parents-page-client"
 import { getParents } from "@/lib/dal/parents"
+import { getStudents } from "@/lib/dal/students"
 import { TableSkeleton } from "@/components/ui/table-skeleton"
 import { DataTableShell } from "@/components/ui/data-table/data-table-shell"
 import { DataTableSearch } from "@/components/ui/data-table/data-table-search"
@@ -18,13 +19,15 @@ export default async function ParentsPage(props: {
   const currentPage = Number(searchParams?.page) || 1
   const query = searchParams?.query || ""
 
+  const { students = [] } = await getStudents({ limit: 500 })
+
   return (
     <DataTableShell
       title="Parents & Guardians"
       description="Manage parent and guardian information"
       breadcrumbs={[{ label: "People" }]}
       search={<DataTableSearch query={query} placeholder="Search parents..." />}
-      actions={<ParentsPageClient />}
+      actions={<ParentsPageClient students={students} />}
     >
       <Suspense key={query + currentPage} fallback={<TableSkeleton />}>
         <ParentDataFetcher page={currentPage} search={query} />

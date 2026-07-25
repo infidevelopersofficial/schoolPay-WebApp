@@ -21,6 +21,8 @@ export const createPaymentSchema = z.object({
   date: z.string().optional(),
   remarks: z.string().optional(),
   sessionId: z.string().optional(),
+  feeMappingId: z.string().optional(),
+  invoiceId: z.string().optional(),
 })
 
 export type CreatePaymentInput = z.infer<typeof createPaymentSchema>
@@ -118,6 +120,10 @@ export async function createPayment(input: CreatePaymentInput) {
                 generateCollisionProofId("RCPT"),
               status: "COMPLETED",
               sessionId: validated.sessionId,
+              metadata: (validated.feeMappingId || validated.invoiceId) ? {
+                feeMappingId: validated.feeMappingId,
+                invoiceId: validated.invoiceId,
+              } : undefined,
             },
           })
 
@@ -130,6 +136,61 @@ export async function createPayment(input: CreatePaymentInput) {
               pendingAmount: { decrement: validated.amount },
             },
           })
+
+          // Automated status reconciliation for specific mapping or invoice
+          if (validated.feeMappingId) {
+            await tx.studentFeeMapping.update({
+              where: { id: validated.feeMappingId },
+              data: { status: "PAID" },
+            }).catch(() => {})
+          } else if (validated.invoiceId) {
+            await tx.invoice.update({
+              where: { id: validated.invoiceId },
+              data: { status: "PAID", paidAt: new Date() },
+            }).catch(() => {})
+          } else {
+            // Try matching by feeType name
+            const matchingMapping = await tx.studentFeeMapping.findFirst({
+              where: {
+                studentId: validated.studentId,
+                status: { in: ["PENDING", "PARTIAL", "OVERDUE"] },
+                feeItem: { name: validated.feeType }
+              }
+            });
+            if (matchingMapping) {
+              await tx.studentFeeMapping.update({
+                where: { id: matchingMapping.id },
+                data: { status: "PAID" }
+              }).catch(() => {});
+            } else {
+              const matchingInvoice = await tx.invoice.findFirst({
+                where: {
+                  studentId: validated.studentId,
+                  status: { in: ["SENT", "OVERDUE", "DRAFT"] },
+                  title: validated.feeType
+                }
+              });
+              if (matchingInvoice) {
+                await tx.invoice.update({
+                  where: { id: matchingInvoice.id },
+                  data: { status: "PAID", paidAt: new Date() }
+                }).catch(() => {});
+              }
+            }
+          }
+
+          if (updatedStudent.pendingAmount <= 0) {
+            await Promise.all([
+              tx.studentFeeMapping.updateMany({
+                where: { studentId: validated.studentId, status: { in: ["PENDING", "PARTIAL", "OVERDUE"] } },
+                data: { status: "PAID" }
+              }),
+              tx.invoice.updateMany({
+                where: { studentId: validated.studentId, status: { in: ["SENT", "OVERDUE", "DRAFT"] } },
+                data: { status: "PAID", paidAt: new Date() }
+              })
+            ]);
+          }
 
           // Evaluate feeStatus based on calendar due dates rather than 50% balance ratio (P1-04)
           let feeStatus: "PAID" | "OVERDUE" | "PARTIAL" | "PENDING" = "PENDING";

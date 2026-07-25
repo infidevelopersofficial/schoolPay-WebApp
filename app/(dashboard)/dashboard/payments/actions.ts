@@ -66,3 +66,45 @@ export async function getFeeTypesAction() {
     return { error: e.message || "Unauthorized" }
   }
 }
+
+export async function getStudentPendingFeesAction(studentId: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN", "TEACHER", "ACCOUNTANT"], async () => {
+      const schoolId = await getSchoolId()
+      const [mappings, invoices] = await Promise.all([
+        prisma.studentFeeMapping.findMany({
+          where: { studentId, schoolId, status: { in: ["PENDING", "PARTIAL", "OVERDUE"] } },
+          include: { feeItem: true },
+          orderBy: { dueDate: "asc" }
+        }),
+        prisma.invoice.findMany({
+          where: { studentId, schoolId, status: { in: ["SENT", "OVERDUE", "DRAFT"] } },
+          orderBy: { dueDate: "asc" }
+        })
+      ])
+
+      const pendingList = [
+        ...mappings.map(m => ({
+          id: m.id,
+          type: "MAPPING" as const,
+          name: `${m.feeItem?.name || "Fee"} (Due: ${new Date(m.dueDate).toLocaleDateString()})`,
+          feeType: m.feeItem?.name || "Tuition Fee",
+          amount: Math.round(m.amount / 100), // convert paise to rupees for UI display
+          status: m.status
+        })),
+        ...invoices.map(inv => ({
+          id: inv.id,
+          type: "INVOICE" as const,
+          name: `Invoice #${inv.invoiceNo}${inv.title ? ` - ${inv.title}` : ""} (Due: ${new Date(inv.dueDate).toLocaleDateString()})`,
+          feeType: inv.title || `Invoice #${inv.invoiceNo}`,
+          amount: inv.total,
+          status: inv.status
+        }))
+      ]
+
+      return { success: true, pendingFees: pendingList }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Failed to fetch student fees" }
+  }
+}

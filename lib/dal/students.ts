@@ -177,12 +177,42 @@ export async function createStudent(input: CreateStudentInput) {
         const studentCount = await tx.student.count({ where: { schoolId } })
         const generatedStudentId = `${prefix}-STU-${String(studentCount + 1).padStart(3, '0')}`
 
-        // 5. Create Student Record
+        // 5. Normalize Class & Section and ensure Class record exists
+        let normalizedClass = validated.class.trim()
+        let normalizedSection = validated.section?.trim()
+
+        if (normalizedClass.includes("-")) {
+          const parts = normalizedClass.split("-").map(p => p.trim())
+          if (parts[0]) normalizedClass = parts[0]
+          if (parts[1] && !normalizedSection) normalizedSection = parts[1]
+        }
+        if (!normalizedSection) normalizedSection = "A"
+
+        const existingClass = await tx.class.findFirst({
+          where: {
+            schoolId,
+            name: { equals: normalizedClass, mode: "insensitive" },
+            section: { equals: normalizedSection, mode: "insensitive" }
+          }
+        })
+
+        if (!existingClass) {
+          await tx.class.create({
+            data: {
+              name: normalizedClass,
+              section: normalizedSection,
+              capacity: 40,
+              schoolId,
+            }
+          })
+        }
+
+        // 6. Create Student Record
         const created = await tx.student.create({
           data: {
             name: validated.name,
-            class: validated.class,
-            section: validated.section,
+            class: `${normalizedClass}-${normalizedSection}`,
+            section: normalizedSection,
             dateOfBirth: new Date(validated.dateOfBirth),
             admissionNumber: validated.admissionNumber,
             studentId: generatedStudentId,

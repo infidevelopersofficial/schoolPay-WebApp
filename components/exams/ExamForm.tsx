@@ -35,9 +35,10 @@ const formSchema = z.object({
   startTime: z.string().optional(),
   endTime: z.string().optional(),
   maxMarks: z.coerce.number().positive("Must be positive"),
+  teacherId: z.string().optional(),
 })
 
-export function ExamForm({ open, onOpenChange, examGroups, batches, subjects, activeSessionId }: any) {
+export function ExamForm({ open, onOpenChange, examGroups, batches, subjects, teachers = [], activeSessionId }: any) {
   const [loading, setLoading] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -51,6 +52,7 @@ export function ExamForm({ open, onOpenChange, examGroups, batches, subjects, ac
       startTime: "",
       endTime: "",
       maxMarks: 100,
+      teacherId: "",
     },
   })
 
@@ -67,6 +69,7 @@ export function ExamForm({ open, onOpenChange, examGroups, batches, subjects, ac
       if (values.startTime) formData.append("startTime", values.startTime)
       if (values.endTime) formData.append("endTime", values.endTime)
       formData.append("maxMarks", values.maxMarks.toString())
+      if (values.teacherId) formData.append("teacherId", values.teacherId)
 
       const result = await createExamAction(null, formData)
       if (!result.success) throw new Error("error" in result ? String(result.error) : "Failed to create exam")
@@ -211,6 +214,32 @@ export function ExamForm({ open, onOpenChange, examGroups, batches, subjects, ac
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="teacherId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Invigilator / Teacher (Optional)</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select teacher..." />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">None / Unassigned</SelectItem>
+                      {teachers.map((t: any) => (
+                        <SelectItem key={t.id} value={t.id}>
+                          {t.name} ({t.email})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="flex justify-end gap-2 pt-4">
               <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>

@@ -17,6 +17,7 @@ export const createParentSchema = z.object({
   relationship: z.string().optional(),
   occupation: z.string().optional(),
   address: z.string().optional(),
+  studentIds: z.array(z.string()).optional(),
 })
 
 export type CreateParentInput = z.infer<typeof createParentSchema>
@@ -85,7 +86,7 @@ export async function createParent(input: CreateParentInput) {
           }
         })
 
-        const { phone, ...restData } = validated;
+        const { phone, studentIds, ...restData } = validated;
         const parent = await tx.parent.create({ 
           data: { 
             ...restData,
@@ -94,6 +95,15 @@ export async function createParent(input: CreateParentInput) {
             userId: user.id 
           } 
         })
+
+        if (studentIds && studentIds.length > 0) {
+          for (const studentId of studentIds) {
+            await tx.student.updateMany({
+              where: { id: studentId, schoolId },
+              data: { parentId: parent.id }
+            })
+          }
+        }
 
         await recordAuditLog({
           action: "CREATE",
@@ -119,7 +129,23 @@ export async function updateParent(id: string, data: Partial<CreateParentInput>)
       const oldData = await prisma.parent.findUnique({ where: { id } })
       if (oldData?.schoolId !== schoolId) throw new Error("Parent not found")
 
-      const parent = await prisma.parent.update({ where: { id }, data })
+      const { studentIds, ...restData } = data as any
+      const parent = await prisma.parent.update({ where: { id }, data: restData })
+
+      if (studentIds && Array.isArray(studentIds)) {
+        await prisma.$transaction(async (tx) => {
+          await tx.student.updateMany({
+            where: { parentId: id, schoolId },
+            data: { parentId: null }
+          })
+          for (const studentId of studentIds) {
+            await tx.student.updateMany({
+              where: { id: studentId, schoolId },
+              data: { parentId: id }
+            })
+          }
+        })
+      }
 
       await recordAuditLog({
         action: "UPDATE",

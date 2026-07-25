@@ -1,16 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { addStudentAction } from "../actions"
+import { addStudentAction, getClassesForStudentAction, createClassInlineAction } from "../actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { ArrowLeft, Loader2 } from "lucide-react"
+import { ArrowLeft, Loader2, Plus, Check } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -31,6 +31,26 @@ export type CreateStudentInput = z.infer<typeof createStudentSchema>
 export default function NewStudentPage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [classes, setClasses] = useState<{ id: string; name: string; section: string; label: string; val: string }[]>([])
+  const [loadingClasses, setLoadingClasses] = useState(true)
+  const [showNewClassInput, setShowNewClassInput] = useState(false)
+  const [newClassName, setNewClassName] = useState("")
+  const [newClassSection, setNewClassSection] = useState("")
+  const [creatingClass, setCreatingClass] = useState(false)
+
+  useEffect(() => {
+    async function loadClasses() {
+      setLoadingClasses(true)
+      const res = await getClassesForStudentAction()
+      if (res && "classes" in res && res.classes) {
+        setClasses(res.classes)
+      } else {
+        toast.error("Failed to load classes")
+      }
+      setLoadingClasses(false)
+    }
+    loadClasses()
+  }, [])
 
   const form = useForm<CreateStudentInput>({
     resolver: zodResolver(createStudentSchema) as any,
@@ -46,6 +66,26 @@ export default function NewStudentPage() {
       sessionId: "",
     },
   })
+
+  async function handleCreateInlineClass() {
+    if (!newClassName.trim()) {
+      toast.error("Please enter a class name (e.g. 10)")
+      return
+    }
+    setCreatingClass(true)
+    const res = await createClassInlineAction(newClassName, newClassSection)
+    setCreatingClass(false)
+    if (res && "classItem" in res && res.classItem) {
+      toast.success("Class created and selected!")
+      setClasses(prev => [...prev, res.classItem!])
+      form.setValue("class", res.classItem.val, { shouldValidate: true })
+      setNewClassName("")
+      setNewClassSection("")
+      setShowNewClassInput(false)
+    } else {
+      toast.error((res && "error" in res ? res.error : null) || "Failed to create class")
+    }
+  }
 
   async function onSubmit(data: CreateStudentInput) {
     setIsSubmitting(true)
@@ -101,9 +141,71 @@ export default function NewStudentPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="class">Class *</Label>
-                <Input id="class" {...form.register("class")} placeholder="e.g. 10A" />
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="class">Class *</Label>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewClassInput(!showNewClassInput)}
+                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 font-medium"
+                  >
+                    <Plus className="h-3 w-3" />
+                    {showNewClassInput ? "Cancel New Class" : "Create New Class"}
+                  </button>
+                </div>
+
+                {showNewClassInput ? (
+                  <div className="p-3 bg-muted/50 rounded-lg border space-y-3 animate-in fade-in slide-in-from-top-1">
+                    <div className="text-xs font-medium text-muted-foreground">Add Class Inline</div>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Class (e.g. 10)"
+                        value={newClassName}
+                        onChange={e => setNewClassName(e.target.value)}
+                        className="h-8 text-sm"
+                      />
+                      <Input
+                        placeholder="Sec (e.g. A)"
+                        value={newClassSection}
+                        onChange={e => setNewClassSection(e.target.value)}
+                        className="h-8 w-24 text-sm"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        disabled={creatingClass || !newClassName.trim()}
+                        onClick={handleCreateInlineClass}
+                        className="h-8 px-3"
+                      >
+                        {creatingClass ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3 mr-1" />}
+                        Add
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+
+                {loadingClasses ? (
+                  <div className="flex items-center gap-2 h-10 px-3 border rounded-md bg-muted/30 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading available classes...
+                  </div>
+                ) : (
+                  <select
+                    id="class"
+                    {...form.register("class")}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">Select a class...</option>
+                    {classes.map(c => (
+                      <option key={c.id} value={c.val}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 {form.formState.errors.class && <p className="text-sm text-red-500">{form.formState.errors.class.message}</p>}
+                {classes.length === 0 && !loadingClasses && !showNewClassInput && (
+                  <p className="text-xs text-amber-600">No classes found. Click &quot;Create New Class&quot; above or visit <Link href="/dashboard/classes" className="underline font-medium">Class Management</Link>.</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="admissionNumber">Admission Number</Label>

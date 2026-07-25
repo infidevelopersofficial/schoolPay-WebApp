@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { AddSubjectForm } from "@/components/forms"
 
-export function SubjectsPageClient() {
+export function SubjectsPageClient({ teachers = [] }: { teachers?: any[] }) {
   const [showAddForm, setShowAddForm] = useState(false)
 
   const handleSuccess = useCallback(() => {
@@ -23,6 +23,7 @@ export function SubjectsPageClient() {
         open={showAddForm} 
         onOpenChange={setShowAddForm} 
         onSuccess={handleSuccess} 
+        teachers={teachers}
       />
     </>
   )

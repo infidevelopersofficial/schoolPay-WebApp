@@ -10,7 +10,10 @@ import { prisma as db } from "@/lib/prisma"
 
 export default async function ReportsPage() {
   const { schoolId } = await getTenantContext()
-  const tenant = await db.school.findUnique({ where: { id: schoolId } })
+  const [tenant, classes] = await Promise.all([
+    db.school.findUnique({ where: { id: schoolId } }),
+    db.class.findMany({ where: { schoolId }, orderBy: { name: "asc" }, select: { id: true, name: true, section: true } })
+  ]);
   const schoolName = tenant?.name || "School";
 
   return (
@@ -65,6 +68,8 @@ export default async function ReportsPage() {
                         { header: "Amount", key: "amount" }
                       ]}
                       needsDateRange={true}
+                      classes={classes}
+                      needsClassFilter={true}
                     />
                   </div>
                 </CardContent>
@@ -90,6 +95,8 @@ export default async function ReportsPage() {
                         { header: "Total Amount", key: "totalAmount" }
                       ]}
                       needsDateRange={true}
+                      classes={classes}
+                      needsClassFilter={true}
                     />
                   </div>
                 </CardContent>
@@ -119,6 +126,8 @@ export default async function ReportsPage() {
                         { header: "Pending", key: "pendingAmount" }
                       ]}
                       needsDateRange={false}
+                      classes={classes}
+                      needsClassFilter={true}
                     />
                   </div>
                 </CardContent>
@@ -148,6 +157,8 @@ export default async function ReportsPage() {
                         { header: "Total Working Days", key: "totalWorkingDays" }
                       ]}
                       needsDateRange={true}
+                      classes={classes}
+                      needsClassFilter={true}
                     />
                   </div>
                 </CardContent>
