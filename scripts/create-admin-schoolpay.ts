@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 
 async function main(){
   const email = 'admin@schoolpay.com'
-  const password = 'SchoolPay!2026$Admin' // test credential
+  const password = 'Sarathi@2025' // test credential
   const hashed = await bcrypt.hash(password, 12)
 
   // Find default school

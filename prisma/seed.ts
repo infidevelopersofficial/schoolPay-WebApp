@@ -22,11 +22,11 @@ async function main() {
   await prisma.school.deleteMany({});
   await prisma.spayTeamUser.deleteMany({});
 
-  const hashedRavi = await bcrypt.hash("Admin@123", 12)
-  const hashedAdmin = await bcrypt.hash("Admin@123", 12)
-  const hashedStaff = await bcrypt.hash("Staff@123", 12)
-  const hashedStudent = await bcrypt.hash("Arjun2015", 12)
-  const hashedParent = await bcrypt.hash("Parent@123", 12)
+  const hashedRavi = await bcrypt.hash("Sarathi@2025", 12)
+  const hashedAdmin = await bcrypt.hash("Sarathi@2025", 12)
+  const hashedStaff = await bcrypt.hash("Sarathi@2025", 12)
+  const hashedStudent = await bcrypt.hash("Sarathi@2025", 12)
+  const hashedParent = await bcrypt.hash("Sarathi@2025", 12)
 
   await prisma.spayTeamUser.upsert({
     where: { email: "ravi@schoolpay.in" },
