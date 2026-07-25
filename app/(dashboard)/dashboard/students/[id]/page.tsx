@@ -5,12 +5,13 @@ import { PortalAccessCard } from "./portal-access"
 import { getStudentAttendanceStats } from "@/lib/dal/attendance"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-export default async function StudentDetailPage({ params }: { params: { id: string } }) {
+export default async function StudentDetailPage(props: { params: Promise<{ id: string }> }) {
+  const { id } = await props.params
   const schoolId = await getSchoolId()
   if (!schoolId) notFound()
 
   const student = await prisma.student.findUnique({
-    where: { id: params.id, schoolId },
+    where: { id, schoolId },
     include: { 
       user: true,
       attendance: {

@@ -3,9 +3,11 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { getParentContext } from "@/lib/tenant-context"
-import { razorpay } from "@/lib/billing/razorpay"
+import { razorpay, verifyRazorpaySignature } from "@/lib/billing/razorpay"
+import { generateCollisionProofId } from "@/lib/utils/id-generator"
 
 export async function createFeePaymentOrder(invoiceId: string) {
+
   try {
     const session = await auth()
     if (!session?.user) {
@@ -64,15 +66,9 @@ export async function verifyFeePayment(
   try {
     const { schoolId, parentId } = await getParentContext()
 
-    // 1. Verify signature
-    const crypto = require("crypto")
+    // 1. Verify signature using constant-time comparison
     const secret = process.env.RAZORPAY_KEY_SECRET || "dummy_key_secret"
-    const expectedSignature = crypto
-      .createHmac("sha256", secret)
-      .update(razorpayOrderId + "|" + razorpayPaymentId)
-      .digest("hex")
-
-    if (expectedSignature !== razorpaySignature) {
+    if (!verifyRazorpaySignature(`${razorpayOrderId}|${razorpayPaymentId}`, razorpaySignature, secret)) {
       return { error: "Invalid payment signature" }
     }
 
@@ -129,7 +125,7 @@ export async function verifyFeePayment(
           studentId: invoice.studentId,
           transactionId: razorpayPaymentId,
           metadata: { invoiceId: invoice.id, razorpayOrderId },
-          receiptNumber: "RCPT-" + Math.random().toString(36).substring(2, 8).toUpperCase()
+          receiptNumber: generateCollisionProofId("RCPT")
         }
       })
 

@@ -1,4 +1,5 @@
 import Razorpay from "razorpay"
+import crypto from "crypto"
 
 if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
   console.warn("⚠️ RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is missing. Razorpay features will not work.")
@@ -10,7 +11,7 @@ export const razorpay = new Razorpay({
 })
 
 /**
- * Validates the Razorpay webhook signature.
+ * Validates the Razorpay webhook signature in constant time.
  * Returns true if valid, false otherwise.
  */
 export function verifyRazorpaySignature(
@@ -18,11 +19,26 @@ export function verifyRazorpaySignature(
   signature: string,
   secret: string
 ): boolean {
-  const crypto = require("crypto")
+  if (!signature || typeof signature !== "string") {
+    return false
+  }
+
   const expectedSignature = crypto
     .createHmac("sha256", secret)
     .update(body.toString())
     .digest("hex")
 
-  return expectedSignature === signature
+  if (signature.length !== expectedSignature.length) {
+    return false
+  }
+
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(expectedSignature, "hex"),
+      Buffer.from(signature, "hex")
+    )
+  } catch {
+    return false
+  }
 }
+

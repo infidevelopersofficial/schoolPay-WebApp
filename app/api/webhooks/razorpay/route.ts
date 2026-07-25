@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma as db } from "@/lib/prisma"
 import { verifyRazorpaySignature } from "@/lib/billing/razorpay"
 import { transitionSubscription } from "@/lib/billing/state-machine"
+import { generateCollisionProofId } from "@/lib/utils/id-generator"
+
 
 export async function POST(req: NextRequest) {
   try {
@@ -272,7 +274,7 @@ async function handleOrderPaid(orderData: any, paymentData: any) {
         studentId,
         transactionId: razorpayPaymentId,
         metadata: { invoiceId: currentInvoice.id, razorpayOrderId },
-        receiptNumber: "RCPT-" + Math.random().toString(36).substring(2, 8).toUpperCase()
+        receiptNumber: generateCollisionProofId("RCPT")
       }
     })
 

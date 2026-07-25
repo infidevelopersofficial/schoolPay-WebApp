@@ -50,6 +50,25 @@ const ENV_SCHEMA: EnvVar[] = [
     required: false,
     pattern: /^https:\/\/.+\.ingest\.(sentry|us\.sentry)\.io\/.+/,
   },
+  // Cron & Background Jobs
+  {
+    key: "CRON_SECRET",
+    description: "Fail-closed authentication token for background scheduled cron jobs",
+    required: process.env.NODE_ENV === "production",
+    minLength: 16,
+  },
+  // Payment Gateway (Razorpay)
+  {
+    key: "RAZORPAY_KEY_ID",
+    description: "Razorpay Key ID for online fee payment processing",
+    required: process.env.NODE_ENV === "production",
+  },
+  {
+    key: "RAZORPAY_KEY_SECRET",
+    description: "Razorpay Key Secret for webhook verification and HMAC signing",
+    required: process.env.NODE_ENV === "production",
+    minLength: 16,
+  },
 ]
 
 // ─── Validator ────────────────────────────────────────────────────────────────

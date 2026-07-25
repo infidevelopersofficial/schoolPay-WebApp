@@ -27,7 +27,7 @@ export async function addStudentAction(prevState: any, formData: FormData) {
         if (e?.message === "A parent account with this email already exists.") {
           return { error: e.message }
         }
-        if (e?.code === "P2002") return { error: "A student with this email already exists" }
+        if (e?.prismaCode === "P2002") return { error: "A student with this email already exists" }
         return { error: `Failed to create student: ${e?.message || e}` }
       }
     })

@@ -5,11 +5,12 @@ import { getActiveSession } from "@/lib/dal/core"
 import { redirect } from "next/navigation"
 import GradebookGrid from "@/components/exams/GradebookGrid"
 
-export default async function GradebookPage({ params }: { params: { id: string } }) {
+export default async function GradebookPage(props: { params: Promise<{ id: string }> }) {
+  const { id } = await props.params
   const session = await getActiveSession()
   if (!session) redirect("/dashboard")
 
-  const exam = await getExamById(params.id)
+  const exam = await getExamById(id)
   if (!exam) redirect("/exams")
 
   // Fetch all students in the batch

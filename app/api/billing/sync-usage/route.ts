@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server"
 import { prisma as db } from "@/lib/prisma"
+import { verifyCronAuth } from "@/lib/utils/cron-auth"
 
 export async function POST(req: Request) {
   try {
-    // 1. Verify cron secret to prevent unauthorized access
-    const authHeader = req.headers.get("authorization")
-    const expectedToken = `Bearer \${process.env.CRON_SECRET}`
-    
-    if (process.env.CRON_SECRET && authHeader !== expectedToken) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    // 1. Mandatory fail-closed CRON_SECRET authentication
+    const authError = verifyCronAuth(req)
+    if (authError) return authError
+
 
     // 2. Fetch all schools
     const schools = await db.school.findMany({

@@ -1,0 +1,103 @@
+name: SchoolPay Production CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "staging" ]
+  pull_request:
+    branches: [ "main", "staging" ]
+
+env:
+  NODE_ENV: test
+  DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/schoolpay_test' }}
+  AUTH_SECRET: "ci_test_secret_at_least_32_chars_long_for_nextauth_signing"
+  CRON_SECRET: "ci_test_cron_secret_at_least_16_chars"
+  RAZORPAY_KEY_ID: "rzp_test_mock_key_id"
+  RAZORPAY_KEY_SECRET: "rzp_test_mock_key_secret_16chars"
+
+jobs:
+  static-analysis:
+    name: 1. Typecheck & Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: TypeScript Compile Check
+        run: npx tsc --noEmit
+
+      - name: ESLint Code Quality Check
+        run: npm run lint --if-present
+
+  unit-and-dal-verification:
+    name: 2. DAL Regression & Benchmark Suite
+    runs-on: ubuntu-latest
+    needs: static-analysis
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run Sprint 1 Verification Tests
+        run: |
+          npx tsx scratch/test_sprint3_smtp.ts
+          npx tsx scratch/test_sprint3_env.ts
+          npx tsx scratch/test_sprint3_fee_status.ts
+
+  e2e-playwright:
+    name: 3. Playwright E2E Browser Harness
+    runs-on: ubuntu-latest
+    needs: unit-and-dal-verification
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers & Dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Generate Prisma Client & Migrate DB
+        run: |
+          npx prisma generate
+          npx prisma db push --accept-data-loss
+
+      - name: Execute Headless Playwright Test Suite
+        run: npx playwright test
+
+      - name: Upload Playwright Artifacts on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

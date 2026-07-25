@@ -122,7 +122,7 @@ export async function createStudent(input: CreateStudentInput) {
     "students.create",
     async () => {
       // Run as sequential transaction so we get the UsageRecord sync correctly
-      const student = await prisma.$transaction(async (tx) => {
+      const txResult = await prisma.$transaction(async (tx) => {
         // 1. Create or Find Parent User
         let parentUser = await tx.user.findUnique({ where: { email: validated.parentEmail } })
         if (!parentUser) {
@@ -189,6 +189,7 @@ export async function createStudent(input: CreateStudentInput) {
             schoolId,
             parentId: parentRecord.id,
             feeStatus: "PENDING",
+            totalFees: validated.totalFees,
             paidAmount: 0,
             pendingAmount: validated.totalFees,
             admissionDate: new Date(),
@@ -196,42 +197,16 @@ export async function createStudent(input: CreateStudentInput) {
           },
         })
 
-        // 6. Send Welcome Email (simulated/async in background)
-        if (typeof window === 'undefined') {
-          // Dynamic import to avoid edge runtime issues if this gets bundled
-          const nodemailer = await import("nodemailer");
-          const transporter = nodemailer.createTransport({
-            host: process.env.EMAIL_SMTP_SERVER,
-            port: parseInt(process.env.EMAIL_SMTP_PORT || "587"),
-            auth: {
-              user: process.env.EMAIL_SMTP_LOGIN,
-              pass: process.env.EMAIL_SMTP_PASSWORD,
-            },
-          });
-          
-          transporter.sendMail({
-            from: `"SchoolPay" <${process.env.EMAIL_SMTP_LOGIN}>`,
-            to: validated.parentEmail,
-            subject: "Welcome to SchoolPay! Your Login Instructions",
-            html: `
-              <h2>Welcome to SchoolPay</h2>
-              <p>Dear ${validated.parentName},</p>
-              <p>Your child <strong>${validated.name}</strong> has been enrolled successfully.</p>
-              <p><strong>Student ID:</strong> ${generatedStudentId}</p>
-              <br/>
-              <p>You can now log in to the Parent Portal using your email address and OTP.</p>
-            `
-          }).catch((err: any) => console.error("Email failed:", err));
-        }
-
         // Authoritative source of usage sync
         await tx.usageRecord.updateMany({
           where: { schoolId },
           data: { currentStudents: { increment: 1 } }
         })
 
-        return created
+        return { created, generatedStudentId }
       })
+
+      const student = txResult.created
 
       await recordAuditLog({
         action: "CREATE",
@@ -241,6 +216,42 @@ export async function createStudent(input: CreateStudentInput) {
         newValues: validated,
         description: `Registered student: ${student.name}`,
       })
+
+      // 6. Post-Transaction Decoupled Welcome Email Dispatch (P1-01)
+      // Execute SMTP network call without holding database row locks or transaction connection
+      if (typeof window === 'undefined') {
+        (async () => {
+          try {
+            const nodemailer = await import("nodemailer");
+            const transporter = nodemailer.createTransport({
+              host: process.env.EMAIL_SMTP_HOST,
+              port: parseInt(process.env.EMAIL_SMTP_PORT || "587"),
+              auth: {
+                user: process.env.EMAIL_SMTP_USER,
+                pass: process.env.EMAIL_SMTP_PASS,
+              },
+            });
+            
+            await transporter.sendMail({
+              from: `"SchoolPay" <${process.env.EMAIL_SMTP_USER}>`,
+              to: validated.parentEmail,
+              subject: "Welcome to SchoolPay! Your Login Instructions",
+              html: `
+                <h2>Welcome to SchoolPay</h2>
+                <p>Dear ${validated.parentName},</p>
+                <p>Your child <strong>${validated.name}</strong> has been enrolled successfully.</p>
+                <p><strong>Student ID:</strong> ${txResult.generatedStudentId}</p>
+                <br/>
+                <p>You can now log in to the Parent Portal using your email address and OTP.</p>
+              `
+            });
+            log.info({ studentId: student.id, parentEmail: validated.parentEmail }, "[Outbox] Welcome email sent successfully");
+          } catch (err: any) {
+            // Log to outbox/error monitor without rolling back committed student enrollment
+            log.error({ err, studentId: student.id, parentEmail: validated.parentEmail }, "[Outbox Non-Blocking Error] Failed to send welcome email");
+          }
+        })();
+      }
 
       return student
     },

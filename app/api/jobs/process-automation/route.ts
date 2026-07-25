@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { processAutomationRules } from "@/lib/automation/process-rules";
+import { verifyCronAuth } from "@/lib/utils/cron-auth";
 
 /**
  * Trigger endpoint for automated rules evaluation background task.
@@ -7,20 +8,10 @@ import { processAutomationRules } from "@/lib/automation/process-rules";
  */
 async function handleJobTrigger(request: Request) {
   try {
-    // 1. Cron secret authorization validation
-    const cronSecret = process.env.CRON_SECRET;
-    if (cronSecret) {
-      const authHeader = request.headers.get("authorization");
-      const searchParams = new URL(request.url).searchParams;
-      const querySecret = searchParams.get("secret");
+    // 1. Mandatory fail-closed CRON_SECRET authentication
+    const authError = verifyCronAuth(request);
+    if (authError) return authError;
 
-      const isAuthorized =
-        authHeader === `Bearer ${cronSecret}` || querySecret === cronSecret;
-
-      if (!isAuthorized) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-    }
 
     // 2. Execute the automation processor
     const metrics = await processAutomationRules();

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { redis } from "@/lib/redis"
 import nodemailer from "nodemailer"
+import crypto from "crypto"
 
 export async function POST(req: Request) {
   try {
@@ -27,7 +28,20 @@ export async function POST(req: Request) {
     })
 
     if (!parent) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 400 })
+      return NextResponse.json({ error: "Parent not found with this mobile number for the specified school code." }, { status: 404 })
+    }
+
+    // 1.1 Verify account is active
+    if (!parent.isActive) {
+      return NextResponse.json({ error: "Parent account is inactive. Please contact school administration." }, { status: 403 })
+    }
+
+    // 1.2 Verify linked students
+    const studentsCount = await prisma.student.count({
+      where: { parentId: parent.id, isActive: true }
+    })
+    if (studentsCount === 0) {
+      return NextResponse.json({ error: "No active students linked to this account." }, { status: 403 })
     }
 
     // 1.5 Rate Limiting
@@ -41,8 +55,8 @@ export async function POST(req: Request) {
       )
     }
 
-    // 2. Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    // 2. Generate cryptographically secure 6-digit OTP
+    const otp = crypto.randomInt(100000, 999999).toString()
 
     // 3. Store in Upstash Redis
     const key = `otp:${schoolCode}:${mobile}`

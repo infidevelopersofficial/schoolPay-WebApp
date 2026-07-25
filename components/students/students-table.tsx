@@ -56,7 +56,7 @@ export function StudentsTable({ data }: StudentsTableProps) {
         icon={Users}
         title="No students found"
         description="No students match your current filters. Try adjusting the search or add a new student."
-        addHref="/students/new"
+        addHref="/dashboard/students/new"
         addLabel="Add Student"
       />
     )
@@ -113,7 +113,7 @@ export function StudentsTable({ data }: StudentsTableProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                      <Link href={`/students/${student.id}`}>
+                      <Link href={`/dashboard/students/${student.id}`}>
                         <Eye className="mr-2 h-4 w-4" />
                         View
                       </Link>

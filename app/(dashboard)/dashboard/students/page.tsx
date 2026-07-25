@@ -8,6 +8,8 @@ import { DataTableSearch } from "@/components/ui/data-table/data-table-search"
 import { DataTablePagination } from "@/components/ui/data-table/data-table-pagination"
 import { DataTableFilter } from "@/components/ui/data-table/data-table-filter"
 import { getStudents } from "@/lib/dal/students"
+import { prisma } from "@/lib/prisma"
+import { getSchoolId } from "@/lib/tenant-context"
 import Link from "next/link"
 
 export const metadata = { title: "Students | SchoolPay" }
@@ -23,6 +25,17 @@ export default async function StudentsPage(props: {
   const sortBy = searchParams?.sort_by || ""
   const sortDir = searchParams?.sort_dir || ""
 
+  // Load real class names from DB for this tenant
+  const schoolId = await getSchoolId()
+  const classGroups = await prisma.student.groupBy({
+    by: ["class"],
+    where: { schoolId, isActive: true },
+    orderBy: { class: "asc" },
+  })
+  const classOptions = classGroups
+    .filter((g) => !!g.class)
+    .map((g) => ({ label: g.class, value: g.class }))
+
   return (
     <DataTableShell
       title="Students"
@@ -34,12 +47,7 @@ export default async function StudentsPage(props: {
           <DataTableFilter
             title="Class"
             filterKey="classFilter"
-            options={[
-              { label: "Grade 10A", value: "Grade 10A" },
-              { label: "Grade 10B", value: "Grade 10B" },
-              { label: "Grade 11A", value: "Grade 11A" },
-              { label: "Grade 12A", value: "Grade 12A" },
-            ]}
+            options={classOptions}
           />
           <DataTableFilter
             title="Fee Status"

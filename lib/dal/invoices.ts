@@ -7,9 +7,11 @@ import { getSchoolId } from "@/lib/tenant-context"
 import { logger } from "@/lib/logger"
 import { THRESHOLDS } from "@/lib/observability/performance"
 import { publishEvent } from "@/lib/events/emitter"
+import { generateCollisionProofId } from "@/lib/utils/id-generator"
 
 
 const log = logger.child({ domain: "invoices" })
+
 
 // ──────────────────────────────────────────────
 // Types & Schemas
@@ -66,7 +68,10 @@ export async function getInvoices(opts?: {
         }),
         prisma.invoice.count({ where }),
       ]).then(([invoices, total]) => ({
-        invoices,
+        invoices: invoices.map(inv => ({
+          ...inv,
+          status: (inv.status !== "PAID" && inv.status !== "CANCELLED" && new Date(inv.dueDate) < new Date()) ? "OVERDUE" as const : inv.status
+        })),
         total,
         page,
         limit,
@@ -88,6 +93,9 @@ export async function getInvoice(id: string) {
         include: { student: { select: { name: true, email: true, class: true } } },
       }).then((inv) => {
         if (inv && inv.schoolId !== schoolId) return null
+        if (inv && inv.status !== "PAID" && inv.status !== "CANCELLED" && new Date(inv.dueDate) < new Date()) {
+          inv.status = "OVERDUE";
+        }
         return inv
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
@@ -121,7 +129,7 @@ export async function createInvoice(input: CreateInvoiceInput) {
       })
       if (student?.schoolId !== schoolId) throw new Error("Student not found")
 
-      const invoiceNo = `INV-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`
+      const invoiceNo = generateCollisionProofId("INV")
 
       const invoice = await prisma.invoice.create({
         data: {

@@ -65,14 +65,28 @@ function StatsSkeleton() {
 }
 
 async function PaymentStatsFetcher() {
-  // In a real app, these stats would be aggregated via Prisma
-  // For now, we will fetch payments and calculate locally
-  const { payments } = await getPayments({ limit: 1000 })
-  
-  const totalReceived = payments.filter(p => p.status === "COMPLETED").reduce((acc, curr) => acc + curr.amount, 0)
-  const successfulCount = payments.filter(p => p.status === "COMPLETED").length
-  const pendingCount = payments.filter(p => p.status === "PENDING").length
-  const failedCount = payments.filter(p => p.status === "FAILED").length
+  const schoolId = await (await import("@/lib/tenant-context")).getSchoolId()
+
+  const [totalAgg, statusGroups] = await Promise.all([
+    (await import("@/lib/prisma")).prisma.payment.aggregate({
+      where: { schoolId, status: "COMPLETED" },
+      _sum: { amount: true },
+    }),
+    (await import("@/lib/prisma")).prisma.payment.groupBy({
+      by: ["status"],
+      where: { schoolId },
+      _count: { id: true },
+    }),
+  ])
+
+  const byStatus = Object.fromEntries(
+    statusGroups.map((g) => [g.status, g._count.id])
+  )
+
+  const totalReceived = totalAgg._sum.amount ?? 0
+  const successfulCount = byStatus["COMPLETED"] ?? 0
+  const pendingCount = byStatus["PENDING"] ?? 0
+  const failedCount = byStatus["FAILED"] ?? 0
 
   const paymentStats = [
     { label: "Total Received", value: `₹${totalReceived.toLocaleString()}`, icon: DollarSign, color: "bg-primary/10 text-primary" },

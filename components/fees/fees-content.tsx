@@ -27,18 +27,6 @@ interface FeeStructure {
   }[]
 }
 
-const dummyDiscounts = [
-  { id: "DIS001", name: "Sibling Discount", percentage: 10, description: "10% discount for second child onwards", applicableTo: "Tuition Fee" },
-  { id: "DIS002", name: "Merit Scholarship", percentage: 25, description: "25% discount for students with 90%+ marks", applicableTo: "Tuition Fee" },
-  { id: "DIS003", name: "Early Payment", percentage: 5, description: "5% discount for payment before due date", applicableTo: "All Fees" },
-  { id: "DIS004", name: "Staff Child", percentage: 50, description: "50% discount for staff children", applicableTo: "All Fees" },
-]
-
-const dummyPenalties = [
-  { id: "PEN001", name: "Late Payment", amount: 100, description: "₹100 penalty after 10 days of due date", applicableTo: "All Fees" },
-  { id: "PEN002", name: "Bounced Cheque", amount: 500, description: "₹500 penalty for bounced cheques", applicableTo: "All Fees" },
-  { id: "PEN003", name: "Overdue (30 days)", amount: 200, description: "Additional ₹200 after 30 days overdue", applicableTo: "All Fees" },
-]
 
 export function FeesContent({ feeStructures }: { feeStructures: FeeStructure[] }) {
   return (
@@ -140,45 +128,14 @@ export function FeesContent({ feeStructures }: { feeStructures: FeeStructure[] }
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder="Search discounts..." className="pl-10" />
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" disabled>
             <Plus className="h-4 w-4" />
             Add Discount
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {dummyDiscounts.map((discount) => (
-            <Card key={discount.id}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{discount.name}</CardTitle>
-                    <Badge className="mt-2 bg-green-100 text-green-700 hover:bg-green-100">
-                      {discount.percentage}% OFF
-                    </Badge>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600"><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <p className="text-sm text-muted-foreground">{discount.description}</p>
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Applicable to: </span>
-                  <span className="font-medium">{discount.applicableTo}</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="flex h-40 items-center justify-center rounded-md border border-dashed text-muted-foreground text-sm">
+          No discounts configured. Discount management coming soon.
         </div>
       </TabsContent>
 
@@ -188,45 +145,14 @@ export function FeesContent({ feeStructures }: { feeStructures: FeeStructure[] }
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder="Search penalties..." className="pl-10" />
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" disabled>
             <Plus className="h-4 w-4" />
             Add Penalty
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {dummyPenalties.map((penalty) => (
-            <Card key={penalty.id}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{penalty.name}</CardTitle>
-                    <Badge className="mt-2 bg-red-100 text-red-700 hover:bg-red-100">
-                      ₹{penalty.amount} Penalty
-                    </Badge>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600"><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <p className="text-sm text-muted-foreground">{penalty.description}</p>
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Applicable to: </span>
-                  <span className="font-medium">{penalty.applicableTo}</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="flex h-40 items-center justify-center rounded-md border border-dashed text-muted-foreground text-sm">
+          No penalties configured. Penalty management coming soon.
         </div>
       </TabsContent>
     </Tabs>

@@ -7,6 +7,8 @@ import { measureAsync, THRESHOLDS } from "@/lib/observability/performance"
 import { addBreadcrumb, capturePaymentError, setSentryPaymentCtx } from "@/lib/observability/sentry-helpers"
 import { auth } from "@/lib/auth"
 import { publishEvent } from "@/lib/events/emitter"
+import { generateCollisionProofId } from "@/lib/utils/id-generator"
+
 
 
 export const createPaymentSchema = z.object({
@@ -113,29 +115,59 @@ export async function createPayment(input: CreatePaymentInput) {
               date: validated.date ? new Date(validated.date) : new Date(),
               receiptNumber:
                 validated.receiptNumber ||
-                `RCP_${crypto.randomUUID().split("-")[0].toUpperCase()}`,
+                generateCollisionProofId("RCPT"),
               status: "COMPLETED",
               sessionId: validated.sessionId,
             },
           })
 
-          // Update student's paid/pending amounts using atomic increment to prevent
-          // "lost update" race conditions on concurrent requests.
-          const newPending = student.totalFees - (student.paidAmount + validated.amount)
-
-          await tx.student.update({
+          // Update student's paid/pending amounts using atomic increment/decrement
+          // to prevent "lost update" race conditions on concurrent requests.
+          const updatedStudent = await tx.student.update({
             where: { id: validated.studentId },
             data: {
               paidAmount: { increment: validated.amount },
-              pendingAmount: Math.max(0, newPending),
-              feeStatus:
-                newPending <= 0
-                  ? "PAID"
-                  : newPending > student.totalFees * 0.5
-                    ? "OVERDUE"
-                    : "PARTIAL",
+              pendingAmount: { decrement: validated.amount },
             },
           })
+
+          // Evaluate feeStatus based on calendar due dates rather than 50% balance ratio (P1-04)
+          let feeStatus: "PAID" | "OVERDUE" | "PARTIAL" | "PENDING" = "PENDING";
+          if (updatedStudent.pendingAmount <= 0) {
+            feeStatus = "PAID";
+          } else {
+            const now = new Date();
+            const [overdueInvoice, overdueMapping] = await Promise.all([
+              tx.invoice.findFirst({
+                where: {
+                  studentId: validated.studentId,
+                  status: { in: ["SENT", "OVERDUE", "DRAFT"] },
+                  dueDate: { lt: now }
+                },
+                select: { id: true }
+              }),
+              tx.studentFeeMapping.findFirst({
+                where: {
+                  studentId: validated.studentId,
+                  status: { in: ["PENDING", "PARTIAL", "OVERDUE"] },
+                  dueDate: { lt: now }
+                },
+                select: { id: true }
+              })
+            ]);
+            feeStatus = (overdueInvoice || overdueMapping) ? "OVERDUE" : "PARTIAL";
+          }
+
+          if (updatedStudent.feeStatus !== feeStatus || updatedStudent.pendingAmount < 0) {
+            await tx.student.update({
+              where: { id: validated.studentId },
+              data: {
+                feeStatus,
+                ...(updatedStudent.pendingAmount < 0 && { pendingAmount: 0 }),
+              },
+            })
+          }
+
 
           // Pass explicit userId/userEmail to avoid a second auth() call inside tx
           await recordAuditLog(
@@ -276,21 +308,47 @@ export async function refundPayment(paymentId: string) {
             data: { status: "REFUNDED" },
           })
 
-          const student = await tx.student.findUnique({ where: { id: payment.studentId } })
-          if (student) {
-            const newPending = student.pendingAmount + payment.amount
+          const updatedStudent = await tx.student.update({
+            where: { id: payment.studentId },
+            data: {
+              paidAmount: { decrement: payment.amount },
+              pendingAmount: { increment: payment.amount },
+            },
+          })
 
+          // Evaluate feeStatus based on calendar due dates rather than 50% balance ratio (P1-04)
+          let feeStatus: "PAID" | "OVERDUE" | "PARTIAL" | "PENDING" = "PENDING";
+          if (updatedStudent.pendingAmount <= 0) {
+            feeStatus = "PAID";
+          } else {
+            const now = new Date();
+            const [overdueInvoice, overdueMapping] = await Promise.all([
+              tx.invoice.findFirst({
+                where: {
+                  studentId: payment.studentId,
+                  status: { in: ["SENT", "OVERDUE", "DRAFT"] },
+                  dueDate: { lt: now }
+                },
+                select: { id: true }
+              }),
+              tx.studentFeeMapping.findFirst({
+                where: {
+                  studentId: payment.studentId,
+                  status: { in: ["PENDING", "PARTIAL", "OVERDUE"] },
+                  dueDate: { lt: now }
+                },
+                select: { id: true }
+              })
+            ]);
+            feeStatus = (overdueInvoice || overdueMapping) ? "OVERDUE" : "PARTIAL";
+          }
+
+          if (updatedStudent.feeStatus !== feeStatus || updatedStudent.paidAmount < 0) {
             await tx.student.update({
               where: { id: payment.studentId },
               data: {
-                paidAmount: { decrement: payment.amount },
-                pendingAmount: newPending,
-                feeStatus:
-                  newPending <= 0
-                    ? "PAID"
-                    : newPending > student.totalFees * 0.5
-                      ? "OVERDUE"
-                      : "PARTIAL",
+                feeStatus,
+                ...(updatedStudent.paidAmount < 0 && { paidAmount: 0 }),
               },
             })
           }
@@ -303,15 +361,16 @@ export async function refundPayment(paymentId: string) {
               schoolId,
               userId,
               userEmail: userEmail ?? undefined,
-              oldValues: { status: "COMPLETED", paidAmount: student?.paidAmount },
+              oldValues: { status: "COMPLETED", paidAmount: updatedStudent.paidAmount + payment.amount },
               newValues: {
                 status: "REFUNDED",
-                paidAmount: student ? student.paidAmount - payment.amount : 0,
+                paidAmount: Math.max(0, updatedStudent.paidAmount),
               },
               description: `Refunded ${payment.amount} for receipt ${payment.receiptNumber}`,
             },
             tx,
           )
+
 
           return updatedPayment
         })

@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache"
 import { createFeeStructureWithMappings, CreateFeeStructureInput } from "@/lib/dal/fee-structure"
 import { prisma } from "@/lib/prisma"
 import { getSchoolId } from "@/lib/tenant-context"
+import { generateCollisionProofId } from "@/lib/utils/id-generator"
+
 
 export async function createFeeStructureWizardAction(input: CreateFeeStructureInput) {
   try {
@@ -171,7 +173,7 @@ export async function generateInvoicesAction(structureId: string) {
           for (const [key, inv] of invoicesMap.entries()) {
             if (!existingSet.has(key)) {
               invoicesToCreate.push({
-                invoiceNo: `INV-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+                invoiceNo: generateCollisionProofId("INV"),
                 studentId: inv.studentId,
                 schoolId,
                 lineItems: inv.lineItems,

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal, Eye, Receipt, RefreshCcw } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { generateReceiptPdf } from "@/lib/utils/receipt"
 
 const statusColors = {
   COMPLETED: "bg-green-100 text-green-700",
@@ -92,7 +93,7 @@ export function PaymentsTable({ payments }: { payments: Payment[] }) {
                       <Eye className="mr-2 h-4 w-4" />
                       View Details
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => generateReceiptPdf(payment, payment.student)}>
                       <Receipt className="mr-2 h-4 w-4" />
                       Download Receipt
                     </DropdownMenuItem>

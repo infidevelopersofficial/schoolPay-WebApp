@@ -13,22 +13,34 @@ export function isValidTransition(current: SubscriptionStatus, next: Subscriptio
   return ALLOWED_TRANSITIONS[current].includes(next)
 }
 
-// Dummy transition function for compilation, logic should be implemented correctly if used elsewhere.
-export async function transitionSubscription(db: any, subId: string, schoolId: string, current: SubscriptionStatus, next: SubscriptionStatus, context: any) {
-    if (!isValidTransition(current, next)) {
-      throw new Error(`Invalid subscription transition from ${current} to ${next}`)
-    }
-    
-    await db.subscription.update({
-      where: { id: subId },
-      data: { status: next }
-    });
+/**
+ * Executes an atomic subscription state transition and logs a BillingEvent.
+ * Enforces valid transition paths defined in ALLOWED_TRANSITIONS.
+ */
+export async function transitionSubscription(
+  db: any,
+  subId: string,
+  schoolId: string,
+  current: SubscriptionStatus,
+  next: SubscriptionStatus,
+  context: { action: string; description?: string }
+) {
+  if (!isValidTransition(current, next)) {
+    throw new Error(`Invalid subscription transition from ${current} to ${next}`)
+  }
+  
+  await db.subscription.update({
+    where: { id: subId },
+    data: { status: next },
+  })
 
-    await db.billingEvent.create({
-      data: {
-        subscriptionId: subId,
-        action: context.action,
-        description: context.description || `Transitioned from ${current} to ${next}`,
-      }
-    });
+  await db.billingEvent.create({
+    data: {
+      subscriptionId: subId,
+      schoolId: schoolId,
+      action: context.action,
+      description: context.description || `Transitioned from ${current} to ${next}`,
+    },
+  })
 }
+

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hydrateTemplate } from "@/lib/communication/hydrator";
 import { publishEvent } from "@/lib/events/emitter";
+import { verifyCronAuth } from "@/lib/utils/cron-auth";
 
 /**
  * Worker endpoint for asynchronous bulk campaign emission.
@@ -17,20 +18,10 @@ export async function GET(request: Request) {
 
 async function handleJob(request: Request) {
   try {
-    // 1. Cron secret authorization guard
-    const cronSecret = process.env.CRON_SECRET;
-    if (cronSecret) {
-      const authHeader = request.headers.get("authorization");
-      const searchParams = new URL(request.url).searchParams;
-      const querySecret = searchParams.get("secret");
+    // 1. Mandatory fail-closed CRON_SECRET authentication
+    const authError = verifyCronAuth(request);
+    if (authError) return authError;
 
-      const isAuthorized =
-        authHeader === `Bearer ${cronSecret}` || querySecret === cronSecret;
-
-      if (!isAuthorized) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-    }
 
     const batchSize = 100;
     const now = new Date();

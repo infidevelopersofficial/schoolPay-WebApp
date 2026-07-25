@@ -1,9 +1,10 @@
 import { getTenantContext } from "@/lib/tenant-context";
+import { prisma } from "@/lib/prisma";
 import { SchoolDashboard } from "@/components/dashboards/school-dashboard";
 import { CoachingDashboard } from "@/components/dashboards/coaching-dashboard";
 import { TutorDashboard } from "@/components/dashboards/tutor-dashboard";
 import { ActivationChecklist } from "@/components/dashboards/activation-checklist";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -40,9 +41,9 @@ export default async function DashboardPage() {
         </Card>
       )}
 
-      {/* Post-Onboarding Checklist (Mocked condition for testing, ideally based on actual data presence) */}
+      {/* Post-Onboarding Checklist — shown until all setup tasks are done */}
       {!showSetupAlert && (
-        <ActivationChecklist isComplete={false} schoolId={schoolId} tenantType={tenantType} />
+        <ChecklistSection schoolId={schoolId} tenantType={tenantType} />
       )}
 
       {/* Tenant-specific Dashboard */}
@@ -55,4 +56,27 @@ export default async function DashboardPage() {
       )}
     </div>
   );
+}
+
+async function ChecklistSection({ schoolId, tenantType }: { schoolId: string; tenantType: string }) {
+  const [school, teacherCount, studentCount, feeCount, sessionCount] = await Promise.all([
+    prisma.school.findUnique({ where: { id: schoolId }, select: { logoUrl: true, razorpayOrderId: true } }),
+    prisma.teacher.count({ where: { schoolId } }),
+    prisma.student.count({ where: { schoolId } }),
+    prisma.fee.count({ where: { schoolId } }),
+    prisma.academicSession.count({ where: { schoolId } }),
+  ]);
+
+  // All 7 setup tasks complete → hide the checklist
+  const allDone =
+    sessionCount > 0 &&
+    !!school?.logoUrl &&
+    feeCount > 0 &&
+    teacherCount > 0 &&
+    studentCount > 0 &&
+    !!school?.razorpayOrderId;
+
+  if (allDone) return null;
+
+  return <ActivationChecklist isComplete={false} schoolId={schoolId} tenantType={tenantType} />;
 }

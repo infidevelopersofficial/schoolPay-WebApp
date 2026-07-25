@@ -108,6 +108,7 @@ export default function NewStudentPage() {
               <div className="space-y-2">
                 <Label htmlFor="admissionNumber">Admission Number</Label>
                 <Input id="admissionNumber" {...form.register("admissionNumber")} placeholder="Optional" />
+                {form.formState.errors.admissionNumber && <p className="text-sm text-red-500">{form.formState.errors.admissionNumber.message}</p>}
               </div>
             </div>
 

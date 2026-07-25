@@ -55,166 +55,161 @@ export async function markBulkAttendance(input: BulkAttendanceInput, userId: str
         throw new Error("Attendance for this date is locked. Contact an administrator to make changes.")
       }
 
-      // 2. Transactional Upsert & Metrics
-      await db.$transaction(async (tx) => {
-        let presentCount = 0;
-        let absentCount = 0;
-        let lateCount = 0;
+      // 2. Pre-fetch existing attendance records for the entire batch in 1 query ($O(1)$)
+      const studentIds = validated.records.map(r => r.studentId)
+      const existingRecords = await db.attendance.findMany({
+        where: {
+          studentId: { in: studentIds },
+          date: targetDate,
+          schoolId
+        }
+      })
+      const existingMap = new Map(existingRecords.map(r => [r.studentId, r]))
 
-        for (const record of validated.records) {
-          if (record.status === "PRESENT") presentCount++;
-          if (record.status === "ABSENT") absentCount++;
-          if (record.status === "LATE") lateCount++;
+      // Pre-fetch parent emails for notification alerts in 1 query ($O(1)$)
+      const students = await db.student.findMany({
+        where: { id: { in: studentIds } },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          userId: true,
+          parent: { select: { email: true, userId: true } }
+        }
+      })
+      const studentMap = new Map(students.map(s => [s.id, s]))
 
-          const existing = await tx.attendance.findUnique({
-            where: { studentId_date_schoolId: { studentId: record.studentId, date: targetDate, schoolId } }
-          });
+      let presentCount = 0;
+      let absentCount = 0;
+      let lateCount = 0;
 
-          await tx.attendance.upsert({
-            where: {
-              studentId_date_schoolId: {
+      const newRecordsToCreate: any[] = []
+      const recordsToUpdate: { id: string; status: AttendanceStatus; remarks?: string }[] = []
+      const auditLogsToCreate: any[] = []
+      const notificationsToCreate: any[] = []
+      const postTxEvents: { eventType: string; studentId: string; payload: any }[] = []
+      const lowAttendanceCheckIds: string[] = []
+
+      for (const record of validated.records) {
+        if (record.status === "PRESENT") presentCount++;
+        if (record.status === "ABSENT") absentCount++;
+        if (record.status === "LATE") lateCount++;
+
+        const existing = existingMap.get(record.studentId)
+        if (!existing) {
+          newRecordsToCreate.push({
+            studentId: record.studentId,
+            date: targetDate,
+            status: record.status,
+            remarks: record.remarks,
+            batchId: validated.batchId,
+            schoolId,
+            recordedBy: userId
+          })
+        } else if (existing.status !== record.status || existing.remarks !== record.remarks) {
+          recordsToUpdate.push({
+            id: existing.id,
+            status: record.status,
+            remarks: record.remarks
+          })
+          if (existing.status !== record.status) {
+            auditLogsToCreate.push({
+              userId,
+              action: "UPDATE",
+              entityType: "ATTENDANCE",
+              entityId: existing.id,
+              oldValues: { status: existing.status },
+              newValues: { status: record.status },
+              description: `Changed status from ${existing.status} to ${record.status}`,
+              schoolId
+            })
+            if (register?.isLocked) {
+              postTxEvents.push({
+                eventType: "ATTENDANCE_CORRECTED",
                 studentId: record.studentId,
-                date: targetDate,
-                schoolId,
-              },
-            },
-            create: {
-              studentId: record.studentId,
-              date: targetDate,
-              status: record.status,
-              remarks: record.remarks,
-              batchId: validated.batchId,
-              schoolId,
-              recordedBy: userId
-            },
-            update: {
-              status: record.status,
-              remarks: record.remarks,
-              recordedBy: userId
-            },
-          });
-
-          // Generate granular audit logs and events only if status changed
-          if (existing && existing.status !== record.status) {
-             await tx.auditLog.create({
-               data: {
-                 userId,
-                 action: "UPDATE",
-                 entityType: "ATTENDANCE",
-                 entityId: existing.id,
-                 oldValues: { status: existing.status },
-                 newValues: { status: record.status },
-                 description: `Changed status from ${existing.status} to ${record.status}`,
-                 schoolId
-               }
-             })
-
-             if (register?.isLocked) {
-                // Corrected after lock!
-                await publishEvent({
-                  tx,
-                  eventType: "ATTENDANCE_CORRECTED",
-                  entityType: "ATTENDANCE",
-                  entityId: existing.id,
-                  schoolId,
-                  payload: { studentId: record.studentId, date: validated.date, oldStatus: existing.status, newStatus: record.status }
-                })
-             }
-          }
-
-          // Generate Notification Events for Absences/Late
-          if (!existing || existing.status === "NOT_MARKED") {
-            if (record.status === "ABSENT") {
-              await publishEvent({ tx, eventType: "STUDENT_ABSENT", entityType: "ATTENDANCE", entityId: record.studentId, schoolId, payload: { date: validated.date, batchId: validated.batchId } })
-            } else if (record.status === "LATE") {
-              await publishEvent({ tx, eventType: "STUDENT_LATE", entityType: "ATTENDANCE", entityId: record.studentId, schoolId, payload: { date: validated.date, batchId: validated.batchId } })
-            }
-
-            // Emit ATTENDANCE_MARKED only for ABSENT or LATE
-            if (record.status === "ABSENT" || record.status === "LATE") {
-              try {
-                const student = await tx.student.findUnique({
-                  where: { id: record.studentId },
-                  include: { parent: true },
-                });
-                
-                let parentUserId = student?.parent?.userId || student?.userId || null;
-                let parentEmail = student?.parent?.email || student?.email;
-                if (!parentUserId && parentEmail) {
-                  const matchingUser = await tx.user.findUnique({
-                    where: { email: parentEmail },
-                  });
-                  parentUserId = matchingUser?.id || null;
-                }
-
-                if (parentEmail) {
-                  if (record.status === "ABSENT") {
-                    await tx.notification.create({
-                      data: {
-                        schoolId,
-                        studentId: record.studentId,
-                        type: "ABSENT_ALERT",
-                        sentTo: parentEmail,
-                        status: "SENT"
-                      }
-                    });
-                    if (process.env.NODE_ENV === "development") console.log(`[ABSENT_ALERT] Sent to ${parentEmail}`);
-                  }
-                  
-                  // Calculate total attendance
-                  const allRecords = await tx.attendance.findMany({
-                    where: { studentId: record.studentId, schoolId, status: { notIn: ["NOT_MARKED", "HOLIDAY"] } }
-                  });
-                  let presLate = 0;
-                  for (const r of allRecords) {
-                    if (r.status === "PRESENT" || r.status === "LATE") presLate++;
-                  }
-                  if (allRecords.length > 0) {
-                    const percentage = (presLate / allRecords.length) * 100;
-                    if (percentage < 75) {
-                      const warnKey = `warn:${record.studentId}`;
-                      const hasWarned = await redis?.get(warnKey);
-                      if (!hasWarned) {
-                        await tx.notification.create({
-                          data: {
-                            schoolId,
-                            studentId: record.studentId,
-                            type: "LOW_ATTENDANCE_WARNING",
-                            sentTo: parentEmail,
-                            status: "SENT"
-                          }
-                        });
-                        await redis?.set(warnKey, 1, { ex: 604800 });
-                        if (process.env.NODE_ENV === "development") console.log(`[LOW_ATTENDANCE_WARNING] Sent to ${parentEmail}`);
-                      }
-                    }
-                  }
-                }
-
-                if (parentUserId && student) {
-                  await publishEvent({
-                    tx,
-                    eventType: "ATTENDANCE_MARKED",
-                    entityType: "ATTENDANCE",
-                    entityId: record.studentId,
-                    schoolId,
-                    payload: {
-                      userId: parentUserId,
-                      schoolId,
-                      studentName: student.name,
-                      date: validated.date,
-                      status: record.status,
-                    },
-                  });
-                }
-              } catch (eventErr) {
-                console.error("[Non-blocking Error] Failed to publish ATTENDANCE_MARKED event:", eventErr);
-              }
+                payload: { studentId: record.studentId, date: validated.date, oldStatus: existing.status, newStatus: record.status, attendanceId: existing.id }
+              })
             }
           }
         }
 
-        // 3. Update Register Snapshot
+        // Check alerts if new or previously unmarked
+        if (!existing || existing.status === "NOT_MARKED") {
+          if (record.status === "ABSENT") {
+            postTxEvents.push({ eventType: "STUDENT_ABSENT", studentId: record.studentId, payload: { date: validated.date, batchId: validated.batchId } })
+          } else if (record.status === "LATE") {
+            postTxEvents.push({ eventType: "STUDENT_LATE", studentId: record.studentId, payload: { date: validated.date, batchId: validated.batchId } })
+          }
+
+          if (record.status === "ABSENT" || record.status === "LATE") {
+            const studentInfo = studentMap.get(record.studentId)
+            const parentEmail = studentInfo?.parent?.email || studentInfo?.email
+            const parentUserId = studentInfo?.parent?.userId || studentInfo?.userId || null
+
+            if (parentEmail) {
+              if (record.status === "ABSENT") {
+                notificationsToCreate.push({
+                  schoolId,
+                  studentId: record.studentId,
+                  type: "ABSENT_ALERT",
+                  sentTo: parentEmail,
+                  status: "SENT"
+                })
+              }
+              lowAttendanceCheckIds.push(record.studentId)
+            }
+
+            if (parentUserId && studentInfo) {
+              postTxEvents.push({
+                eventType: "ATTENDANCE_MARKED",
+                studentId: record.studentId,
+                payload: {
+                  userId: parentUserId,
+                  schoolId,
+                  studentName: studentInfo.name,
+                  date: validated.date,
+                  status: record.status
+                }
+              })
+            }
+          }
+        }
+      }
+
+      // 3. Execute Transactional Batch Writes ($O(1)$ query count inside lock)
+      await db.$transaction(async (tx) => {
+        if (newRecordsToCreate.length > 0) {
+          await tx.attendance.createMany({
+            data: newRecordsToCreate,
+            skipDuplicates: true
+          })
+        }
+
+        // Parallel updates for existing records whose status changed
+        if (recordsToUpdate.length > 0) {
+          await Promise.all(
+            recordsToUpdate.map(up =>
+              tx.attendance.update({
+                where: { id: up.id },
+                data: { status: up.status, remarks: up.remarks, recordedBy: userId }
+              })
+            )
+          )
+        }
+
+        if (auditLogsToCreate.length > 0) {
+          await tx.auditLog.createMany({
+            data: auditLogsToCreate
+          })
+        }
+
+        if (notificationsToCreate.length > 0) {
+          await tx.notification.createMany({
+            data: notificationsToCreate
+          })
+        }
+
+        // Update Register Snapshot
         await tx.attendanceRegister.upsert({
           where: { batchId_date_schoolId: { batchId: validated.batchId, date: targetDate, schoolId } },
           create: {
@@ -238,8 +233,53 @@ export async function markBulkAttendance(input: BulkAttendanceInput, userId: str
             submittedBy: userId,
             submittedAt: new Date()
           }
-        });
-      });
+        })
+      })
+
+      // 4. Post-Transaction Decoupled Operations (P1-02: Redis outside transactions)
+      // Execute events and cache warnings without holding database transaction locks
+      Promise.allSettled([
+        ...postTxEvents.map(ev =>
+          publishEvent({
+            tx: db as any,
+            eventType: ev.eventType,
+            entityType: ev.eventType === "ATTENDANCE_CORRECTED" ? "ATTENDANCE" : "ATTENDANCE",
+            entityId: ev.payload.attendanceId || ev.studentId,
+            schoolId,
+            payload: ev.payload
+          })
+        ),
+        (async () => {
+          if (lowAttendanceCheckIds.length === 0) return;
+          for (const sId of lowAttendanceCheckIds) {
+            try {
+              const allRecords = await db.attendance.findMany({
+                where: { studentId: sId, schoolId, status: { notIn: ["NOT_MARKED", "HOLIDAY"] } }
+              });
+              let presLate = 0;
+              for (const r of allRecords) {
+                if (r.status === "PRESENT" || r.status === "LATE") presLate++;
+              }
+              if (allRecords.length > 0 && (presLate / allRecords.length) * 100 < 75) {
+                const warnKey = `warn:${sId}`;
+                const hasWarned = await redis?.get(warnKey);
+                if (!hasWarned) {
+                  const sInfo = studentMap.get(sId);
+                  const pEmail = sInfo?.parent?.email || sInfo?.email;
+                  if (pEmail) {
+                    await db.notification.create({
+                      data: { schoolId, studentId: sId, type: "LOW_ATTENDANCE_WARNING", sentTo: pEmail, status: "SENT" }
+                    });
+                    await redis?.set(warnKey, 1, { ex: 604800 });
+                  }
+                }
+              }
+            } catch (err) {
+              log.error({ err, sId }, "[Non-blocking Error] Failed to process low attendance warning");
+            }
+          }
+        })()
+      ]).catch(err => log.error({ err }, "Error in post-transaction background attendance processing"))
 
       return { success: true, count: validated.records.length }
     },
