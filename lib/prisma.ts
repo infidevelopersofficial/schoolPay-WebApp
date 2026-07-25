@@ -31,20 +31,27 @@ import { THRESHOLDS } from "@/lib/observability/performance"
 
 // ─── Pool configuration ───────────────────────────────────────────────────────
 
-const POOL_CONFIG = {
-  connectionString: process.env.DATABASE_URL,
-  /** Hard cap on open connections. Prevents thundering-herd on DB restart. */
-  max: Number(process.env.DB_POOL_MAX ?? 10),
-  /**
-   * How long (ms) an idle connection is kept open before being destroyed.
-   * 30 s keeps the pool warm without leaking connections in low-traffic periods.
-   */
-  idleTimeoutMillis: Number(process.env.DB_IDLE_TIMEOUT_MS ?? 30_000),
-  /**
-   * How long (ms) to wait for an available connection before throwing.
-   * Without this, requests pile up silently during a DB outage.
-   */
-  connectionTimeoutMillis: Number(process.env.DB_CONN_TIMEOUT_MS ?? 5_000),
+function getPoolConfig() {
+  if (!process.env.DATABASE_URL) {
+    try {
+      require("dotenv").config()
+    } catch {}
+  }
+  return {
+    connectionString: process.env.DATABASE_URL,
+    /** Hard cap on open connections. Prevents thundering-herd on DB restart. */
+    max: Number(process.env.DB_POOL_MAX ?? 10),
+    /**
+     * How long (ms) an idle connection is kept open before being destroyed.
+     * 30 s keeps the pool warm without leaking connections in low-traffic periods.
+     */
+    idleTimeoutMillis: Number(process.env.DB_IDLE_TIMEOUT_MS ?? 30_000),
+    /**
+     * How long (ms) to wait for an available connection before throwing.
+     * Without this, requests pile up silently during a DB outage.
+     */
+    connectionTimeoutMillis: Number(process.env.DB_CONN_TIMEOUT_MS ?? 5_000),
+  }
 }
 
 // ─── Singleton ────────────────────────────────────────────────────────────────
@@ -55,7 +62,7 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createPrismaClient(): PrismaClient {
-  const pool = new Pool(POOL_CONFIG)
+  const pool = new Pool(getPoolConfig())
 
   // Surface pg pool-level errors so they don't become unhandled rejections.
   pool.on("error", (err) => {
