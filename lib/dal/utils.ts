@@ -98,7 +98,7 @@ export async function withDAL<T>(
     async () => {
       try {
         return await fn()
-      } catch (err) {
+      } catch (err: any) {
         // ── Classify the error ───────────────────────────────────────────────
         let userMessage = "An unexpected error occurred. Please try again."
         let prismaCode: string | undefined

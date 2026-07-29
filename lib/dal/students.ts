@@ -14,17 +14,77 @@ const log = logger.child({ domain: "students" })
 // Validation Schemas
 // ──────────────────────────────────────────────
 
+function parseDateToISO(val: string): string | null {
+  const trimmed = val.trim()
+  const ddmmyyyyRegex = /^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/
+  const match = trimmed.match(ddmmyyyyRegex)
+  if (match) {
+    const day = parseInt(match[1], 10)
+    const month = parseInt(match[2], 10) - 1
+    const year = parseInt(match[3], 10)
+    const date = new Date(Date.UTC(year, month, day))
+    if (date.getUTCFullYear() === year && date.getUTCMonth() === month && date.getUTCDate() === day) {
+      return date.toISOString().split("T")[0]
+    }
+  }
+  const date = new Date(trimmed)
+  if (!isNaN(date.getTime())) {
+    return date.toISOString().split("T")[0]
+  }
+  return null
+}
+
 export const createStudentSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  dateOfBirth: z.string().min(1, "Date of Birth is required"),
-  class: z.string().min(1, "Class is required"),
-  section: z.string().optional(),
-  admissionNumber: z.string().optional().transform(v => v === "" ? undefined : v),
-  parentName: z.string().min(1, "Parent Name is required"),
-  parentEmail: z.string().email("Valid email required"),
-  parentMobile: z.string().regex(/^[0-9]{10}$/, "Please enter a valid 10-digit mobile number"),
-  sessionId: z.string().optional().transform(v => v === "" ? undefined : v),
-  totalFees: z.coerce.number().default(0),
+  name: z.string().trim().min(1, "Name is required"),
+  dateOfBirth: z.string().trim().min(1, "Date of Birth is required").superRefine((val, ctx) => {
+    const iso = parseDateToISO(val)
+    if (!iso) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Date of Birth must be in YYYY-MM-DD or DD/MM/YYYY format.",
+      })
+      return
+    }
+    const date = new Date(iso)
+    const now = new Date()
+    if (date > now) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Date of Birth cannot be in the future.",
+      })
+      return
+    }
+    let age = now.getFullYear() - date.getUTCFullYear()
+    const monthDiff = now.getMonth() - date.getUTCMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < date.getUTCDate())) {
+      age--
+    }
+    if (age < 3 || age > 25) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Student age must be realistic (between 3 and 25 years old).",
+      })
+      return
+    }
+  }).transform(val => {
+    const iso = parseDateToISO(val)
+    return iso || val
+  }),
+  class: z.string().trim().min(1, "Class is required"),
+  section: z.string().trim().optional(),
+  admissionNumber: z.string().trim().optional().transform(v => v === "" ? undefined : v),
+  parentName: z.string().trim().min(1, "Parent Name is required"),
+  parentEmail: z.string().trim().email("Valid email required"),
+  parentMobile: z.string()
+    .min(1, "Parent Mobile is required")
+    .transform(val => val.replace(/[\s\-\(\)\.]/g, ""))
+    .refine(val => /^[0-9]{10}$/.test(val), {
+      message: "Please enter a valid 10-digit mobile number",
+    }),
+  sessionId: z.string().trim().optional().transform(v => v === "" ? undefined : v),
+  totalFees: z.coerce.number({ message: "Total Fees must be a valid number" })
+    .min(0, "Total Fees must be a non-negative number (>= 0)")
+    .default(0),
 })
 
 export type CreateStudentInput = z.infer<typeof createStudentSchema>
