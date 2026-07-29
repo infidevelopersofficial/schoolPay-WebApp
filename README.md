@@ -9,6 +9,8 @@
 - [Overview](#overview)
 - [Key Concepts](#key-concepts)
 - [Core Modules](#core-modules)
+- [Module Status Matrix](#module-status-matrix)
+- [Portals](#portals)
 - [Architecture](#architecture)
 - [Security Model](#security-model)
 - [Tech Stack](#tech-stack)
@@ -51,21 +53,69 @@ Every tenant in the system has a `TenantType` stored at registration. This singl
 
 All data access goes through a tenant context established at the start of each request. No query can touch another tenant's data — this is enforced at the PostgreSQL engine level via Row-Level Security, not just at the application layer. See [Security Model](#security-model) for details.
 
-### Parent Portal
-
-Parents and guardians authenticate through a dedicated, isolated interface at `/(parent-portal)/`. Authentication is handled via **OTP (One-Time Password) sent to a registered mobile number**, separate from the staff/admin session flow. Parents can only access their own child's fee history, outstanding dues, and payment receipts. The parent portal shares no session context with the admin dashboard.
-
 ---
 
 ## Core Modules
 
-- **Student Management**: Enrollment, academic session linkage, and profile management.
-- **Fee Structure & Collection**: Term-based fee schedules, Razorpay integration (with webhook fallbacks & security hardening), automated PDF receipt generation (`jsPDF`), and overdue tracking.
-- **Financial Reports**: Date-range filtered daily settlement reports, outstanding fees, and complete collection exports (CSV/PDF).
-- **Automated Cron Jobs**: Scheduled background workers (via Vercel Cron) for daily fee reminders and attendance digests.
-- **Exams & Gradebook**: Phase 6B implementation with explicit academic year linkage, dynamic grading scales, and report cards.
-- **Attendance**: Phase 6A attendance tracking supporting daily registers, leave management, and reporting.
-- **Parent Portal**: Dedicated OTP-authenticated mobile-first PWA for parents to view fees, download receipts, and check attendance/grades. Uses MSG91 SMS gateway for secure login.
+- **Student Management**: Enrollment, academic session linkage, profile management, bulk CSV import, portal access provisioning.
+- **Teacher Management**: Profile management, multi-subject assignment, class teacher designation.
+- **Parent Management**: Contact management, student relationship linking.
+- **Class & Subject Management**: Section creation, capacity management, subject registry with codes.
+- **Fee Structure & Collection**: Multi-step fee wizard, class-based fee mapping, discount rules, invoice generation, Razorpay integration (with webhook security hardening), automated PDF receipt generation (`jsPDF`), and overdue tracking.
+- **Payment Recording**: Cash/UPI/Card/Bank Transfer/Cheque/EMI modes, receipt numbers, GST-compliant invoicing.
+- **Financial Reports**: Date-range filtered daily settlement reports, outstanding fees, attendance summaries, and complete collection exports (CSV/PDF).
+- **Automated Cron Jobs**: Scheduled background workers (via Vercel Cron) for daily fee reminders, attendance digests, and recurring expense generation.
+- **Exams & Gradebook**: Exam groups with academic session linkage, dynamic grading schemes with grade bands, bulk result entry, report card PDF generation (single + bulk ZIP).
+- **Attendance**: Daily registers with batch/class support, register locking, student attendance statistics.
+- **Communications**: Campaign builder with audience filtering, survey system with analytics, announcements.
+- **Lead Management**: For coaching centers — lead tracking, status pipeline, follow-up scheduling, student conversion.
+- **Expense Tracking**: Category-based expenses, recurring expense support, receipt URLs.
+- **Billing & Subscriptions**: Plan management, Razorpay subscription integration, usage tracking, grace period handling.
+
+---
+
+## Module Status Matrix
+
+> **Last verified**: July 2026
+
+| Module | Create | Read/List | View Detail | Edit/Update | Delete | Import | Export |
+|--------|--------|-----------|-------------|-------------|--------|--------|--------|
+| **Students** | ✅ | ✅ | ✅ `[id]` page | ❌ No UI | ✅ | ✅ CSV | ❌ |
+| **Teachers** | ✅ | ✅ | ❌ | ❌ No UI | ✅ | ❌ | ❌ |
+| **Parents** | ✅ | ✅ | ❌ | ❌ No UI | ✅ | ❌ | ❌ |
+| **Classes** | ✅ | ✅ | ❌ | ❌ No UI | ✅ | ❌ | ❌ |
+| **Subjects** | ✅ | ✅ | ❌ | ❌ No UI | ❌ | ❌ | ❌ |
+| **Lessons** | ✅ | ✅ | ❌ | ❌ No UI | ❌ | ❌ | ❌ |
+| **Exams** | ✅ | ✅ | ✅ `[id]` page | ❌ No UI | ❌ | ❌ | ❌ |
+| **Results** | ✅ Bulk | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Attendance** | ✅ Bulk | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Fees** | ✅ Wizard | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Payments** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Events** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Messages** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Announcements** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Expenses** | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **Leads** | ✅ | ✅ | ❌ | ✅ Status | ❌ | ❌ | ❌ |
+| **Surveys** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **Reports** | N/A | ✅ | N/A | N/A | N/A | N/A | ✅ CSV/PDF |
+
+> **Key gaps**: Edit/Update UI forms do not exist for any core module (will be implemented as dedicated `/[entity]/[id]/edit` pages). Delete actions are missing for several modules (will use soft-delete `isActive = false`). The DAL layer has `updateStudent()`, `updateTeacher()`, etc. but no frontend form calls them. Detail/View pages only exist for Students and Exams.
+
+---
+
+## Portals
+
+### Admin Dashboard (`/(dashboard)/`)
+The primary interface for school administrators and teachers. Contains all modules listed above.
+
+### Parent Portal (`/(parent-portal)/`)
+Parents authenticate via **OTP sent to a registered mobile number** (MSG91 SMS gateway), separate from the staff/admin session flow. Parents can view their child's fee history, outstanding dues, payment receipts, attendance, results, and announcements.
+
+### Student Portal (`/(student-portal)/`)
+Students with portal access enabled can view their own dashboard, fees, payments, attendance, results, announcements, and profile.
+
+### Super Admin (`/super-admin/`)
+Platform-level administration for managing tenants and users across the entire SchoolPay system.
 
 ---
 
@@ -73,24 +123,24 @@ Parents and guardians authenticate through a dedicated, isolated interface at `/
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Next.js 15 (App Router)                  │
-│                                                             │
-│  ┌──────────────┐  ┌─────────────────┐  ┌───────────────┐  │
-│  │   Edge       │  │  Server         │  │  Server       │  │
-│  │   Middleware │  │  Components     │  │  Actions      │  │
-│  │  (Route      │  │  (via DAL /     │  │  (withTenant  │  │
-│  │   Guards)    │  │   withTenant    │  │   Auth RBAC)  │  │
-│  │              │  │   Read)         │  │               │  │
-│  └──────┬───────┘  └────────┬────────┘  └──────┬────────┘  │
-│         │                   │                   │           │
-└─────────┼───────────────────┼───────────────────┼───────────┘
+│                    Next.js 16 (App Router)                   │
+│                                                              │
+│  ┌──────────────┐  ┌─────────────────┐  ┌───────────────┐   │
+│  │   Edge       │  │  Server         │  │  Server       │   │
+│  │   Middleware │  │  Components     │  │  Actions      │   │
+│  │  (Route      │  │  (via DAL /     │  │  (withTenant  │   │
+│  │   Guards)    │  │   withTenant    │  │   Auth RBAC)  │   │
+│  │              │  │   Read)         │  │               │   │
+│  └──────┬───────┘  └────────┬────────┘  └──────┬────────┘   │
+│         │                   │                   │            │
+└─────────┼───────────────────┼───────────────────┼────────────┘
           │                   │                   │
           ▼                   ▼                   ▼
 ┌─────────────────────────────────────────────────────────────┐
-│              PostgreSQL (via Prisma ORM)                    │
-│                                                             │
-│   Native Row-Level Security policies enforce tenant         │
-│   isolation at the database engine — not app layer          │
+│              PostgreSQL (via Prisma 7 ORM)                   │
+│                                                              │
+│   Native Row-Level Security policies enforce tenant          │
+│   isolation at the database engine — not app layer           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -144,19 +194,23 @@ Unauthenticated or unauthorised requests are redirected at the network edge — 
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16 (App Router) |
+| Runtime | React 19 |
 | Database | PostgreSQL with Native Row-Level Security |
-| ORM | Prisma with `$extends` transaction wrapper |
-| Authentication | Auth.js (NextAuth v5) — JWT session strategy |
+| ORM | Prisma 7 with `@prisma/adapter-pg` |
+| Authentication | Auth.js (NextAuth v5 beta) — JWT session strategy |
 | Styling | Tailwind CSS v4 + shadcn/ui |
-| Charts | Recharts |
+| Charts | Recharts 3 |
 | Icons | Lucide React |
-| Language | TypeScript |
-| Utilities | `clsx`, `tailwind-merge` |
+| Language | TypeScript 5 (strict mode) |
+| Forms | React Hook Form 7 + Zod 4 validation |
+| Rich Text | TipTap 3 |
 | Payments | Razorpay (Security Hardened Webhooks) |
-| PDF Generation | jsPDF & pdf-lib |
+| PDF Generation | jsPDF + jspdf-autotable |
+| CSV Parsing | PapaParse |
 | Rate Limiting | Upstash Redis |
-| Observability | Sentry |
+| Observability | Sentry 10 |
+| SMS | MSG91 (OTP for parent portal) |
 | Deployment | Vercel (Edge Runtime + Serverless Functions) |
 
 > **Note on Tailwind CSS v4:** This project uses Tailwind v4, which introduces a CSS-first configuration model. There is no `tailwind.config.js` — configuration is defined directly in `globals.css` using `@theme`. If you are migrating from v3, refer to the [Tailwind v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide) before making style changes.
@@ -167,36 +221,94 @@ Unauthenticated or unauthorised requests are redirected at the network edge — 
 
 ```
 ├── app/
-│   ├── (dashboard)/              # Admin & Teacher multi-tenant dashboard
-│   │   ├── layout.tsx            # Tenant-aware shell (loads tenant config)
-│   │   ├── students/
-│   │   ├── fees/
-│   │   ├── attendance/
-│   │   └── settings/
+│   ├── (auth)/                   # Login, registration pages
+│   ├── (dashboard)/dashboard/    # Admin & Teacher multi-tenant dashboard
+│   │   ├── layout.tsx            # Tenant-aware shell (sidebar + header)
+│   │   ├── students/             # CRUD + import + [id] detail
+│   │   ├── teachers/             # Create + list + delete
+│   │   ├── parents/              # Create + list + delete
+│   │   ├── classes/              # Create + list + delete
+│   │   ├── subjects/             # Create + list
+│   │   ├── fees/                 # Fee wizard + collection + invoices
+│   │   ├── payments/             # Record + list
+│   │   ├── attendance/           # Bulk marking + register
+│   │   ├── exams/                # Schedule + [id] detail
+│   │   ├── results/              # Bulk entry + grading
+│   │   ├── lessons/              # Create + list
+│   │   ├── events/               # Create + list
+│   │   ├── announcements/        # Create + list
+│   │   ├── messages/             # Compose + inbox
+│   │   ├── communications/       # Campaigns + surveys
+│   │   ├── leads/                # Lead pipeline (coaching)
+│   │   ├── batches/              # Batch management
+│   │   ├── test-series/          # Test series (coaching)
+│   │   ├── reports/              # Financial + attendance reports (CSV/PDF)
+│   │   ├── analytics/            # Collections + finance dashboards
+│   │   ├── finance/expenses/     # Expense tracking
+│   │   ├── settings/             # School settings + notifications + billing
+│   │   ├── profile/              # User profile
+│   │   ├── admin/                # Admin tools
+│   │   └── onboarding/           # Setup wizard
 │   ├── (parent-portal)/          # Isolated Parent/Guardian interface (OTP auth)
-│   │   ├── layout.tsx
-│   │   ├── login/
-│   │   └── dashboard/
+│   │   └── parent/               # Dashboard, fees, attendance, results, surveys
+│   ├── (student-portal)/         # Student self-service portal
+│   │   └── student/              # Dashboard, fees, attendance, results, profile
+│   ├── super-admin/              # Platform-level tenant management
+│   ├── select-school/            # Multi-school user school selector
+│   ├── (marketing)/              # Public marketing pages
 │   └── api/
-│       ├── webhooks/             # Payment gateway webhooks (Razorpay)
-│       └── cron/                 # Scheduled jobs (fee reminders, reports)
+│       ├── webhooks/razorpay/    # Payment gateway webhooks
+│       ├── cron/                 # Scheduled jobs (fee-reminders, attendance-digest, expenses)
+│       ├── payments/             # Payment API routes
+│       ├── receipts/             # Receipt generation
+│       └── billing/              # Subscription billing
 │
 ├── components/                   # Reusable UI widgets and layout components
+│   ├── forms/                    # Add/Create forms for all modules
+│   ├── students/                 # Students table + bulk import
+│   ├── teachers/                 # Teachers table
+│   ├── parents/                  # Parents table
+│   ├── classes/                  # Classes table
+│   ├── fees/                     # Fee wizard + fee content
+│   ├── payments/                 # Payments table + Razorpay checkout
+│   ├── reports/                  # Report generator (CSV/PDF)
+│   ├── results/                  # Report card PDF generator
+│   ├── attendance/               # Attendance components
+│   ├── communications/           # Campaign + survey components
+│   ├── billing/                  # Subscription + grace period
+│   ├── layout/                   # Sidebar + header
+│   └── ui/                       # shadcn/ui primitives + data-table
 │
 ├── lib/
-│   ├── dal/
-│   │   └── core.ts               # withTenantRead — AsyncLocalStorage DAL wrapper
+│   ├── dal/                      # Data Access Layer (34 files)
+│   │   ├── core.ts               # withTenantRead — AsyncLocalStorage DAL wrapper
+│   │   ├── students.ts           # CRUD + search + portal access
+│   │   ├── teachers.ts           # CRUD + subject/class assignments
+│   │   ├── payments.ts           # Payment recording + receipt generation
+│   │   ├── attendance.ts         # Bulk marking + register locking + stats
+│   │   ├── invoices.ts           # Invoice CRUD + penalties
+│   │   ├── exams.ts              # Exam groups + scheduling
+│   │   ├── results.ts            # Bulk upsert + grading
+│   │   └── ...                   # 26 more DAL modules
 │   ├── tenant-config.ts          # TenantType feature flags & UI terminology maps
 │   ├── tenant-auth.ts            # withTenantAuth — Server Action RBAC + RLS init
+│   ├── tenant-context.ts         # Tenant context utilities (getSchoolId, etc.)
 │   ├── prisma.ts                 # Prisma client with $extends RLS transaction wrapper
-│   └── auth.ts                   # Auth.js v5 configuration
+│   ├── auth.ts                   # Auth.js v5 configuration
+│   ├── features.ts               # Feature flag definitions
+│   ├── permissions.ts            # RBAC permission definitions
+│   └── validations/              # Zod schemas for form validation
 │
 ├── prisma/
-│   ├── schema.prisma             # Schema with Indian market financial extensions (GST)
+│   ├── schema.prisma             # 1784-line schema (55+ models, Indian market financial extensions)
 │   ├── migrations/               # SQL migrations including Native RLS policy definitions
-│   └── seed.ts                   # Database seeder (runs as BYPASSRLS superuser role)
+│   ├── seed.ts                   # Database seeder (runs as BYPASSRLS superuser role)
+│   └── seed-billing.ts           # Billing plan seeder
 │
-└── middleware.ts                 # Edge Runtime route guards (auth + feature flags)
+├── types/                        # Shared TypeScript type definitions
+├── hooks/                        # Custom React hooks
+├── styles/                       # Global styles
+└── middleware.ts                  # Edge Runtime route guards (auth + feature flags)
 ```
 
 ---
@@ -207,6 +319,7 @@ Unauthenticated or unauthorised requests are redirected at the network edge — 
 
 - Node.js 20+
 - PostgreSQL 15+ (with RLS support — standard in all hosted providers)
+- Docker (optional, for local PostgreSQL via `docker-compose.yml`)
 - A Vercel account (for deployment) or any Node.js-compatible host
 
 ### 1. Environment Setup
@@ -253,18 +366,24 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-**Default seed credentials:**
-
-| Field | Value |
-|---|---|
-| Email | `admin@school.com` |
-| Password | `admin123` |
-
-> ⚠️ **Change these immediately after first login.** Never deploy to a staging or production environment without rotating the seed credentials. The seed password is publicly known.
+> ⚠️ **Default seed credentials are in `prisma/seed.ts`.** Change them immediately after first login. Never deploy to a staging or production environment without rotating the seed credentials.
 
 ---
 
 ## Local Development Notes
+
+### Docker-based Local PostgreSQL
+
+The project includes a `docker-compose.yml` for local development:
+
+```bash
+npm run db:start     # Start PostgreSQL container
+npm run db:deploy    # Apply migrations
+npm run db:seed      # Seed default data
+npm run db:studio    # Open Prisma Studio GUI
+npm run db:stop      # Stop container (data persists)
+npm run db:reset     # ⚠️ Destructive — reset all data
+```
 
 ### RLS with PgBouncer Locally
 
@@ -289,19 +408,21 @@ The project is optimised for Vercel's infrastructure.
 
 ### Build Configuration
 
-`package.json` runs migrations automatically before the Next.js build:
+`package.json` build script:
 
 ```json
 {
   "scripts": {
-    "build": "prisma generate && prisma migrate deploy && next build"
+    "build": "prisma generate && next build"
   }
 }
 ```
 
+> **Note:** The build script generates the Prisma client but does **not** run migrations. Run `prisma migrate deploy` separately before deployment or add it to your CI/CD pipeline.
+
 ### Required Environment Variables
 
-Add all three to your Vercel project settings under **Settings → Environment Variables**:
+Add all to your Vercel project settings under **Settings → Environment Variables**:
 
 | Variable | Description |
 |---|---|
@@ -311,6 +432,8 @@ Add all three to your Vercel project settings under **Settings → Environment V
 | `MSG91_API_KEY` | MSG91 Authentication key for SMS OTP delivery |
 | `MSG91_TEMPLATE_ID` | Approved DLT Template ID for OTPs |
 | `CRON_SECRET` | Secure string to authenticate Vercel Cron endpoints |
+| `RAZORPAY_KEY_ID` | Razorpay API key (for payment gateway) |
+| `RAZORPAY_KEY_SECRET` | Razorpay API secret |
 
 > `AUTH_URL` does **not** need to be set on Vercel — Auth.js v5 automatically infers it from `VERCEL_URL` on Vercel deployments.
 
@@ -356,7 +479,7 @@ export async function POST(req: Request) {
 
 ### GST & Financial Compliance
 
-The Prisma schema includes Indian market financial extensions: HSN codes, GST rate slabs, and invoice serial number sequences. These are defined in `schema.prisma` and seeded with standard education-sector GST rates. Consult `prisma/seed.ts` for the default GST configuration before modifying rates.
+The Prisma schema includes Indian market financial extensions: HSN codes, GST rate slabs (CGST/SGST/IGST), and invoice serial number sequences. These are defined in `schema.prisma` and seeded with standard education-sector GST rates. Consult `prisma/seed.ts` for the default GST configuration before modifying rates.
 
 ---
 
@@ -371,14 +494,6 @@ The Prisma schema includes Indian market financial extensions: HSN codes, GST ra
 
 ---
 
-*SchoolPay is part of an ongoing project. For architecture questions or deployment support, refer to the internal walkthroughs or open a discussion in the repository.*
+*SchoolPay is an active project. For architecture questions or deployment support, refer to the internal walkthroughs or open a discussion in the repository.*
 
-superadmin@school.com   → SUPER_ADMIN (superadmin123)
-admin@school.com        → ADMIN
-student1@school.com     → STUDENT (student123)
-student2@school.com     → STUDENT (student123)
-student3@school.com     → STUDENT (student123)
-teacher1@school.com     → TEACHER (teacher123)
-teacher2@school.com     → TEACHER (teacher123)
-parent1@school.com      → PARENT (parent123)
-parent2@school.com      → PARENT (parent123)
+*Last updated: July 2026*

@@ -1,103 +1,117 @@
-# Copy-Paste Commands - PostgreSQL + Prisma Setup
+# SchoolPay — Developer Commands Reference
 
-## Start PostgreSQL (One Time)
+> All commands assume you're in the project root directory.
 
-```bash
-cd /home/somesh/Codework/SchoolPay/school-fees-management
-docker-compose up -d
-```
+---
 
-**Expected:** Container starts and becomes healthy in ~10 seconds
-
-## Start Development (Daily)
+## Daily Development
 
 ```bash
-# Terminal 1: Database (if not already running)
-docker-compose up -d
+# Start Docker PostgreSQL (if using local DB)
+npm run db:start
 
-# Terminal 2: Dev Server
+# Start the dev server
 npm run dev
+# → http://localhost:3000
 ```
 
-**Expected:** 
-- `✓ Ready in ~1.5s`
-- Server on http://localhost:3000
-- No "Can't reach database" errors
-
-## Verify Setup Works
+## Database Commands
 
 ```bash
-# Check database is healthy
-docker-compose ps
+# Start/Stop local PostgreSQL (Docker)
+npm run db:start          # docker compose up -d
+npm run db:stop           # docker compose down
 
-# Check Prisma can connect
-curl http://localhost:3000/api/students
-# Expected: {"error":"Unauthorized..."} (401 is fine, means DB works)
+# Migrations
+npm run db:deploy         # Apply all migrations (prisma migrate deploy)
+npm run db:migrate        # Create new migration (prisma migrate dev)
+
+# Seeding
+npm run db:seed           # Seed default school + admin user
+
+# GUI
+npm run db:studio         # Open Prisma Studio (http://localhost:5555)
+
+# Full setup (start → wait → migrate → seed)
+npm run db:setup
+
+# ⚠️ Destructive: Reset everything
+npm run db:reset          # prisma migrate reset --force
 ```
 
-## View Database Data
+## Build & Production
 
 ```bash
-# Open Prisma Studio (GUI)
-npx prisma studio
-```
-
-## Stop Everything
-
-```bash
-# Stop database (data is persistent, won't be deleted)
-docker-compose down
-
-# Stop dev server
-Ctrl+C in terminal
-```
-
-## Production Deployment
-
-```bash
-# Build for production
+# Production build (generates Prisma client + builds Next.js)
 npm run build
 
 # Start production server
 npm start
+
+# Lint check
+npm run lint
 ```
 
-**Important:** Update DATABASE_URL to your production PostgreSQL before running.
-
-## Emergency Reset (if something breaks)
+## Prisma Commands
 
 ```bash
-# WARNING: This deletes all data!
-docker-compose down -v
-docker-compose up -d
-sleep 10
-npx prisma db push
-npm run dev
+# Generate Prisma Client (after schema changes)
+npx prisma generate
+
+# Create a new migration
+npx prisma migrate dev --name <migration_name>
+
+# Apply migrations to production
+npx prisma migrate deploy
+
+# Validate schema
+npx prisma validate
+
+# Format schema file
+npx prisma format
+
+# Open database GUI
+npx prisma studio
 ```
 
-## Quick Troubleshooting
+## Troubleshooting
 
 **"Can't reach database server"**
 ```bash
-docker-compose ps
-# If not running: docker-compose up -d
+# Check if Docker container is running
+docker compose ps
+# If not running:
+npm run db:start
+# Wait ~10 seconds for PostgreSQL to initialize
 ```
 
-**"Port 6543 already in use"**
+**"Port 6543 already in use" (Windows)**
+```powershell
+netstat -ano | findstr :6543
+taskkill /PID <PID> /F
+npm run db:start
+```
+
+**"Port 6543 already in use" (Linux/Mac)**
 ```bash
 lsof -i :6543
 kill -9 <PID>
-docker-compose up -d
+npm run db:start
 ```
 
-**"Connection refused"**
+**Stale build cache causing ghost errors**
+```powershell
+# Delete .next and restart on Windows PowerShell:
+Remove-Item -Recurse -Force .next
+npm run dev
+```
+
+**Prisma Client out of sync with schema**
 ```bash
-# Wait 10-15 seconds after docker-compose up -d
-sleep 15
-docker-compose ps
-# Should show "Up (healthy)"
+npx prisma generate
+npm run dev
 ```
 
 ---
 
-**That's it! Your database is ready. Start building!**
+*Last updated: July 2026*
