@@ -12,6 +12,7 @@ import { MoreHorizontal, Eye, Edit, GraduationCap } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { DeleteConfirm } from "@/components/ui/delete-confirm"
 import { TableEmptyState } from "@/components/ui/table-empty-state"
+import Link from "next/link"
 
 const statusColors = {
   active: "bg-green-100 text-green-700",
@@ -110,10 +111,12 @@ export function TeachersTable({ data }: TeachersTableProps) {
                       <Eye className="mr-2 h-4 w-4" />
                       View
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit
-                    </DropdownMenuItem>
+                    <Link href={`/dashboard/teachers/${teacher.id}/edit`}>
+                      <DropdownMenuItem>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                    </Link>
                     <DropdownMenuSeparator />
                     <DeleteConfirm
                       name={teacher.name}

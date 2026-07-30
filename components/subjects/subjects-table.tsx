@@ -5,12 +5,13 @@ import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react"
+import Link from "next/link"
 
 interface Subject {
   id: string
   name: string
   code: string
-  teacher?: string | null
+  teacherSubjects?: { teacher: { name: string } }[]
   description?: string | null
   createdAt: Date
 }
@@ -48,7 +49,11 @@ export function SubjectsTable({ data }: { data: Subject[] }) {
                 <Badge variant="outline" className="font-mono">{subject.code}</Badge>
               </TableCell>
               <TableCell className="font-medium">{subject.name}</TableCell>
-              <TableCell>{subject.teacher || "-"}</TableCell>
+              <TableCell>
+                {subject.teacherSubjects && subject.teacherSubjects.length > 0
+                  ? subject.teacherSubjects.map(ts => ts.teacher.name).join(", ")
+                  : "-"}
+              </TableCell>
               <TableCell className="text-muted-foreground max-w-xs truncate">{subject.description || "-"}</TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>
@@ -59,7 +64,9 @@ export function SubjectsTable({ data }: { data: Subject[] }) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem><Eye className="mr-2 h-4 w-4" />View Details</DropdownMenuItem>
-                    <DropdownMenuItem><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                    <Link href={`/dashboard/subjects/${subject.id}/edit`}>
+                      <DropdownMenuItem><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                    </Link>
                     <DropdownMenuItem className="text-red-600"><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

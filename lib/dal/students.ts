@@ -357,11 +357,12 @@ export async function updateStudent(id: string, data: Partial<CreateStudentInput
       const oldData = await prisma.student.findUnique({ where: { id } })
       if (oldData?.schoolId !== schoolId) throw new Error("Student not found")
 
+      const { parentName, parentEmail, parentMobile, ...cleanData } = data as any;
       const updated = await prisma.student.update({
         where: { id },
         data: {
-          ...data,
-          dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
+          ...cleanData,
+          dateOfBirth: cleanData.dateOfBirth ? new Date(cleanData.dateOfBirth) : undefined,
         },
       })
 

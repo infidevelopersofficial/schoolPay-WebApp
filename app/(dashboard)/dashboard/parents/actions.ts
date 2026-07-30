@@ -2,7 +2,7 @@
 
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
-import { createParent, createParentSchema, deleteParent as deleteParentDal } from "@/lib/dal/parents"
+import { createParent, createParentSchema, deleteParent as deleteParentDal, updateParent } from "@/lib/dal/parents"
 import { createStudent } from "@/lib/dal/students"
 import { prisma } from "@/lib/prisma"
 import { sendMail } from "@/lib/mail"
@@ -30,6 +30,39 @@ export async function addParentAction(prevState: any, formData: FormData) {
       } catch (e: any) {
         if (e?.code === "P2002") return { error: "A parent with this email already exists" }
         return { error: "Failed to create parent" }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}
+
+export async function updateParentAction(prevState: any, formData: FormData) {
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const raw: any = Object.fromEntries(formData.entries())
+      const id = raw.id as string
+      if (!id) return { error: "Parent ID is missing" }
+
+      const studentIds = formData.getAll("studentIds") as string[]
+      if (studentIds && studentIds.length > 0) {
+        raw.studentIds = studentIds
+      }
+      
+      const result = createParentSchema.partial().safeParse(raw)
+
+      if (!result.success) {
+        return { error: "Validation failed", fieldErrors: result.error.flatten().fieldErrors }
+      }
+
+      try {
+        await updateParent(id, result.data)
+        revalidatePath("/dashboard/parents")
+        revalidatePath(`/dashboard/parents/${id}`)
+        return { success: true }
+      } catch (e: any) {
+        console.error("Error updating parent:", e)
+        return { error: `Failed to update parent: ${e?.message || e}` }
       }
     })
   } catch (e: any) {

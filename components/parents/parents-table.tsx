@@ -12,6 +12,7 @@ import { MoreHorizontal, Eye, Edit, UserCircle } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { DeleteConfirm } from "@/components/ui/delete-confirm"
 import { TableEmptyState } from "@/components/ui/table-empty-state"
+import Link from "next/link"
 
 interface ParentsTableProps {
   data: {
@@ -105,10 +106,12 @@ export function ParentsTable({ data }: ParentsTableProps) {
                       <Eye className="mr-2 h-4 w-4" />
                       View
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit
-                    </DropdownMenuItem>
+                    <Link href={`/dashboard/parents/${parent.id}/edit`}>
+                      <DropdownMenuItem>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                    </Link>
                     <DropdownMenuSeparator />
                     <DeleteConfirm
                       name={parent.name}

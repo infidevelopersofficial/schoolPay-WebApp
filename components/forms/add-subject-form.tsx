@@ -1,7 +1,7 @@
 "use client"
 
 import { useActionState, useState } from "react"
-import { addSubjectAction } from "@/app/(dashboard)/dashboard/subjects/actions"
+import { addSubjectAction, updateSubjectAction } from "@/app/(dashboard)/dashboard/subjects/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,9 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Loader2 } from "lucide-react"
 import { useFormEffect } from "@/lib/hooks/use-form-effect"
 
-export function AddSubjectForm({ open, onOpenChange, onSuccess, teachers = [] }: any) {
-  const [state, formAction, isPending] = useActionState(addSubjectAction, null)
-  const [teacherId, setTeacherId] = useState("")
+export function AddSubjectForm({ open, onOpenChange, onSuccess, teachers = [], mode = "create", initialData }: any) {
+  const [state, formAction, isPending] = useActionState(mode === "edit" ? updateSubjectAction : addSubjectAction, null)
+  const [teacherId, setTeacherId] = useState(initialData?.teacherId || "")
 
   useFormEffect(state, {
     successMessage: "Subject added successfully!",
@@ -27,14 +27,15 @@ export function AddSubjectForm({ open, onOpenChange, onSuccess, teachers = [] }:
         <DialogHeader><DialogTitle>Add Subject</DialogTitle></DialogHeader>
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="teacherId" value={teacherId} />
+          {mode === "edit" && <input type="hidden" name="id" value={initialData?.id} />}
           
           <div className="space-y-2">
             <Label>Subject Name <span className="text-red-500">*</span></Label>
-            <Input name="name" placeholder="e.g. Mathematics" required />
+            <Input name="name" defaultValue={initialData?.name} placeholder="e.g. Mathematics" required />
           </div>
           <div className="space-y-2">
             <Label>Subject Code <span className="text-red-500">*</span></Label>
-            <Input name="code" placeholder="e.g. MATH101" required />
+            <Input name="code" defaultValue={initialData?.code} placeholder="e.g. MATH101" required />
           </div>
           <div className="space-y-2">
             <Label>Assigned Teacher</Label>
@@ -54,13 +55,13 @@ export function AddSubjectForm({ open, onOpenChange, onSuccess, teachers = [] }:
           </div>
           <div className="space-y-2">
             <Label>Description</Label>
-            <Input name="description" placeholder="Optional syllabus or description" />
+            <Input name="description" defaultValue={initialData?.description} placeholder="Optional syllabus or description" />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>Cancel</Button>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isPending ? "Adding..." : "Add Subject"}
+              {isPending ? (mode === "edit" ? "Updating..." : "Adding...") : (mode === "edit" ? "Update Subject" : "Add Subject")}
             </Button>
           </DialogFooter>
         </form>

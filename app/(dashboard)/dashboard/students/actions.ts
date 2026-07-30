@@ -3,7 +3,7 @@
 import { withTenantAuth } from "@/lib/tenant-auth"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
-import { createStudent, createStudentSchema, deleteStudent as deleteStudentDal, getStudents } from "@/lib/dal/students"
+import { createStudent, createStudentSchema, deleteStudent as deleteStudentDal, getStudents, updateStudent } from "@/lib/dal/students"
 import { getClasses, createClass } from "@/lib/dal/classes"
 
 export async function addStudentAction(prevState: any, formData: FormData) {
@@ -30,6 +30,42 @@ export async function addStudentAction(prevState: any, formData: FormData) {
         }
         if (e?.prismaCode === "P2002") return { error: "A student with this email already exists" }
         return { error: `Failed to create student: ${e?.message || e}` }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}
+
+export async function updateStudentAction(prevState: any, formData: FormData) {
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const session = await auth()
+      if (!session) return { error: "Unauthorized" }
+
+      const raw = Object.fromEntries(formData.entries())
+      const id = raw.id as string
+      if (!id) return { error: "Student ID is missing" }
+
+      const result = createStudentSchema.partial().safeParse(raw)
+
+      if (!result.success) {
+        return { error: "Validation failed", fieldErrors: result.error.flatten().fieldErrors }
+      }
+
+      const updatePayload = { ...result.data }
+      delete updatePayload.parentName
+      delete updatePayload.parentEmail
+      delete updatePayload.parentMobile
+
+      try {
+        await updateStudent(id, updatePayload)
+        revalidatePath("/dashboard/students")
+        revalidatePath(`/dashboard/students/${id}`)
+        return { success: true }
+      } catch (e: any) {
+        console.error("Error updating student:", e)
+        return { error: `Failed to update student: ${e?.message || e}` }
       }
     })
   } catch (e: any) {

@@ -118,9 +118,11 @@ export function StudentsTable({ data }: StudentsTableProps) {
                         View
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit
+                    <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/students/${student.id}/edit`}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DeleteConfirm

@@ -26,9 +26,28 @@ export async function getSubjects() {
       prisma.subject.findMany({
         where: { schoolId },
         orderBy: { name: "asc" },
+        include: { teacherSubjects: { include: { teacher: true }, where: { isActive: true } } },
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
+  })
+}
+
+export async function getSubject(id: string) {
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return withDAL(
+      "subjects.getOne",
+      () =>
+        prisma.subject.findUnique({
+          where: { id },
+          include: { teacherSubjects: { include: { teacher: true }, where: { isActive: true } } },
+        }).then((subject) => {
+          if (subject && subject.schoolId !== schoolId) return null
+          return subject
+        }),
+      { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
+    )
   })
 }
 
@@ -63,7 +82,6 @@ export async function createSubject(input: z.infer<typeof createSubjectSchema>) 
           data: { 
             name: validated.name,
             code: validated.code,
-            teacher: teacherName,
             description: validated.description,
             schoolId 
           } 
@@ -88,6 +106,69 @@ export async function createSubject(input: z.infer<typeof createSubjectSchema>) 
 
         return subject
       })
+    },
+    { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
+  )
+}
+
+export async function updateSubject(id: string, data: Partial<z.infer<typeof createSubjectSchema>>) {
+  const schoolId = await getSchoolId()
+  return withDAL(
+    "subjects.update",
+    async () => {
+      const oldData = await prisma.subject.findUnique({ where: { id } })
+      if (oldData?.schoolId !== schoolId) throw new Error("Subject not found")
+
+      return await prisma.$transaction(async (tx) => {
+        const { teacherId, teacher, ...rest } = data;
+
+        const subject = await tx.subject.update({
+          where: { id },
+          data: rest
+        });
+
+        const targetTeacherId = teacherId || teacher;
+        let resolvedTeacherId: string | undefined;
+
+        if (targetTeacherId) {
+          const teacherObj = await tx.teacher.findFirst({
+            where: {
+              schoolId,
+              OR: [
+                { id: targetTeacherId },
+                { name: { equals: targetTeacherId, mode: "insensitive" } }
+              ]
+            }
+          });
+          if (teacherObj) resolvedTeacherId = teacherObj.id;
+        }
+
+        // Unlink old teachers
+        await tx.teacherSubject.updateMany({
+          where: { subjectId: id, schoolId },
+          data: { isActive: false }
+        });
+
+        if (resolvedTeacherId) {
+          await tx.teacherSubject.upsert({
+            where: { teacherId_subjectId: { teacherId: resolvedTeacherId, subjectId: id } },
+            create: { teacherId: resolvedTeacherId, subjectId: id, schoolId, isActive: true },
+            update: { isActive: true, schoolId }
+          });
+        }
+
+        await recordAuditLog({
+          action: "UPDATE",
+          entityType: "SUBJECT",
+          entityId: id,
+          schoolId,
+          oldValues: { name: oldData?.name, code: oldData?.code },
+          newValues: { name: subject.name, code: subject.code },
+          description: `Updated subject: ${subject.name}`,
+        }, tx);
+
+        return subject;
+      });
     },
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )

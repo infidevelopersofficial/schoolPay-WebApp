@@ -36,6 +36,24 @@ export async function getClasses() {
   })
 }
 
+export async function getClass(id: string) {
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return withDAL(
+      "classes.getOne",
+      () =>
+        prisma.class.findUnique({
+          where: { id },
+          include: { classTeacher: { select: { id: true, name: true } } },
+        }).then((cls) => {
+          if (cls && cls.schoolId !== schoolId) return null
+          return cls
+        }),
+      { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
+    )
+  })
+}
+
 import { setClassTeacher } from "./teachers"
 
 export async function createClass(input: CreateClassInput) {

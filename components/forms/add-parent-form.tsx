@@ -1,7 +1,7 @@
 "use client"
 
 import { useActionState, useState, useEffect } from "react"
-import { addParentAction, createStudentInlineForParentAction } from "@/app/(dashboard)/dashboard/parents/actions"
+import { addParentAction, updateParentAction, createStudentInlineForParentAction } from "@/app/(dashboard)/dashboard/parents/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,12 +12,12 @@ import { useFormEffect } from "@/lib/hooks/use-form-effect"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 
-export function AddParentForm({ open, onOpenChange, onSuccess, students = [], classes = [] }: any) {
-  const [state, formAction, isPending] = useActionState(addParentAction, null)
-  const [relationship, setRelationship] = useState("Father")
+export function AddParentForm({ open, onOpenChange, onSuccess, students = [], classes = [], mode = "create", initialData }: any) {
+  const [state, formAction, isPending] = useActionState(mode === "edit" ? updateParentAction : addParentAction, null)
+  const [relationship, setRelationship] = useState(initialData?.relationship || "Father")
   
   const [availableStudents, setAvailableStudents] = useState<any[]>(students)
-  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([])
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>(initialData?.studentIds || [])
   const [studentSearch, setStudentSearch] = useState("")
 
   useEffect(() => {
@@ -81,18 +81,19 @@ export function AddParentForm({ open, onOpenChange, onSuccess, students = [], cl
             <input key={id} type="hidden" name="studentIds" value={id} />
           ))}
 
+          {mode === "edit" && <input type="hidden" name="id" value={initialData?.id} />}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Full Name <span className="text-red-500">*</span></Label>
-              <Input name="name" placeholder="Mr. John Doe" required />
+              <Input name="name" defaultValue={initialData?.name} placeholder="Mr. John Doe" required />
             </div>
             <div className="space-y-2">
               <Label>Email <span className="text-red-500">*</span></Label>
-              <Input name="email" type="email" placeholder="john@example.com" required />
+              <Input name="email" type="email" defaultValue={initialData?.email} placeholder="john@example.com" required disabled={mode === "edit"} />
             </div>
             <div className="space-y-2">
               <Label>Phone <span className="text-red-500">*</span></Label>
-              <Input name="phone" placeholder="1234567890" required />
+              <Input name="phone" defaultValue={initialData?.mobile} placeholder="1234567890" required />
             </div>
             <div className="space-y-2">
               <Label>Relationship to Student <span className="text-red-500">*</span></Label>
@@ -186,11 +187,11 @@ export function AddParentForm({ open, onOpenChange, onSuccess, students = [], cl
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Occupation</Label>
-              <Input name="occupation" placeholder="Engineer, Doctor, etc." />
+              <Input name="occupation" defaultValue={initialData?.occupation} placeholder="Engineer, Doctor, etc." />
             </div>
             <div className="space-y-2">
               <Label>Address</Label>
-              <Input name="address" placeholder="123 Main St" />
+              <Input name="address" defaultValue={initialData?.address} placeholder="123 Main St" />
             </div>
           </div>
 
@@ -198,7 +199,7 @@ export function AddParentForm({ open, onOpenChange, onSuccess, students = [], cl
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>Cancel</Button>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isPending ? "Adding..." : "Add Parent"}
+              {isPending ? (mode === "edit" ? "Updating..." : "Adding...") : (mode === "edit" ? "Update Parent" : "Add Parent")}
             </Button>
           </DialogFooter>
         </form>

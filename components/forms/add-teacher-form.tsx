@@ -1,7 +1,7 @@
 "use client"
 
 import { useActionState, useState, useEffect } from "react"
-import { addTeacherAction, createClassInlineForTeacherAction, createSubjectInlineForTeacherAction } from "@/app/(dashboard)/dashboard/teachers/actions"
+import { addTeacherAction, updateTeacherAction, createClassInlineForTeacherAction, createSubjectInlineForTeacherAction } from "@/app/(dashboard)/dashboard/teachers/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,10 +19,12 @@ interface AddTeacherFormProps {
   onSuccess?: () => void
   classes?: any[]
   subjects?: any[]
+  mode?: "create" | "edit"
+  initialData?: any
 }
 
-export function AddTeacherForm({ open, onOpenChange, onSuccess, classes = [], subjects = [] }: AddTeacherFormProps) {
-  const [state, formAction, isPending] = useActionState(addTeacherAction, null)
+export function AddTeacherForm({ open, onOpenChange, onSuccess, classes = [], subjects = [], mode = "create", initialData }: AddTeacherFormProps) {
+  const [state, formAction, isPending] = useActionState(mode === "edit" ? updateTeacherAction : addTeacherAction, null)
   
   const [availableClasses, setAvailableClasses] = useState<any[]>(classes)
   const [availableSubjects, setAvailableSubjects] = useState<any[]>(subjects)
@@ -36,10 +38,10 @@ export function AddTeacherForm({ open, onOpenChange, onSuccess, classes = [], su
   }, [subjects])
 
   // Replace scalar subject/class state with arrays
-  const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([])
-  const [classAssignments, setClassAssignments] = useState<{classId: string, isClassTeacher: boolean}[]>([])
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>(initialData?.subjectIds || [])
+  const [classAssignments, setClassAssignments] = useState<{classId: string, isClassTeacher: boolean}[]>(initialData?.classAssignments || [])
   
-  const [gender, setGender] = useState("")
+  const [gender, setGender] = useState(initialData?.gender || "")
 
   // Inline Class creation state
   const [showNewClassInput, setShowNewClassInput] = useState(false)
@@ -132,18 +134,19 @@ export function AddTeacherForm({ open, onOpenChange, onSuccess, classes = [], su
           ))}
           <input type="hidden" name="classAssignmentsData" value={JSON.stringify(classAssignments)} />
 
+          {mode === "edit" && <input type="hidden" name="id" value={initialData?.id} />}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Full Name <span className="text-red-500">*</span></Label>
-              <Input name="name" placeholder="Dr. John Smith" required />
+              <Input name="name" defaultValue={initialData?.name} placeholder="Dr. John Smith" required />
             </div>
             <div className="space-y-2">
               <Label>Email <span className="text-red-500">*</span></Label>
-              <Input name="email" type="email" placeholder="john@school.com" required />
+              <Input name="email" type="email" defaultValue={initialData?.email} placeholder="john@school.com" required disabled={mode === "edit"} />
             </div>
             <div className="space-y-2">
               <Label>Phone <span className="text-red-500">*</span></Label>
-              <Input name="phone" placeholder="+1234567890" required />
+              <Input name="phone" defaultValue={initialData?.phone} placeholder="+1234567890" required />
             </div>
             <div className="space-y-2 col-span-2">
               <div className="flex items-center justify-between">
@@ -290,28 +293,28 @@ export function AddTeacherForm({ open, onOpenChange, onSuccess, classes = [], su
             </div>
             <div className="space-y-2">
               <Label>Date of Birth</Label>
-              <Input name="dateOfBirth" type="date" />
+              <Input name="dateOfBirth" type="date" defaultValue={initialData?.dateOfBirth?.split('T')[0]} />
             </div>
             <div className="space-y-2">
               <Label>Qualification</Label>
-              <Input name="qualification" placeholder="M.Sc, B.Ed" />
+              <Input name="qualification" defaultValue={initialData?.qualification} placeholder="M.Sc, B.Ed" />
             </div>
             <div className="space-y-2">
               <Label>Experience (years)</Label>
-              <Input name="experience" placeholder="5" />
+              <Input name="experience" defaultValue={initialData?.experience} placeholder="5" />
             </div>
             <div className="space-y-2">
               <Label>Joining Date</Label>
-              <Input name="joiningDate" type="date" />
+              <Input name="joiningDate" type="date" defaultValue={initialData?.joiningDate?.split('T')[0]} />
             </div>
             <div className="space-y-2">
               <Label>Salary</Label>
-              <Input name="salary" type="number" placeholder="50000" />
+              <Input name="salary" type="number" defaultValue={initialData?.salary} placeholder="50000" />
             </div>
           </div>
           <div className="space-y-2">
             <Label>Address</Label>
-            <Input name="address" placeholder="123 Main St, City, State" />
+            <Input name="address" defaultValue={initialData?.address} placeholder="123 Main St, City, State" />
           </div>
           {(state as any)?.error && (
             <p className="text-sm text-red-500 font-medium">{(state as any).error}</p>
@@ -322,7 +325,7 @@ export function AddTeacherForm({ open, onOpenChange, onSuccess, classes = [], su
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isPending ? "Adding..." : "Add Teacher"}
+              {isPending ? (mode === "edit" ? "Updating..." : "Adding...") : (mode === "edit" ? "Update Teacher" : "Add Teacher")}
             </Button>
           </DialogFooter>
         </form>

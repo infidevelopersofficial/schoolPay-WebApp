@@ -1,7 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { createTeacher, createTeacherSchema, deleteTeacher as deleteTeacherDal } from "@/lib/dal/teachers"
+import { createTeacher, createTeacherSchema, deleteTeacher as deleteTeacherDal, updateTeacher } from "@/lib/dal/teachers"
 import { withTenantAuth } from "@/lib/tenant-auth"
 
 export async function addTeacherAction(prevState: any, formData: FormData) {
@@ -42,6 +42,51 @@ export async function addTeacherAction(prevState: any, formData: FormData) {
         console.error("Error creating teacher:", e)
         if (e?.code === "P2002") return { error: "A teacher with this email already exists" }
         return { error: `Failed to create teacher: ${e?.message || e}` }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}
+
+export async function updateTeacherAction(prevState: any, formData: FormData) {
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const raw = Object.fromEntries(formData.entries())
+      const id = raw.id as string
+      if (!id) return { error: "Teacher ID is missing" }
+      
+      const subjectIds = formData.getAll("subjectIds") as string[]
+      let classAssignments = undefined
+      const classAssignmentsData = formData.get("classAssignmentsData") as string
+      if (classAssignmentsData) {
+        try {
+          classAssignments = JSON.parse(classAssignmentsData)
+        } catch (e) {
+          return { error: "Validation failed", fieldErrors: { classAssignments: ["Invalid JSON payload for class assignments"] } }
+        }
+      }
+
+      const payload = {
+        ...raw,
+        subjectIds: subjectIds.length > 0 ? subjectIds : undefined,
+        classAssignments,
+      }
+
+      const result = createTeacherSchema.partial().safeParse(payload)
+
+      if (!result.success) {
+        return { error: "Validation failed", fieldErrors: result.error.flatten().fieldErrors }
+      }
+
+      try {
+        await updateTeacher(id, result.data)
+        revalidatePath("/dashboard/teachers")
+        revalidatePath(`/dashboard/teachers/${id}`)
+        return { success: true }
+      } catch (e: any) {
+        console.error("Error updating teacher:", e)
+        return { error: `Failed to update teacher: ${e?.message || e}` }
       }
     })
   } catch (e: any) {

@@ -59,6 +59,24 @@ export async function getParents(opts?: {
   })
 }
 
+export async function getParent(id: string) {
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return withDAL(
+      "parents.getOne",
+      () =>
+        prisma.parent.findUnique({
+          where: { id },
+          include: { students: { select: { id: true } } },
+        }).then((parent) => {
+          if (parent && parent.schoolId !== schoolId) return null
+          return parent
+        }),
+      { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
+    )
+  })
+}
+
 export async function createParent(input: CreateParentInput) {
   const schoolId = await getSchoolId()
   const validated = createParentSchema.parse(input)
@@ -129,8 +147,14 @@ export async function updateParent(id: string, data: Partial<CreateParentInput>)
       const oldData = await prisma.parent.findUnique({ where: { id } })
       if (oldData?.schoolId !== schoolId) throw new Error("Parent not found")
 
-      const { studentIds, ...restData } = data as any
-      const parent = await prisma.parent.update({ where: { id }, data: restData })
+      const { studentIds, phone, ...restData } = data as any
+      const parent = await prisma.parent.update({ 
+        where: { id }, 
+        data: {
+          ...restData,
+          ...(phone && { mobile: phone })
+        } 
+      })
 
       if (studentIds && Array.isArray(studentIds)) {
         await prisma.$transaction(async (tx) => {

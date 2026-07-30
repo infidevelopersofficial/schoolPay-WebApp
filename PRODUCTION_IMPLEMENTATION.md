@@ -118,6 +118,9 @@ Add View / Edit / Delete dropdown menu to all table components:
 
 ---
 
+## Phase 4: Frontend UI Optimizations
+- [ ] Refactor Parent-Student Assignment: Replace the flat capped `getStudents({ limit: 1000 })` list with a server-side async typeahead (Select/ComboBox) to prevent data loss or silent unlinking for schools exceeding 1,000 students.
+
 ## Phase 5-8: Advanced Features (Month 2+)
 
 ### Phase 5: Student Promotion

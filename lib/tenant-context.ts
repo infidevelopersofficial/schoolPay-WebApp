@@ -86,7 +86,6 @@ export const getTenantContext = cache(async (): Promise<TenantContext> => {
  * @throws {TenantError} if the user has no active school selected.
  */
 export const getSchoolId = cache(async (): Promise<string> => {
-  if (process.env.CLI_TEST_SCHOOL_ID) return process.env.CLI_TEST_SCHOOL_ID
   const { schoolId } = await getTenantContext()
   return schoolId
 })
