@@ -67,6 +67,9 @@ export async function getSubjectDetail(id: string) {
 
         if (!subject || subject.schoolId !== schoolId) return null
 
+        // NOTE: Lessons are matched to subjects via string comparison on Lesson.subject
+        // rather than a strict FK relation. This will silently return zero results if naming is inconsistent.
+        // Future migration should add a proper subjectId FK.
         const lessons = await prisma.lesson.findMany({
           where: {
             schoolId,

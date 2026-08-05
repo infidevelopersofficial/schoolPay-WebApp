@@ -70,6 +70,9 @@ export async function getClassDetail(id: string) {
         
         if (!cls || cls.schoolId !== schoolId) return null
 
+        // NOTE: Students are matched to classes via string comparison on Student.class/section
+        // rather than a strict FK relation. This will silently return zero results if naming is inconsistent.
+        // Future migration should add a proper classId FK.
         const students = await prisma.student.findMany({
           where: {
             schoolId,

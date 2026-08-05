@@ -172,6 +172,10 @@ Add View / Edit / Delete dropdown menu to all table components:
 
 ---
 
+## Technical Debt & Known Limitations
+- `getStudents({ limit: 1000 })` is used in some forms (like Parent edit) instead of a paginated or typeahead search. If a school exceeds this limit, parents might silently fail to see their child in the dropdown.
+- **Relational Integrity**: `Student.class` and `Lesson.subject` are stored as plain strings with no FK to `Class`/`Subject` models. Class and subject detail pages use string matching which can silently miss records if names are inconsistent. Future migrations must add proper FK relations.
+
 ## Version History
 
 | Version | Date | Status | Features |
