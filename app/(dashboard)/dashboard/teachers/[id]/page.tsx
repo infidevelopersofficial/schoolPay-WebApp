@@ -2,7 +2,7 @@ import { getTeacherDetail } from "@/lib/dal/teachers"
 import { notFound } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { format } from "date-fns"
+import { parseISO, format } from "date-fns"
 
 export default async function TeacherDetailPage({ params }: { params: { id: string } }) {
   const teacher = await getTeacherDetail(params.id)
@@ -40,8 +40,12 @@ export default async function TeacherDetailPage({ params }: { params: { id: stri
               <p className="font-medium">{teacher.phone || "—"}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Specialization</p>
-              <p className="font-medium">{teacher.specialization || "—"}</p>
+              <p className="text-sm text-muted-foreground">Qualification</p>
+              <p className="font-medium">{teacher.qualification || "—"}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Experience</p>
+              <p className="font-medium">{teacher.experience || "—"}</p>
             </div>
           </CardContent>
         </Card>
@@ -98,7 +102,7 @@ export default async function TeacherDetailPage({ params }: { params: { id: stri
                         <p className="text-xs text-muted-foreground">{lesson.class} • {lesson.subject}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium">{format(new Date(lesson.date), "MMM d, yyyy")}</p>
+                        <p className="text-sm font-medium">{format(parseISO(lesson.date), "MMM d, yyyy")}</p>
                         <p className="text-xs text-muted-foreground">{lesson.time || "—"} ({lesson.duration})</p>
                       </div>
                     </div>

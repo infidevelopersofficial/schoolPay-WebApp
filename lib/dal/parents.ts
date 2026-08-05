@@ -77,6 +77,38 @@ export async function getParent(id: string) {
   })
 }
 
+export async function getParentDetail(id: string) {
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return withDAL(
+      "parents.getDetail",
+      () =>
+        prisma.parent.findUnique({
+          where: { id },
+          include: { 
+            students: { 
+              select: { 
+                id: true, 
+                name: true, 
+                class: true, 
+                section: true,
+                studentId: true,
+                totalFees: true,
+                paidAmount: true,
+                pendingAmount: true,
+                feeStatus: true,
+              } 
+            } 
+          },
+        }).then((parent) => {
+          if (parent && parent.schoolId !== schoolId) return null
+          return parent
+        }),
+      { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
+    )
+  })
+}
+
 export async function createParent(input: CreateParentInput) {
   const schoolId = await getSchoolId()
   const validated = createParentSchema.parse(input)
