@@ -3,7 +3,7 @@
 import { withTenantAuth } from "@/lib/tenant-auth"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
-import { createEvent, createEventSchema } from "@/lib/dal/events"
+import { createEvent, createEventSchema, updateEvent } from "@/lib/dal/events"
 
 export async function createEventAction(prevState: any, formData: FormData) {
   try {
@@ -25,6 +25,33 @@ export async function createEventAction(prevState: any, formData: FormData) {
   } catch (e) {
     return { error: "Failed to create event" }
   }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}
+
+export async function updateEventAction(prevState: any, formData: FormData) {
+  try {
+    return await withTenantAuth(null, ["ADMIN", "TEACHER"], async () => {
+      const raw = Object.fromEntries(formData.entries())
+      const id = raw.id as string
+      if (!id) return { error: "Event ID is missing" }
+
+      const result = createEventSchema.partial().safeParse(raw)
+
+      if (!result.success) {
+        return { error: "Validation failed", fieldErrors: result.error.flatten().fieldErrors }
+      }
+
+      try {
+        await updateEvent(id, result.data)
+        revalidatePath("/dashboard/events")
+        revalidatePath(`/dashboard/events/${id}`)
+        return { success: true }
+      } catch (e) {
+        return { error: "Failed to update event" }
+      }
     })
   } catch (e: any) {
     return { error: e.message || "Unauthorized" }

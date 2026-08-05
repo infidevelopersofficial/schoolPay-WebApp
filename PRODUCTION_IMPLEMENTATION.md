@@ -45,14 +45,15 @@ Every add form needs an edit mode. The DAL already has `updateStudent()`, `updat
 - When present, pre-fill fields and switch submit to update action
 
 **Modules needing edit forms:**
-- [ ] Students (`components/forms/add-student-form.tsx`)
-- [ ] Teachers (`components/forms/add-teacher-form.tsx`)
-- [ ] Parents (`components/forms/add-parent-form.tsx`)
-- [ ] Classes (`components/forms/add-class-form.tsx`)
-- [ ] Subjects (`components/forms/add-subject-form.tsx`)
-- [ ] Lessons (`components/forms/create-lesson-form.tsx`)
-- [ ] Events (`components/forms/create-event-form.tsx`)
-- [ ] Announcements (`components/forms/new-announcement-form.tsx`)
+- [x] Students (`components/forms/add-student-form.tsx`)
+- [x] Teachers (`components/forms/add-teacher-form.tsx`)
+- [x] Parents (`components/forms/add-parent-form.tsx`)
+- [x] Classes (`components/forms/add-class-form.tsx`)
+- [x] Subjects (`components/forms/add-subject-form.tsx`)
+- [x] Lessons (`components/forms/create-lesson-form.tsx`)
+- [x] Events (`components/forms/create-event-form.tsx`)
+- [x] Announcements (`components/forms/new-announcement-form.tsx`)
+*(Note: Messages are intentionally omitted from this list because sent messages are immutable by design in standard communication systems. They cannot be edited after sending.)*
 
 ### 1.2 View/Detail Pages (Phase 2)
 **Priority**: 🔴 CRITICAL | **Effort**: 4-5 days

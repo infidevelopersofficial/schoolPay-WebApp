@@ -37,6 +37,20 @@ export async function getAnnouncements() {
   })
 }
 
+export async function getAnnouncement(id: string) {
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return withDAL(
+      "announcements.getOne",
+      () => prisma.announcement.findUnique({ where: { id } }).then((a) => {
+        if (a && a.schoolId !== schoolId) return null
+        return a
+      }),
+      { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
+    )
+  })
+}
+
 export async function createAnnouncement(input: z.infer<typeof createAnnouncementSchema>) {
   const schoolId = await getSchoolId()
   const validated = createAnnouncementSchema.parse(input)
@@ -99,4 +113,26 @@ export async function createAnnouncement(input: z.infer<typeof createAnnouncemen
   }
 
   return announcement
+}
+
+export async function updateAnnouncement(id: string, input: Partial<z.infer<typeof createAnnouncementSchema>>) {
+  const schoolId = await getSchoolId()
+  
+  // Explicitly strip date and author from update payload
+  const { date, author, ...updateData } = input
+
+  return withDAL(
+    "announcements.update",
+    async () => {
+      const existing = await prisma.announcement.findUnique({ where: { id } })
+      if (!existing || existing.schoolId !== schoolId) {
+        throw new Error("Announcement not found")
+      }
+      return prisma.announcement.update({
+        where: { id },
+        data: updateData,
+      })
+    },
+    { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
+  )
 }

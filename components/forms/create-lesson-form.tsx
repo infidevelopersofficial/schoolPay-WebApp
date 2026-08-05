@@ -1,7 +1,7 @@
 "use client"
 
 import { useActionState, useState } from "react"
-import { createLessonAction } from "@/app/(dashboard)/dashboard/lessons/actions"
+import { createLessonAction, updateLessonAction } from "@/app/(dashboard)/dashboard/lessons/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,15 +10,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Loader2 } from "lucide-react"
 import { useFormEffect } from "@/lib/hooks/use-form-effect"
 
-export function CreateLessonForm({ open, onOpenChange, onSuccess, classes = [], subjects = [], teachers = [] }: any) {
-  const [state, formAction, isPending] = useActionState(createLessonAction, null)
-  const [subjectVal, setSubjectVal] = useState("")
-  const [classVal, setClassVal] = useState("")
-  const [teacherId, setTeacherId] = useState("")
+export function CreateLessonForm({ open, onOpenChange, onSuccess, classes = [], subjects = [], teachers = [], mode = "create", initialData }: any) {
+  const [state, formAction, isPending] = useActionState(mode === "edit" ? updateLessonAction : createLessonAction, null)
+  const [subjectVal, setSubjectVal] = useState(initialData?.subject || "")
+  const [classVal, setClassVal] = useState(initialData?.class || "")
+  const [teacherId, setTeacherId] = useState(initialData?.teacherId || "")
 
   useFormEffect(state, {
-    successMessage: "Lesson scheduled successfully!",
-    defaultErrorMessage: "Failed to schedule lesson",
+    successMessage: mode === "edit" ? "Lesson updated successfully!" : "Lesson scheduled successfully!",
+    defaultErrorMessage: mode === "edit" ? "Failed to update lesson" : "Failed to schedule lesson",
     onOpenChange,
     onSuccess,
   })
@@ -26,15 +26,16 @@ export function CreateLessonForm({ open, onOpenChange, onSuccess, classes = [], 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>Create Lesson Plan</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{mode === "edit" ? "Edit Lesson Plan" : "Create Lesson Plan"}</DialogTitle></DialogHeader>
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="subject" value={subjectVal} />
           <input type="hidden" name="class" value={classVal} />
           <input type="hidden" name="teacherId" value={teacherId} />
+          {mode === "edit" && <input type="hidden" name="id" value={initialData?.id} />}
 
           <div className="space-y-2">
             <Label>Topic/Title <span className="text-red-500">*</span></Label>
-            <Input name="title" placeholder="e.g. Quadratic Equations" required />
+            <Input name="title" placeholder="e.g. Quadratic Equations" defaultValue={initialData?.title} required />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -82,26 +83,26 @@ export function CreateLessonForm({ open, onOpenChange, onSuccess, classes = [], 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Date <span className="text-red-500">*</span></Label>
-              <Input name="date" type="date" required />
+              <Input name="date" type="date" defaultValue={initialData?.date} required />
             </div>
             <div className="space-y-2">
               <Label>Time</Label>
-              <Input name="time" type="time" />
+              <Input name="time" type="time" defaultValue={initialData?.time} />
             </div>
           </div>
           <div className="space-y-2">
             <Label>Duration <span className="text-red-500">*</span></Label>
-            <Input name="duration" placeholder="e.g. 45 mins" required />
+            <Input name="duration" placeholder="e.g. 45 mins" defaultValue={initialData?.duration} required />
           </div>
           <div className="space-y-2">
             <Label>Description/Objectives</Label>
-            <Input name="description" placeholder="Lesson objectives and notes..." />
+            <Input name="description" placeholder="Lesson objectives and notes..." defaultValue={initialData?.description} />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>Cancel</Button>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isPending ? "Scheduling..." : "Create Lesson"}
+              {isPending ? (mode === "edit" ? "Updating..." : "Scheduling...") : (mode === "edit" ? "Update Lesson" : "Create Lesson")}
             </Button>
           </DialogFooter>
         </form>
