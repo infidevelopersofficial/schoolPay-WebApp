@@ -95,6 +95,39 @@ export async function getTeacher(id: string) {
   })
 }
 
+export async function getTeacherDetail(id: string) {
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return withDAL(
+      "teachers.getDetail",
+      () =>
+        prisma.teacher.findUnique({
+          where: { id },
+          include: {
+            subjects: { 
+              include: { subject: true },
+              where: { isActive: true }
+            },
+            classAssignments: { 
+              include: { class: true },
+              where: { isActive: true }
+            },
+            lessons: {
+              where: { status: "SCHEDULED" },
+              orderBy: [{ date: "asc" }, { time: "asc" }],
+              take: 5
+            },
+            batches: true,
+          },
+        }).then((teacher) => {
+          if (teacher && teacher.schoolId !== schoolId) return null
+          return teacher
+        }),
+      { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
+    )
+  })
+}
+
 export async function createTeacher(input: CreateTeacherInput) {
   const schoolId = await getSchoolId()
   const validated = createTeacherSchema.parse(input)
