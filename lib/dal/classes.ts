@@ -54,6 +54,38 @@ export async function getClass(id: string) {
   })
 }
 
+export async function getClassDetail(id: string) {
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return withDAL(
+      "classes.getDetail",
+      async () => {
+        const cls = await prisma.class.findUnique({
+          where: { id },
+          include: { 
+            classTeacher: { select: { id: true, name: true } },
+            teacherClassAssignments: { include: { teacher: { select: { id: true, name: true } } } }
+          },
+        })
+        
+        if (!cls || cls.schoolId !== schoolId) return null
+
+        const students = await prisma.student.findMany({
+          where: {
+            schoolId,
+            class: cls.name,
+            section: cls.section
+          },
+          select: { id: true, name: true, studentId: true, rollNumber: true }
+        })
+
+        return { ...cls, students }
+      },
+      { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
+    )
+  })
+}
+
 import { setClassTeacher } from "./teachers"
 
 export async function createClass(input: CreateClassInput) {

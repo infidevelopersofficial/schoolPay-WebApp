@@ -51,6 +51,39 @@ export async function getSubject(id: string) {
   })
 }
 
+export async function getSubjectDetail(id: string) {
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return withDAL(
+      "subjects.getDetail",
+      async () => {
+        const subject = await prisma.subject.findUnique({
+          where: { id },
+          include: { 
+            teacherSubjects: { include: { teacher: { select: { id: true, name: true } } }, where: { isActive: true } },
+            exams: { take: 5, orderBy: { createdAt: "desc" } }
+          },
+        })
+
+        if (!subject || subject.schoolId !== schoolId) return null
+
+        const lessons = await prisma.lesson.findMany({
+          where: {
+            schoolId,
+            subject: subject.name,
+            status: "SCHEDULED"
+          },
+          orderBy: [{ date: "asc" }, { time: "asc" }],
+          take: 5
+        })
+
+        return { ...subject, lessons }
+      },
+      { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
+    )
+  })
+}
+
 export async function createSubject(input: z.infer<typeof createSubjectSchema>) {
   const schoolId = await getSchoolId()
   const validated = createSubjectSchema.parse(input)
