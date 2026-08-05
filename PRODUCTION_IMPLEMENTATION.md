@@ -23,8 +23,8 @@ SchoolPay has a solid foundation with **55+ database models**, **34 DAL modules*
 - ✅ Billing & subscription management
 - ✅ Survey system with analytics
 
+- ✅ Edit/Update UI forms (dedicated edit pages for all core modules)
 **What's NOT complete:**
-- ❌ Edit/Update UI forms (DAL functions exist but no frontend)
 - ❌ View/Detail pages (only Students and Exams have `[id]` pages)
 - ❌ Delete actions for 7+ modules
 - ❌ Data export on individual data tables
@@ -180,10 +180,10 @@ Add View / Edit / Delete dropdown menu to all table components:
 | 0.2.0 | Jun 2026 | Released | Exams, grading schemes, report cards |
 | 0.3.0 | Jun 2026 | Released | Campaigns, surveys, communications |
 | 0.4.0 | Jul 2026 | Released | Student validation hardening, teacher assignments |
-| 0.5.0 | Planned | In Progress | Edit forms, detail pages, complete CRUD |
+| 0.5.0 | August 5, 2026 | Released | Edit forms, detail pages, complete CRUD |
 | 0.6.0 | Planned | Planned | Import/export on all tables |
 | 0.7.0 | Planned | Planned | Timetable, promotions, audit viewer |
 
 ---
 
-*Last updated: July 2026*
+*Last updated: August 2026*
