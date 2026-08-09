@@ -25,8 +25,8 @@ SchoolPay has a solid foundation with **55+ database models**, **34 DAL modules*
 
 - ✅ Edit/Update UI forms (dedicated edit pages for all core modules)
 - ✅ Delete actions for 7+ modules
+- ✅ View/Detail pages for all core modules (Students, Exams, Teachers, Parents, Classes, Subjects, Fees, Payments)
 **What's NOT complete:**
-- ❌ View/Detail pages — Fees and Payments detail pages pending (Phase 2 Batch B); Teachers, Parents, Classes, Subjects, Students, Exams complete
 - ❌ Data export on individual data tables
 - ❌ Bulk import for Teachers, Parents, Fees
 
@@ -62,8 +62,8 @@ Every add form needs an edit mode. The DAL already has `updateStudent()`, `updat
 - [ ] Parents `[id]` — contact info, linked students, fee summary
 - [ ] Classes `[id]` — student roster, class teacher, attendance stats
 - [ ] Subjects `[id]` — assigned teachers, exam history
-- [ ] Fees `[id]` — structure detail, mapped classes, collection progress
-- [ ] Payments `[id]` — full receipt view, transaction detail
+- [x] Fees `[id]` — structure detail, mapped classes, collection progress
+- [x] Payments `[id]` — full receipt view, transaction detail
 
 ### 1.3 Complete Delete Actions (Phase 3) (✅ Completed August 9, 2026)
 **Priority**: 🟡 HIGH | **Effort**: 2-3 days
@@ -186,6 +186,7 @@ Add View / Edit / Delete dropdown menu to all table components:
 | 0.3.0 | Jun 2026 | Released | Campaigns, surveys, communications |
 | 0.4.0 | Jul 2026 | Released | Student validation hardening, teacher assignments |
 | 0.5.0 | August 5, 2026 | Released | Edit forms, detail pages, delete actions, complete CRUD |
+| 0.5.1 | August 9, 2026 | Released | Phase 2 complete — all detail/view pages, Phase 3 complete — delete actions |
 | 0.6.0 | Planned | Planned | Import/export on all tables |
 | 0.7.0 | Planned | Planned | Timetable, promotions, audit viewer |
 
