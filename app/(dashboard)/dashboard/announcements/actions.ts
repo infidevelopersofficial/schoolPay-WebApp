@@ -3,7 +3,7 @@
 import { withTenantAuth } from "@/lib/tenant-auth"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
-import { createAnnouncement, createAnnouncementSchema, updateAnnouncement } from "@/lib/dal/announcements"
+import { createAnnouncement, createAnnouncementSchema, updateAnnouncement, deleteAnnouncement } from "@/lib/dal/announcements"
 
 export async function createAnnouncementAction(prevState: any, formData: FormData) {
   try {
