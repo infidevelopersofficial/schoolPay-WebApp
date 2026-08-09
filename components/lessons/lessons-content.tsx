@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Calendar, Clock, MoreHorizontal } from "lucide-react"
+import { DeleteLessonButton } from "./delete-lesson-button"
 
 interface Lesson {
   id: string
@@ -97,9 +98,9 @@ function LessonCard({ lesson, className = "" }: { lesson: Lesson; className?: st
               <DropdownMenuItem>View Details</DropdownMenuItem>
               <DropdownMenuItem>Edit Lesson</DropdownMenuItem>
               <DropdownMenuItem>Duplicate</DropdownMenuItem>
-              <DropdownMenuItem className="text-red-600">Cancel Lesson</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <DeleteLessonButton id={lesson.id} />
         </div>
       </CardHeader>
       <CardContent className="space-y-3">

@@ -28,7 +28,7 @@ export async function getLessons() {
       "lessons.getAll",
       () =>
         prisma.lesson.findMany({
-          where: { schoolId },
+          where: { schoolId, status: { not: "CANCELLED" } },
           orderBy: { createdAt: "desc" },
           include: { teacher: { select: { name: true } } },
         }),
@@ -119,6 +119,25 @@ export async function updateLesson(id: string, input: Partial<z.infer<typeof cre
           ...rest,
           ...(status ? { status: status as LessonStatus } : {})
         },
+      })
+    },
+    { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
+  )
+}
+
+export async function deleteLesson(id: string) {
+  const schoolId = await getSchoolId()
+  return withDAL(
+    "lessons.delete",
+    async () => {
+      const existing = await prisma.lesson.findUnique({ where: { id } })
+      if (!existing || existing.schoolId !== schoolId) {
+        throw new Error("Lesson not found or unauthorized")
+      }
+
+      return prisma.lesson.update({
+        where: { id },
+        data: { status: "CANCELLED" },
       })
     },
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },

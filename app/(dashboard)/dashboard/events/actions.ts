@@ -57,3 +57,22 @@ export async function updateEventAction(prevState: any, formData: FormData) {
     return { error: e.message || "Unauthorized" }
   }
 }
+
+export async function deleteEventAction(id: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN", "TEACHER"], async () => {
+      if (!id) return { error: "Event ID is missing" }
+
+      try {
+        const { deleteEvent } = await import("@/lib/dal/events")
+        await deleteEvent(id)
+        revalidatePath("/dashboard/events")
+        return { success: true }
+      } catch (e: any) {
+        return { error: e.message || "Failed to cancel event" }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}

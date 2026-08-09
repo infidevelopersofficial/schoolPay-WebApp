@@ -57,3 +57,22 @@ export async function updateLessonAction(prevState: any, formData: FormData) {
     return { error: e.message || "Unauthorized" }
   }
 }
+
+export async function deleteLessonAction(id: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN", "TEACHER"], async () => {
+      if (!id) return { error: "Lesson ID is missing" }
+
+      try {
+        const { deleteLesson } = await import("@/lib/dal/lessons")
+        await deleteLesson(id)
+        revalidatePath("/dashboard/lessons")
+        return { success: true }
+      } catch (e: any) {
+        return { error: e.message || "Failed to cancel lesson" }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}

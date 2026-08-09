@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Calendar, Clock, MapPin, MoreHorizontal } from "lucide-react"
+import { DeleteEventButton } from "./delete-event-button"
 
 interface Event {
   id: string
@@ -110,9 +111,9 @@ function EventCard({ event, className = "" }: { event: Event; className?: string
               <DropdownMenuItem>View Details</DropdownMenuItem>
               <DropdownMenuItem>Edit Event</DropdownMenuItem>
               <DropdownMenuItem>Share</DropdownMenuItem>
-              <DropdownMenuItem className="text-red-600">Cancel Event</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <DeleteEventButton id={event.id} />
         </div>
       </CardHeader>
       <CardContent className="space-y-3">

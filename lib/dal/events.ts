@@ -25,7 +25,7 @@ export async function getEvents() {
     "events.getAll",
     () =>
       prisma.event.findMany({
-        where: { schoolId },
+        where: { schoolId, status: { not: "CANCELLED" } },
         orderBy: { createdAt: "desc" },
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
@@ -77,3 +77,23 @@ export async function updateEvent(id: string, input: Partial<z.infer<typeof crea
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
 }
+
+export async function deleteEvent(id: string) {
+  const schoolId = await getSchoolId()
+  return withDAL(
+    "events.delete",
+    async () => {
+      const existing = await prisma.event.findUnique({ where: { id } })
+      if (!existing || existing.schoolId !== schoolId) {
+        throw new Error("Event not found or unauthorized")
+      }
+
+      return prisma.event.update({
+        where: { id },
+        data: { status: "CANCELLED" },
+      })
+    },
+    { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
+  )
+}
+
