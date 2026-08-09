@@ -68,7 +68,12 @@ Every add form needs an edit mode. The DAL already has `updateStudent()`, `updat
 ### 1.3 Complete Delete Actions (Phase 3) (✅ Completed August 9, 2026)
 **Priority**: 🟡 HIGH | **Effort**: 2-3 days
 
-- [x] Add delete DAL functions for: Subjects, Lessons, Events, Messages, Announcements, Fees, Payments
+- [x] Delete actions implemented with proper server-side safeguards and the following patterns:
+  - `isActive = false` (Soft delete): Announcements, FeeStructure
+  - `status = "CANCELLED"`: Lessons, Events
+  - `status = "FAILED"`: Payments (restricted to PENDING only; blocked if COMPLETED)
+  - Hard delete with server-side guard: Subjects (blocked if active TeacherSubject or Exam rows exist)
+  - Omitted (immutable): Messages
 - [x] Wire delete actions with `withTenantAuth`
 - [x] Build reusable `ConfirmDeleteDialog` component (replace `window.confirm`)
 
