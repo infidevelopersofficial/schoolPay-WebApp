@@ -51,7 +51,7 @@ export async function getPayments(opts?: { page?: number; limit?: number; studen
           }),
           prisma.payment.count({ where }),
         ]).then(([payments, total]) => ({
-          payments,
+          payments: payments.map(p => ({ ...p, amount: p.amount.toNumber() })),
           total,
           page,
           limit,
@@ -179,7 +179,7 @@ export async function createPayment(input: CreatePaymentInput) {
             }
           }
 
-          if (updatedStudent.pendingAmount <= 0) {
+          if (updatedStudent.pendingAmount.lte(0)) {
             await Promise.all([
               tx.studentFeeMapping.updateMany({
                 where: { studentId: validated.studentId, status: { in: ["PENDING", "PARTIAL", "OVERDUE"] } },
@@ -194,7 +194,7 @@ export async function createPayment(input: CreatePaymentInput) {
 
           // Evaluate feeStatus based on calendar due dates rather than 50% balance ratio (P1-04)
           let feeStatus: "PAID" | "OVERDUE" | "PARTIAL" | "PENDING" = "PENDING";
-          if (updatedStudent.pendingAmount <= 0) {
+          if (updatedStudent.pendingAmount.lte(0)) {
             feeStatus = "PAID";
           } else {
             const now = new Date();
@@ -219,12 +219,12 @@ export async function createPayment(input: CreatePaymentInput) {
             feeStatus = (overdueInvoice || overdueMapping) ? "OVERDUE" : "PARTIAL";
           }
 
-          if (updatedStudent.feeStatus !== feeStatus || updatedStudent.pendingAmount < 0) {
+          if (updatedStudent.feeStatus !== feeStatus || updatedStudent.pendingAmount.lt(0)) {
             await tx.student.update({
               where: { id: validated.studentId },
               data: {
                 feeStatus,
-                ...(updatedStudent.pendingAmount < 0 && { pendingAmount: 0 }),
+                ...(updatedStudent.pendingAmount.lt(0) && { pendingAmount: 0 }),
               },
             })
           }
@@ -245,7 +245,10 @@ export async function createPayment(input: CreatePaymentInput) {
             tx,
           )
 
-          return created
+          return {
+            ...created,
+            amount: created.amount.toNumber()
+          }
         })
 
         paymentLogger.info(
@@ -305,7 +308,7 @@ export async function createPayment(input: CreatePaymentInput) {
                 schoolId,
                 studentName: studentObj.name,
                 invoiceNo: payment.receiptNumber,
-                amount: payment.amount,
+                amount: payment.amount, // Already mapped to number above
                 paymentDate: payment.date,
                 paymentMethod: payment.paymentMethod
               }
@@ -360,7 +363,7 @@ export async function refundPayment(paymentId: string) {
           setSentryPaymentCtx({
             paymentId: payment.id,
             studentId: payment.studentId,
-            amount: payment.amount,
+            amount: payment.amount.toNumber(),
             paymentMethod: payment.paymentMethod,
           })
 
@@ -379,7 +382,7 @@ export async function refundPayment(paymentId: string) {
 
           // Evaluate feeStatus based on calendar due dates rather than 50% balance ratio (P1-04)
           let feeStatus: "PAID" | "OVERDUE" | "PARTIAL" | "PENDING" = "PENDING";
-          if (updatedStudent.pendingAmount <= 0) {
+          if (updatedStudent.pendingAmount.lte(0)) {
             feeStatus = "PAID";
           } else {
             const now = new Date();
@@ -404,12 +407,12 @@ export async function refundPayment(paymentId: string) {
             feeStatus = (overdueInvoice || overdueMapping) ? "OVERDUE" : "PARTIAL";
           }
 
-          if (updatedStudent.feeStatus !== feeStatus || updatedStudent.paidAmount < 0) {
+          if (updatedStudent.feeStatus !== feeStatus || updatedStudent.paidAmount.lt(0)) {
             await tx.student.update({
               where: { id: payment.studentId },
               data: {
                 feeStatus,
-                ...(updatedStudent.paidAmount < 0 && { paidAmount: 0 }),
+                ...(updatedStudent.paidAmount.lt(0) && { paidAmount: 0 }),
               },
             })
           }
@@ -422,18 +425,21 @@ export async function refundPayment(paymentId: string) {
               schoolId,
               userId,
               userEmail: userEmail ?? undefined,
-              oldValues: { status: "COMPLETED", paidAmount: updatedStudent.paidAmount + payment.amount },
+              oldValues: { status: "COMPLETED", paidAmount: updatedStudent.paidAmount.plus(payment.amount).toNumber() },
               newValues: {
                 status: "REFUNDED",
-                paidAmount: Math.max(0, updatedStudent.paidAmount),
+                paidAmount: Math.max(0, updatedStudent.paidAmount.toNumber()),
               },
-              description: `Refunded ${payment.amount} for receipt ${payment.receiptNumber}`,
+              description: `Refunded ${payment.amount.toNumber()} for receipt ${payment.receiptNumber}`,
             },
             tx,
           )
 
 
-          return updatedPayment
+          return {
+            ...updatedPayment,
+            amount: updatedPayment.amount.toNumber()
+          }
         })
 
         paymentLogger.info({ paymentId, refundedPaymentId: updated.id }, "Payment refunded successfully")
@@ -496,7 +502,10 @@ export async function deletePayment(id: string) {
           tx,
         )
 
-        return updated
+        return {
+          ...updated,
+          amount: updated.amount.toNumber()
+        }
       })
     },
     { sentryOp: "payment.delete", domain: "payment", thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
@@ -528,7 +537,10 @@ export async function getPaymentById(id: string) {
           return null
         }
 
-        return payment
+        return {
+          ...payment,
+          amount: payment.amount.toNumber()
+        }
       },
       { sentryOp: "payment.getById", domain: "payment", thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY }
     )

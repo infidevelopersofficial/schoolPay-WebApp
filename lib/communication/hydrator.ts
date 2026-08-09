@@ -56,7 +56,7 @@ export async function hydrateTemplate(
 
         // Fetch unpaid invoice balance summaries
         if (student.invoices.length > 0) {
-          const totalUnpaid = student.invoices.reduce((sum, inv) => sum + inv.total, 0);
+          const totalUnpaid = student.invoices.reduce((sum, inv) => sum + inv.total.toNumber(), 0);
           amountDue = `₹${totalUnpaid.toFixed(2)}`;
 
           const earliestDue = student.invoices[0].dueDate;

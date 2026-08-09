@@ -69,7 +69,7 @@ export const identifyHighRiskDefaultersCached = unstable_cache(
       }
 
       // High outstanding balance
-      if (student.pendingAmount > 10000) {
+      if (student.pendingAmount.toNumber() > 10000) {
         riskScore += 25
         factors.push("Outstanding > ₹10,000")
       }
@@ -91,13 +91,13 @@ export const identifyHighRiskDefaultersCached = unstable_cache(
       else if (riskScore >= 26) riskCategory = "MEDIUM"
 
       // Only include if there is some risk or outstanding
-      if (riskScore > 0 || student.pendingAmount > 0) {
+      if (riskScore > 0 || student.pendingAmount.toNumber() > 0) {
         profiles.push({
           studentId: student.id,
           studentName: student.name,
           class: student.class,
           parentPhone: student.parent?.mobile || null,
-          outstandingAmount: student.pendingAmount,
+          outstandingAmount: student.pendingAmount.toNumber(),
           riskScore,
           riskCategory,
           factors

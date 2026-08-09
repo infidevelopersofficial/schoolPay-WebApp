@@ -115,7 +115,7 @@ export async function getMyResults(limit?: number) {
 export async function getMyFees() {
   const { studentId, schoolId } = await getStudentContext()
 
-  return prisma.invoice.findMany({
+  const fees = await prisma.invoice.findMany({
     where: {
       studentId,
       schoolId,
@@ -127,12 +127,22 @@ export async function getMyFees() {
       dueDate: 'asc'
     }
   })
+
+  return fees.map(f => ({
+    ...f,
+    subtotal: f.subtotal.toNumber(),
+    cgstAmount: f.cgstAmount?.toNumber() ?? 0,
+    sgstAmount: f.sgstAmount?.toNumber() ?? 0,
+    igstAmount: f.igstAmount?.toNumber() ?? 0,
+    total: f.total.toNumber(),
+    discountAmount: f.discountAmount?.toNumber() ?? 0,
+  }))
 }
 
 export async function getMyPayments(limit?: number) {
   const { studentId, schoolId } = await getStudentContext()
 
-  return prisma.payment.findMany({
+  const payments = await prisma.payment.findMany({
     where: {
       studentId,
       schoolId,
@@ -142,6 +152,11 @@ export async function getMyPayments(limit?: number) {
     },
     ...(limit && { take: limit })
   })
+
+  return payments.map(p => ({
+    ...p,
+    amount: p.amount.toNumber()
+  }))
 }
 
 export async function getMyAnnouncements(limit?: number) {
@@ -232,7 +247,7 @@ export async function getMyDashboard() {
   const attendancePercentage = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 100
 
   const pendingInvoicesCount = invoices.length
-  const pendingFeesAmount = invoices.reduce((sum, inv) => sum + inv.total, 0)
+  const pendingFeesAmount = invoices.reduce((sum, inv) => sum + inv.total.toNumber(), 0)
 
   return {
     metrics: {

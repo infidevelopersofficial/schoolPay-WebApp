@@ -36,10 +36,10 @@ export async function processCollectionReportRule(
       },
     });
 
-    const totalBilled = recentInvoices.reduce((sum, inv) => sum + inv.total, 0);
+    const totalBilled = recentInvoices.reduce((sum, inv) => sum + inv.total.toNumber(), 0);
     const totalCollected = recentInvoices
       .filter((inv) => inv.status === "PAID")
-      .reduce((sum, inv) => sum + inv.total, 0);
+      .reduce((sum, inv) => sum + inv.total.toNumber(), 0);
 
     const collectionRate = totalBilled > 0
       ? Number(((totalCollected / totalBilled) * 100).toFixed(1))
@@ -75,11 +75,11 @@ export async function processCollectionReportRule(
       const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
       if (diffDays <= 15) {
-        agingBuckets.under_15_days += inv.total;
+        agingBuckets.under_15_days += inv.total.toNumber();
       } else if (diffDays <= 30) {
-        agingBuckets.between_15_30_days += inv.total;
+        agingBuckets.between_15_30_days += inv.total.toNumber();
       } else {
-        agingBuckets.over_30_days += inv.total;
+        agingBuckets.over_30_days += inv.total.toNumber();
       }
     }
 

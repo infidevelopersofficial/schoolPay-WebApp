@@ -31,7 +31,7 @@ export async function getSchoolDashboardStats() {
     studentsCount,
     teachersCount,
     classesCount,
-    totalCollections: totalCollections._sum.amount || 0,
+    totalCollections: totalCollections._sum.amount?.toNumber() || 0,
     recentPayments,
     recentActivities,
     revenueData
@@ -65,7 +65,7 @@ async function getRevenueData(schoolId: string) {
   payments.forEach((p: any) => {
     const monthYear = new Date(p.date).toLocaleString('en-US', { month: 'short', year: 'numeric' });
     if (monthlyData[monthYear] !== undefined) {
-      monthlyData[monthYear] += p.amount;
+      monthlyData[monthYear] += p.amount.toNumber();
     }
   });
 

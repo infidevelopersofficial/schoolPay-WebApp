@@ -91,7 +91,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     
     doc.setFontSize(20);
     doc.setTextColor(0, 128, 0); // Green color
-    doc.text(`INR ${payment.amount.toLocaleString("en-IN")}`, rightX, 165);
+    doc.text(`INR ${payment.amount.toNumber().toLocaleString("en-IN")}`, rightX, 165);
     doc.setTextColor(0, 0, 0); // Reset color
     
     doc.setFontSize(10);
@@ -117,7 +117,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     doc.setFont("helvetica", "bold");
     doc.text("Tax Breakdown:", 40, 270);
     doc.setFont("helvetica", "normal");
-    const baseAmount = payment.amount / 1.18; // Assuming amount includes 18% GST
+    const baseAmount = payment.amount.toNumber() / 1.18; // Assuming amount includes 18% GST
     const cgst = baseAmount * 0.09;
     const sgst = baseAmount * 0.09;
 

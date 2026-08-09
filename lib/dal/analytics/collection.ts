@@ -55,10 +55,10 @@ export async function getCollectionAnalytics(): Promise<CollectionAnalyticsPaylo
           },
         });
 
-        const billedTotal = invoices.reduce((sum, inv) => sum + inv.total, 0);
+        const billedTotal = invoices.reduce((sum, inv) => sum + inv.total.toNumber(), 0);
         const collectedTotal = invoices
           .filter((inv) => inv.status === "PAID")
-          .reduce((sum, inv) => sum + inv.total, 0);
+          .reduce((sum, inv) => sum + inv.total.toNumber(), 0);
 
         const recoveryRate = billedTotal > 0
           ? Number(((collectedTotal / billedTotal) * 100).toFixed(1))
@@ -87,18 +87,18 @@ export async function getCollectionAnalytics(): Promise<CollectionAnalyticsPaylo
 
           if (diffDays <= 0) {
             // Due date is in the future or today
-            agingBrackets.current += inv.total;
+            agingBrackets.current += inv.total.toNumber();
           } else if (diffDays <= 15) {
-            agingBrackets.under_15_days += inv.total;
+            agingBrackets.under_15_days += inv.total.toNumber();
           } else if (diffDays <= 30) {
-            agingBrackets.between_15_30_days += inv.total;
+            agingBrackets.between_15_30_days += inv.total.toNumber();
           } else {
-            agingBrackets.over_30_days += inv.total;
+            agingBrackets.over_30_days += inv.total.toNumber();
           }
         }
 
         const recentPenaltiesCount = penalties.length;
-        const recentPenaltiesAmount = penalties.reduce((sum, p) => sum + p.amount, 0);
+        const recentPenaltiesAmount = penalties.reduce((sum, p) => sum + p.amount.toNumber(), 0);
 
         return {
           billedTotal: Number(billedTotal.toFixed(2)),

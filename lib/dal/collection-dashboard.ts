@@ -20,8 +20,8 @@ export const getCollectionMetricsCached = unstable_cache(
       _sum: { amount: true }
     })
     
-    const totalBilled = invoices._sum.total || 0
-    const totalCollected = payments._sum.amount || 0
+    const totalBilled = invoices._sum.total?.toNumber() || 0
+    const totalCollected = payments._sum.amount?.toNumber() || 0
     const outstanding = Math.max(0, totalBilled - totalCollected)
     const recoveryRate = totalBilled > 0 ? (totalCollected / totalBilled) * 100 : 0
     
@@ -52,8 +52,8 @@ export const getCollectionMetricsCached = unstable_cache(
     const kpiResults = await Promise.all(kpiPromises)
     
     const kpiHistory = kpiResults.map((result, idx) => {
-      const monthBilled = result[0]._sum.total || 0
-      const monthCollected = result[1]._sum.amount || 0
+      const monthBilled = result[0]._sum.total?.toNumber() || 0
+      const monthCollected = result[1]._sum.amount?.toNumber() || 0
       const monthRecoveryRate = monthBilled > 0 ? (monthCollected / monthBilled) * 100 : 0
       
       return {

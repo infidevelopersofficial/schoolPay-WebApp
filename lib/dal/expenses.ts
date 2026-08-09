@@ -28,7 +28,8 @@ export async function getExpenseStats(schoolIdParam?: string, startDate?: Date, 
     ])
 
     const totalExpenses = expensesResult._sum.amount || 0
-    const totalIncome = paymentsResult._sum.amount || 0 // Assuming Payment.amount is in the same units (paise)
+    // Payment.amount is now Decimal(10,2); converted to number here to match Expense.amount (Int) for arithmetic.
+    const totalIncome = paymentsResult._sum.amount?.toNumber() || 0 
     const net = totalIncome - totalExpenses
 
     return {
@@ -98,7 +99,7 @@ export async function getMonthlyExpenseChartData(schoolIdParam?: string, year: n
 
     payments.forEach(p => {
       const m = p.date.getMonth()
-      monthlyData[m].income += p.amount
+      monthlyData[m].income += p.amount.toNumber()
     })
 
     return monthlyData

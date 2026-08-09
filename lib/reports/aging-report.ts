@@ -38,19 +38,19 @@ export const generateAgingReportCached = unstable_cache(
       const daysOverdue = Math.floor((now.getTime() - inv.dueDate.getTime()) / (1000 * 3600 * 24))
       let bucketName = "Current"
 
-      if (daysOverdue > 90) { bucketName = "90+ Days"; buckets.days90Plus += inv.total }
-      else if (daysOverdue > 60) { bucketName = "61-90 Days"; buckets.days61_90 += inv.total }
-      else if (daysOverdue > 30) { bucketName = "31-60 Days"; buckets.days31_60 += inv.total }
-      else if (daysOverdue > 15) { bucketName = "16-30 Days"; buckets.days16_30 += inv.total }
-      else if (daysOverdue > 0) { bucketName = "1-15 Days"; buckets.days1_15 += inv.total }
-      else { buckets.current += inv.total }
+      if (daysOverdue > 90) { bucketName = "90+ Days"; buckets.days90Plus += inv.total.toNumber() }
+      else if (daysOverdue > 60) { bucketName = "61-90 Days"; buckets.days61_90 += inv.total.toNumber() }
+      else if (daysOverdue > 30) { bucketName = "31-60 Days"; buckets.days31_60 += inv.total.toNumber() }
+      else if (daysOverdue > 15) { bucketName = "16-30 Days"; buckets.days16_30 += inv.total.toNumber() }
+      else if (daysOverdue > 0) { bucketName = "1-15 Days"; buckets.days1_15 += inv.total.toNumber() }
+      else { buckets.current += inv.total.toNumber() }
 
       reportEntries.push({
         invoiceId: inv.id,
         studentName: inv.student.name,
         class: inv.student.class,
         dueDate: inv.dueDate,
-        amount: inv.total,
+        amount: inv.total.toNumber(),
         daysOverdue: Math.max(0, daysOverdue),
         bucket: bucketName
       })

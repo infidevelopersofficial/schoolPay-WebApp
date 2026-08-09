@@ -28,7 +28,7 @@ export const getRecoveryAnalyticsCached = unstable_cache(
     
     const feeTypeMetrics = feeTypeMetricsRaw.map(f => ({
       type: f.feeType,
-      amount: f._sum.amount || 0
+      amount: f._sum.amount?.toNumber() || 0
     })).sort((a, b) => b.amount - a.amount)
 
     const totalStudents = await prisma.student.count({ where: { schoolId } })

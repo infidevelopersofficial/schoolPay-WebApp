@@ -46,7 +46,7 @@ export async function GET(request: Request) {
         id: inv.id,
         invoiceNo: inv.invoiceNo,
         title: inv.title,
-        total: inv.total,
+        total: inv.total.toNumber(),
         dueDate: inv.dueDate.toISOString(),
         status: inv.status,
         paidAt: inv.paidAt?.toISOString() || null,
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
         paidInvoices.push(dto);
       } else if (inv.status === "SENT" || inv.status === "OVERDUE") {
         pendingInvoices.push(dto);
-        totalOutstanding += inv.total;
+        totalOutstanding += inv.total.toNumber();
       }
     });
 

@@ -34,8 +34,8 @@ export const generateDeterministicForecastCached = unstable_cache(
       _sum: { total: true }
     })
 
-    const upcomingAmount = upcomingInvoices._sum.total || 0
-    const overdueAmount = overdueInvoices._sum.total || 0
+    const upcomingAmount = upcomingInvoices._sum.total?.toNumber() || 0
+    const overdueAmount = overdueInvoices._sum.total?.toNumber() || 0
 
     // Get recovery analytics to derive a baseline rate
     const recoveryData = await getRecoveryAnalyticsCached(schoolId)

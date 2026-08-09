@@ -18,7 +18,7 @@ export const getRevenueForecastCached = unstable_cache(
       _sum: { amount: true }
     })
     
-    const pastRevenue = pastRevenueQuery._sum.amount || 0
+    const pastRevenue = pastRevenueQuery._sum.amount?.toNumber() || 0
     const monthlyRunRate = pastRevenue / 3
     
     // Also consider unpaid invoices as short-term upside
@@ -26,7 +26,7 @@ export const getRevenueForecastCached = unstable_cache(
       where: { schoolId, status: { in: ["SENT", "OVERDUE"] } },
       _sum: { total: true }
     })
-    const outstanding = pendingInvoices._sum.total || 0
+    const outstanding = pendingInvoices._sum.total?.toNumber() || 0
     
     // Recovery multiplier (say 80% collection rate historically)
     // If not calculating dynamic rate here, we use a fixed 80%

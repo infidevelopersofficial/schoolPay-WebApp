@@ -87,15 +87,15 @@ export default async function ParentDetailPage({ params }: { params: { id: strin
                       <div className="grid grid-cols-3 gap-4 pt-2">
                         <div>
                           <p className="text-sm text-muted-foreground">Total Fees</p>
-                          <p className="font-medium">{formatCurrency(student.totalFees)}</p>
+                          <p className="font-medium">{formatCurrency(student.totalFees.toNumber())}</p>
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Paid Amount</p>
-                          <p className="font-medium text-green-600">{formatCurrency(student.paidAmount)}</p>
+                          <p className="font-medium text-green-600">{formatCurrency(student.paidAmount.toNumber())}</p>
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Pending Amount</p>
-                          <p className="font-medium text-red-600">{formatCurrency(student.pendingAmount)}</p>
+                          <p className="font-medium text-red-600">{formatCurrency(student.pendingAmount.toNumber())}</p>
                         </div>
                       </div>
                     </div>

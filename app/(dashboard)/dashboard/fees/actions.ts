@@ -110,10 +110,11 @@ export async function generateInvoicesAction(structureId: string) {
             for (const dueDate of dueDates) {
               let finalAmount = item.amount
               for (const discount of discounts) {
+                const discountVal = Number(discount.value)
                 if (discount.type === "PERCENTAGE") {
-                  finalAmount = finalAmount - (finalAmount * (discount.value / 100))
+                  finalAmount = finalAmount - (finalAmount * (discountVal / 100))
                 } else if (discount.type === "FIXED") {
-                  finalAmount = finalAmount - discount.value
+                  finalAmount = finalAmount - discountVal
                 }
               }
 

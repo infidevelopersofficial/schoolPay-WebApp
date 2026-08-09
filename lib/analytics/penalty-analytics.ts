@@ -19,8 +19,8 @@ export const getPenaltyImpactCached = unstable_cache(
       _sum: { amount: true },
     })
     
-    const totalPenalties = totalPenaltiesRaw._sum.amount || 0
-    const paidPenalties = paidPenaltiesRaw._sum.amount || 0
+    const totalPenalties = totalPenaltiesRaw._sum.amount?.toNumber() || 0
+    const paidPenalties = paidPenaltiesRaw._sum.amount?.toNumber() || 0
     const pendingPenalties = totalPenalties - paidPenalties
 
     const penaltyRecoveryRate = totalPenalties > 0 

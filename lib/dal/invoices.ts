@@ -1,5 +1,6 @@
 import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 import { z } from "zod"
 import { recordAuditLog } from "@/lib/audit"
 import { withDAL } from "@/lib/dal/utils"
@@ -70,6 +71,12 @@ export async function getInvoices(opts?: {
       ]).then(([invoices, total]) => ({
         invoices: invoices.map(inv => ({
           ...inv,
+          subtotal: inv.subtotal.toNumber(),
+          cgstAmount: inv.cgstAmount?.toNumber() ?? 0,
+          sgstAmount: inv.sgstAmount?.toNumber() ?? 0,
+          igstAmount: inv.igstAmount?.toNumber() ?? 0,
+          total: inv.total.toNumber(),
+          discountAmount: inv.discountAmount?.toNumber() ?? 0,
           status: (inv.status !== "PAID" && inv.status !== "CANCELLED" && new Date(inv.dueDate) < new Date()) ? "OVERDUE" as const : inv.status
         })),
         total,
@@ -96,7 +103,16 @@ export async function getInvoice(id: string) {
         if (inv && inv.status !== "PAID" && inv.status !== "CANCELLED" && new Date(inv.dueDate) < new Date()) {
           inv.status = "OVERDUE";
         }
-        return inv
+        if (!inv) return null;
+        return {
+          ...inv,
+          subtotal: inv.subtotal.toNumber(),
+          cgstAmount: inv.cgstAmount?.toNumber() ?? 0,
+          sgstAmount: inv.sgstAmount?.toNumber() ?? 0,
+          igstAmount: inv.igstAmount?.toNumber() ?? 0,
+          total: inv.total.toNumber(),
+          discountAmount: inv.discountAmount?.toNumber() ?? 0,
+        }
       }),
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
@@ -111,13 +127,13 @@ export async function createInvoice(input: CreateInvoiceInput) {
   const schoolId = await getSchoolId()
   const validated = createInvoiceSchema.parse(input)
 
-  // Calculate totals
-  const subtotal = validated.lineItems.reduce((sum, item) => sum + item.amount, 0)
-  const cgstAmount = subtotal * (validated.cgstRate / 100)
-  const sgstAmount = subtotal * (validated.sgstRate / 100)
-  const igstAmount = subtotal * (validated.igstRate / 100)
-  const totalTax = cgstAmount + sgstAmount + igstAmount
-  const total = subtotal + totalTax
+  // Calculate totals safely with Decimal
+  const subtotal = new Prisma.Decimal(validated.lineItems.reduce((sum, item) => sum + item.amount, 0))
+  const cgstAmount = subtotal.mul(validated.cgstRate ?? 0).div(100)
+  const sgstAmount = subtotal.mul(validated.sgstRate ?? 0).div(100)
+  const igstAmount = subtotal.mul(validated.igstRate ?? 0).div(100)
+  const totalTax = cgstAmount.plus(sgstAmount).plus(igstAmount)
+  const total = subtotal.plus(totalTax)
 
   return withDAL(
     "invoices.create",
@@ -139,11 +155,11 @@ export async function createInvoice(input: CreateInvoiceInput) {
           lineItems: validated.lineItems,
           subtotal,
           cgstRate: validated.cgstRate ?? 0,
-          cgstAmount: (validated.cgstRate ?? 0) * subtotal / 100,
+          cgstAmount,
           sgstRate: validated.sgstRate ?? 0,
-          sgstAmount: (validated.sgstRate ?? 0) * subtotal / 100,
+          sgstAmount,
           igstRate: validated.igstRate ?? 0,
-          igstAmount: (validated.igstRate ?? 0) * subtotal / 100,
+          igstAmount,
           total,
           dueDate: new Date(validated.dueDate),
           notes: validated.notes,
@@ -156,11 +172,19 @@ export async function createInvoice(input: CreateInvoiceInput) {
         entityType: "PAYMENT",
         entityId: invoice.id,
         schoolId,
-        newValues: { invoiceNo, total, studentId: validated.studentId },
-        description: `Created invoice ${invoiceNo} for ₹${total.toFixed(2)}`,
+        newValues: { invoiceNo, total: total.toNumber(), studentId: validated.studentId },
+        description: `Created invoice ${invoiceNo} for ₹${total.toNumber().toFixed(2)}`,
       })
 
-      return invoice
+      return {
+        ...invoice,
+        subtotal: invoice.subtotal.toNumber(),
+        cgstAmount: invoice.cgstAmount?.toNumber() ?? 0,
+        sgstAmount: invoice.sgstAmount?.toNumber() ?? 0,
+        igstAmount: invoice.igstAmount?.toNumber() ?? 0,
+        total: invoice.total.toNumber(),
+        discountAmount: invoice.discountAmount?.toNumber() ?? 0,
+      }
     },
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
@@ -219,7 +243,7 @@ export async function updateInvoiceStatus(id: string, status: "DRAFT" | "SENT" |
                 schoolId,
                 studentName: student.name,
                 invoiceNo: invoice.invoiceNo,
-                amount: invoice.total,
+                amount: invoice.total.toNumber(),
                 dueDate: invoice.dueDate,
               },
             });
@@ -229,7 +253,15 @@ export async function updateInvoiceStatus(id: string, status: "DRAFT" | "SENT" |
         }
       }
 
-      return invoice
+      return {
+        ...invoice,
+        subtotal: invoice.subtotal.toNumber(),
+        cgstAmount: invoice.cgstAmount?.toNumber() ?? 0,
+        sgstAmount: invoice.sgstAmount?.toNumber() ?? 0,
+        igstAmount: invoice.igstAmount?.toNumber() ?? 0,
+        total: invoice.total.toNumber(),
+        discountAmount: invoice.discountAmount?.toNumber() ?? 0,
+      }
     },
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
@@ -247,9 +279,9 @@ export async function getInvoiceSummary() {
         prisma.invoice.aggregate({ where: { schoolId, status: "OVERDUE" }, _sum: { total: true } }),
         prisma.invoice.count({ where: { schoolId } }),
       ]).then(([paid, pending, overdue, total]) => ({
-        totalCollected: paid._sum.total ?? 0,
-        totalPending: pending._sum.total ?? 0,
-        totalOverdue: overdue._sum.total ?? 0,
+        totalCollected: paid._sum.total?.toNumber() ?? 0,
+        totalPending: pending._sum.total?.toNumber() ?? 0,
+        totalOverdue: overdue._sum.total?.toNumber() ?? 0,
         invoiceCount: total,
       })),
     { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },

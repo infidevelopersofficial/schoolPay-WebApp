@@ -22,7 +22,7 @@ export const getScholarshipAnalyticsCached = unstable_cache(
     const classDistribution: Record<string, number> = {}
 
     for (const inv of invoicesWithDiscounts) {
-      const amt = inv.discountAmount || 0
+      const amt = inv.discountAmount?.toNumber() || 0
       revenueForgone += amt
       
       const cls = inv.student.class
@@ -39,7 +39,7 @@ export const getScholarshipAnalyticsCached = unstable_cache(
       _sum: { total: true }
     })
     
-    const totalBilled = grossRevenueQuery._sum.total || 0
+    const totalBilled = grossRevenueQuery._sum.total?.toNumber() || 0
     const potentialRevenue = totalBilled + revenueForgone
     
     const scholarshipRecoveryImpact = potentialRevenue > 0 

@@ -40,7 +40,7 @@ export async function GET(request: Request) {
 
     const payments: PaymentDTO[] = paymentsData.map((p) => ({
       id: p.id,
-      amount: p.amount,
+      amount: p.amount.toNumber(),
       feeType: p.feeType,
       status: p.status,
       date: p.date.toISOString(),

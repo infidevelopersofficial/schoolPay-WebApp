@@ -106,7 +106,7 @@ export async function GET(request: Request) {
     ]);
 
     // Calculate pending amount
-    const pendingAmount = pendingInvoices.reduce((sum, inv) => sum + inv.total, 0);
+    const pendingAmount = pendingInvoices.reduce((sum, inv) => sum + inv.total.toNumber(), 0);
 
     // Calculate attendance %
     const totalDays = attendanceRecords.length;
@@ -119,7 +119,7 @@ export async function GET(request: Request) {
       pendingAmount,
       unreadNotifications,
       upcomingExams,
-      recentPayments,
+      recentPayments: recentPayments.map(p => ({ ...p, amount: p.amount.toNumber() })),
     });
   } catch (error: any) {
     if (error.name === "MobileAuthError") {

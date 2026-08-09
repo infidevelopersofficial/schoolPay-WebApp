@@ -33,7 +33,7 @@ export async function createFeePaymentOrder(invoiceId: string) {
     }
 
     // Razorpay amount is in paise (₹1 = 100 paise)
-    const amountInPaise = Math.round(invoice.total * 100)
+    const amountInPaise = Math.round(invoice.total.toNumber() * 100)
 
     const order = await razorpay.orders.create({
       amount: amountInPaise,

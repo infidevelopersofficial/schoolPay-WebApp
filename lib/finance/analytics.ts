@@ -19,8 +19,8 @@ export const getRevenueAnalyticsCached = unstable_cache(
       _sum: { amount: true }
     })
     
-    const grossRevenue = grossRevenueQuery._sum.total || 0
-    const netRevenue = netRevenueQuery._sum.amount || 0
+    const grossRevenue = grossRevenueQuery._sum.total?.toNumber() || 0
+    const netRevenue = netRevenueQuery._sum.amount?.toNumber() || 0
     
     // Calculate collection rate
     const collectionRate = grossRevenue > 0 ? (netRevenue / grossRevenue) * 100 : 0
@@ -116,7 +116,7 @@ export const getMonthlyFinancialSummaryCached = unstable_cache(
     const summariesRaw = await Promise.all(summaryPromises)
     
     const monthlySummary = summariesRaw.map((result: any, idx: number) => {
-      const revenue = result[0]._sum.amount || 0
+      const revenue = result[0]._sum.amount?.toNumber() || 0
       const expense = result[1]._sum.amount || 0
       
       return {
