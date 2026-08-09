@@ -24,9 +24,9 @@ SchoolPay has a solid foundation with **55+ database models**, **34 DAL modules*
 - ✅ Survey system with analytics
 
 - ✅ Edit/Update UI forms (dedicated edit pages for all core modules)
+- ✅ Delete actions for 7+ modules
 **What's NOT complete:**
-- ❌ View/Detail pages (only Students and Exams have `[id]` pages)
-- ❌ Delete actions for 7+ modules
+- ❌ View/Detail pages — Fees and Payments detail pages pending (Phase 2 Batch B); Teachers, Parents, Classes, Subjects, Students, Exams complete
 - ❌ Data export on individual data tables
 - ❌ Bulk import for Teachers, Parents, Fees
 
@@ -65,12 +65,12 @@ Every add form needs an edit mode. The DAL already has `updateStudent()`, `updat
 - [ ] Fees `[id]` — structure detail, mapped classes, collection progress
 - [ ] Payments `[id]` — full receipt view, transaction detail
 
-### 1.3 Complete Delete Actions (Phase 3: Soft-Delete Actions)
+### 1.3 Complete Delete Actions (Phase 3) (✅ Completed August 9, 2026)
 **Priority**: 🟡 HIGH | **Effort**: 2-3 days
 
-- [ ] Add delete DAL functions for: Subjects, Lessons, Events, Messages, Announcements, Fees, Payments
-- [ ] Wire delete actions with `withTenantAuth`
-- [ ] Build reusable `ConfirmDeleteDialog` component (replace `window.confirm`)
+- [x] Add delete DAL functions for: Subjects, Lessons, Events, Messages, Announcements, Fees, Payments
+- [x] Wire delete actions with `withTenantAuth`
+- [x] Build reusable `ConfirmDeleteDialog` component (replace `window.confirm`)
 
 ### 1.4 Action Columns in Tables
 **Priority**: 🟡 HIGH | **Effort**: 2 days
@@ -185,7 +185,7 @@ Add View / Edit / Delete dropdown menu to all table components:
 | 0.2.0 | Jun 2026 | Released | Exams, grading schemes, report cards |
 | 0.3.0 | Jun 2026 | Released | Campaigns, surveys, communications |
 | 0.4.0 | Jul 2026 | Released | Student validation hardening, teacher assignments |
-| 0.5.0 | August 5, 2026 | Released | Edit forms, detail pages, complete CRUD |
+| 0.5.0 | August 5, 2026 | Released | Edit forms, detail pages, delete actions, complete CRUD |
 | 0.6.0 | Planned | Planned | Import/export on all tables |
 | 0.7.0 | Planned | Planned | Timetable, promotions, audit viewer |
 
