@@ -502,3 +502,35 @@ export async function deletePayment(id: string) {
     { sentryOp: "payment.delete", domain: "payment", thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
 }
+
+export async function getPaymentById(id: string) {
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return measureAsync(
+      "payments.getById",
+      async () => {
+        const payment = await prisma.payment.findUnique({
+          where: { id },
+          include: {
+            student: {
+              select: {
+                id: true,
+                studentId: true,
+                name: true,
+                class: true,
+                section: true
+              }
+            }
+          }
+        })
+
+        if (!payment || payment.schoolId !== schoolId) {
+          return null
+        }
+
+        return payment
+      },
+      { sentryOp: "payment.getById", domain: "payment", thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY }
+    )
+  })
+}
