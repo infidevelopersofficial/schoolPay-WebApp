@@ -119,48 +119,46 @@ export async function getFeeStructureById(id: string) {
 }
 
 export async function deleteFeeStructure(id: string) {
-  return withTenantRead(async () => {
-    const schoolId = await getSchoolId()
-    return withDAL(
-      "feeStructures.delete",
-      async () => {
-        const structure = await prisma.feeStructure.findUnique({
-          where: { id },
-          include: { items: true }
-        })
+  const schoolId = await getSchoolId()
+  return withDAL(
+    "feeStructures.delete",
+    async () => {
+      const structure = await prisma.feeStructure.findUnique({
+        where: { id },
+        include: { items: true }
+      })
 
-        if (!structure || structure.schoolId !== schoolId) {
-          throw new Error("Fee structure not found or unauthorized")
+      if (!structure || structure.schoolId !== schoolId) {
+        throw new Error("Fee structure not found or unauthorized")
+      }
+
+      const itemIds = structure.items.map(i => i.id)
+
+      const mappingsWithInvoices = await prisma.studentFeeMapping.findFirst({
+        where: {
+          feeItemId: { in: itemIds }
         }
+      })
 
-        const itemIds = structure.items.map(i => i.id)
+      if (mappingsWithInvoices) {
+          throw new Error("Cannot delete fee structure: Invoices or payments have already been generated for it.")
+      }
 
-        const mappingsWithInvoices = await prisma.studentFeeMapping.findFirst({
-          where: {
-            feeItemId: { in: itemIds }
-          }
-        })
+      const updated = await prisma.feeStructure.update({
+        where: { id },
+        data: { isActive: false },
+      })
 
-        if (mappingsWithInvoices) {
-           throw new Error("Cannot delete fee structure: Invoices or payments have already been generated for it.")
-        }
+      await recordAuditLog({
+        action: "SOFT_DELETE",
+        entityType: "FEE_STRUCTURE",
+        entityId: id,
+        schoolId,
+        description: `Archived fee structure: ${structure.name}`,
+      })
 
-        const updated = await prisma.feeStructure.update({
-          where: { id },
-          data: { isActive: false },
-        })
-
-        await recordAuditLog({
-          action: "SOFT_DELETE",
-          entityType: "FEE_STRUCTURE",
-          entityId: id,
-          schoolId,
-          description: `Archived fee structure: ${structure.name}`,
-        })
-
-        return updated
-      },
-      { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
-    )
-  })
+      return updated
+    },
+    { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
+  )
 }
