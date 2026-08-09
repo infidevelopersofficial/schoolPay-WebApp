@@ -59,3 +59,18 @@ export async function updateSubjectAction(prevState: any, formData: FormData) {
     return { error: e.message || "Unauthorized" }
   }
 }
+
+import { deleteSubject } from "@/lib/dal/subjects"
+
+export const deleteSubjectAction = async (id: string) => {
+  return await withTenantAuth(null, ["ADMIN"], async () => {
+    if (!id) throw new Error("Subject ID is required")
+    try {
+      await deleteSubject(id)
+      revalidatePath("/dashboard/subjects")
+      return { success: true }
+    } catch (err: any) {
+      return { error: err.message || "Failed to delete subject" }
+    }
+  })
+}

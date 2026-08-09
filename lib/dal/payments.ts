@@ -455,3 +455,50 @@ export async function refundPayment(paymentId: string) {
     { sentryOp: "payment.refund", domain: "payment", thresholdMs: THRESHOLDS.PAYMENT_TRANSACTION },
   )
 }
+
+export async function deletePayment(id: string) {
+  const schoolId = await getSchoolId()
+  const session = await auth()
+  const userId = session?.user?.id
+  const userEmail = session?.user?.email
+
+  return measureAsync(
+    "payments.delete",
+    async () => {
+      return await prisma.$transaction(async (tx) => {
+        const payment = await tx.payment.findUnique({ where: { id } })
+        
+        if (!payment || payment.schoolId !== schoolId) {
+          throw new Error("Payment not found or unauthorized")
+        }
+
+        if (payment.status !== "PENDING") {
+          throw new Error(`Cannot void payment. Expected status PENDING, got ${payment.status}.`)
+        }
+
+        const updated = await tx.payment.update({
+          where: { id },
+          data: { status: "FAILED" },
+        })
+
+        await recordAuditLog(
+          {
+            action: "UPDATE",
+            entityType: "PAYMENT",
+            entityId: payment.id,
+            schoolId,
+            userId,
+            userEmail: userEmail ?? undefined,
+            oldValues: { status: "PENDING" },
+            newValues: { status: "FAILED" },
+            description: `Voided pending payment ${payment.receiptNumber || payment.id}`,
+          },
+          tx,
+        )
+
+        return updated
+      })
+    },
+    { sentryOp: "payment.delete", domain: "payment", thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
+  )
+}

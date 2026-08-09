@@ -7,7 +7,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal, Eye, Receipt, RefreshCcw } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { generateReceiptPdf } from "@/lib/utils/receipt"
+import { deletePaymentAction } from "@/app/(dashboard)/dashboard/payments/actions"
+import { useToast } from "@/hooks/use-toast"
+import { Trash2 } from "lucide-react"
 
 const statusColors = {
   COMPLETED: "bg-green-100 text-green-700",
@@ -29,6 +33,17 @@ interface Payment {
 }
 
 export function PaymentsTable({ payments }: { payments: Payment[] }) {
+  const { toast } = useToast()
+
+  const handleVoid = async (id: string) => {
+    try {
+      await deletePaymentAction(id)
+      toast({ title: "Success", description: "Payment voided successfully." })
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" })
+    }
+  }
+
   if (payments.length === 0) {
     return (
       <div className="flex items-center justify-center h-40 text-muted-foreground border rounded-md">
@@ -102,6 +117,33 @@ export function PaymentsTable({ payments }: { payments: Payment[] }) {
                         <RefreshCcw className="mr-2 h-4 w-4" />
                         Retry Payment
                       </DropdownMenuItem>
+                    )}
+                    {payment.status === "PENDING" && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                            <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                            <span className="text-destructive">Void Payment</span>
+                          </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Void Payment?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will void this pending payment and mark it as failed. This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => handleVoid(payment.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Confirm
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>

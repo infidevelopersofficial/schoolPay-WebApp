@@ -4,6 +4,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { useToast } from "@/hooks/use-toast"
+import { deleteSubjectAction } from "@/app/(dashboard)/dashboard/subjects/actions"
 import { MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react"
 import Link from "next/link"
 
@@ -17,6 +20,21 @@ interface Subject {
 }
 
 export function SubjectsTable({ data }: { data: Subject[] }) {
+  const { toast } = useToast()
+
+  const handleDelete = async (id: string) => {
+    try {
+      const result = await deleteSubjectAction(id)
+      if (result?.error) {
+        toast({ title: "Error", description: result.error, variant: "destructive" })
+      } else {
+        toast({ title: "Success", description: "Subject deleted successfully." })
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" })
+    }
+  }
+
   if (data.length === 0) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center rounded-md border border-dashed p-8 text-center animate-in fade-in-50">
@@ -67,7 +85,30 @@ export function SubjectsTable({ data }: { data: Subject[] }) {
                     <Link href={`/dashboard/subjects/${subject.id}/edit`}>
                       <DropdownMenuItem><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
                     </Link>
-                    <DropdownMenuItem className="text-red-600"><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                          <Trash2 className="mr-2 h-4 w-4" />Delete
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Subject?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently delete this subject and all its lesson history. Deletion will be blocked if the subject has active teacher assignments or exams.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={() => handleDelete(subject.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>

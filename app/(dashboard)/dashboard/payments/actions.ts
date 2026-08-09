@@ -108,3 +108,14 @@ export async function getStudentPendingFeesAction(studentId: string) {
     return { error: e.message || "Failed to fetch student fees" }
   }
 }
+
+import { deletePayment } from "@/lib/dal/payments"
+
+export const deletePaymentAction = async (id: string) => {
+  return await withTenantAuth(null, ["ADMIN", "ACCOUNTANT"], async () => {
+    if (!id) throw new Error("Payment ID is required")
+    await deletePayment(id)
+    revalidatePath("/dashboard/payments")
+    return { success: true }
+  })
+}

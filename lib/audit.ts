@@ -5,7 +5,7 @@ import { systemLogger } from "@/lib/logger"
 import { addBreadcrumb } from "@/lib/observability/sentry-helpers"
 
 interface AuditLogParams {
-  action: "CREATE" | "UPDATE" | "SOFT_DELETE" | "REFUND"
+  action: "CREATE" | "UPDATE" | "SOFT_DELETE" | "HARD_DELETE" | "DELETE" | "REFUND"
   /**
    * Every model that can be audited. Stored as a plain String in the DB so
    * adding new values here does NOT require a migration.

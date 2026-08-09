@@ -209,3 +209,47 @@ export async function updateSubject(id: string, data: Partial<z.infer<typeof cre
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
 }
+
+export async function deleteSubject(id: string) {
+  const schoolId = await getSchoolId()
+  return withDAL(
+    "subjects.delete",
+    async () => {
+      const subject = await prisma.subject.findUnique({ where: { id } })
+      if (!subject || subject.schoolId !== schoolId) {
+        throw new Error("Subject not found or unauthorized")
+      }
+
+      return await prisma.$transaction(async (tx) => {
+        // Server-side guard: block if active TeacherSubject or Exam rows exist
+        const [activeTeacherSubjects, examsCount] = await Promise.all([
+          tx.teacherSubject.count({ where: { subjectId: id, isActive: true } }),
+          tx.exam.count({ where: { subjectId: id } })
+        ])
+
+        if (activeTeacherSubjects > 0 || examsCount > 0) {
+          throw new Error("Cannot delete subject: Active teacher assignments or exams exist.")
+        }
+
+        const deleted = await tx.subject.delete({
+          where: { id }
+        })
+
+        await recordAuditLog(
+          {
+            action: "DELETE",
+            entityType: "SUBJECT",
+            entityId: id,
+            schoolId,
+            oldValues: { name: subject.name, code: subject.code },
+            description: `Deleted subject: ${subject.name} (${subject.code})`,
+          },
+          tx,
+        )
+
+        return deleted
+      })
+    },
+    { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
+  )
+}
