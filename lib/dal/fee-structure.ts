@@ -162,3 +162,76 @@ export async function deleteFeeStructure(id: string) {
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
 }
+
+export async function getFeeStructureDetail(id: string) {
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return withDAL(
+      "feeStructures.getDetail",
+      async () => {
+        const structure = await prisma.feeStructure.findUnique({
+          where: { id, schoolId },
+          include: { 
+            items: true, 
+            mappings: { include: { class: true } } 
+          },
+        })
+
+        if (!structure) return null
+
+        const itemIds = structure.items.map(i => i.id)
+
+        // Aggregate StudentFeeMapping statuses
+        const aggregations = await prisma.studentFeeMapping.groupBy({
+          by: ['status'],
+          where: { feeItemId: { in: itemIds }, schoolId },
+          _count: { id: true },
+          _sum: { amount: true }
+        })
+
+        let totalAssigned = 0
+        let totalExpected = 0
+        let totalCollected = 0
+        
+        const statusCounts = {
+          PAID: 0,
+          PENDING: 0,
+          OVERDUE: 0,
+          PARTIAL: 0
+        }
+
+        for (const agg of aggregations) {
+          const count = agg._count.id
+          const sum = agg._sum.amount || 0
+          
+          totalAssigned += count
+          totalExpected += sum
+          
+          if (agg.status in statusCounts) {
+            statusCounts[agg.status as keyof typeof statusCounts] += count
+          }
+          
+          if (agg.status === 'PAID') {
+            totalCollected += sum
+          } else if (agg.status === 'PARTIAL') {
+            // PARTIAL implies some amount is paid, but the DB only stores total expected amount in this record.
+            // Actual collected amount for partials would require joining Payments.
+            // For now, we only count fully PAID towards totalCollected from mapping sum.
+            // If they need exact partial sums, we'd query payments.
+          }
+        }
+
+        return {
+          ...structure,
+          metrics: {
+            totalAssigned,
+            totalExpected,
+            totalCollected,
+            statusCounts
+          }
+        }
+      },
+      { log, thresholdMs: THRESHOLDS.DB_COMPLEX_QUERY },
+    )
+  })
+}
