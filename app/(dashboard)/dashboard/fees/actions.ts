@@ -240,3 +240,22 @@ export async function getMappedClassesStrengthAction(classIds: string[]) {
     return { error: e.message || "Unauthorized" }
   }
 }
+
+export async function deleteFeeStructureAction(id: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      if (!id) return { error: "Fee Structure ID is missing" }
+
+      try {
+        const { deleteFeeStructure } = await import("@/lib/dal/fee-structure")
+        await deleteFeeStructure(id)
+        revalidatePath("/dashboard/fees")
+        return { success: true }
+      } catch (e: any) {
+        return { error: e.message || "Failed to delete fee structure" }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}

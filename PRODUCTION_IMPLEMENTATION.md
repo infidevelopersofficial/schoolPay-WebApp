@@ -175,6 +175,7 @@ Add View / Edit / Delete dropdown menu to all table components:
 ## Technical Debt & Known Limitations
 - `getStudents({ limit: 1000 })` is used in some forms (like Parent edit) instead of a paginated or typeahead search. If a school exceeds this limit, parents might silently fail to see their child in the dropdown.
 - **Relational Integrity**: `Student.class` and `Lesson.subject` are stored as plain strings with no FK to `Class`/`Subject` models. Class and subject detail pages use string matching which can silently miss records if names are inconsistent. Future migrations must add proper FK relations.
+- **Migration History non-replayable**: Multiple historical SQL files are out of sync with the actual DB state (confirmed by repeated shadow DB failures). This permanently blocks `prisma migrate dev`. All future schema changes must use `--create-only` to generate SQL manually, then be applied directly via `prisma db execute` or `psql`. Subject model cannot be given isActive soft-delete until migration history is repaired or DB is reset. Hard delete with server-side guard (block if active TeacherSubject or Exam rows exist) is the permanent approach for Subject deletion.
 
 ## Version History
 

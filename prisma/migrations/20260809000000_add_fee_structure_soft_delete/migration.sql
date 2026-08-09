@@ -1,0 +1,1 @@
+ALTER TABLE "FeeStructure" ADD COLUMN "isActive" BOOLEAN NOT NULL DEFAULT true;

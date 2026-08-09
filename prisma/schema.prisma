@@ -6,12 +6,6 @@ datasource db {
   provider = "postgresql"
 }
 
-enum OnboardingStatus {
-  NOT_STARTED
-  IN_PROGRESS
-  COMPLETED
-}
-
 model School {
   id                        String                     @id @default(cuid())
   name                      String
@@ -26,7 +20,6 @@ model School {
   planId                    String?
   subscriptionStatus        SubscriptionStatus         @default(TRIALING)
   currentPeriodEnd          DateTime?
-  onboardingStatus          OnboardingStatus           @default(NOT_STARTED)
   onboardingStartedAt       DateTime?
   onboardingCompletedAt     DateTime?
   address                   String?
@@ -46,6 +39,7 @@ model School {
   isActive                  Boolean                    @default(true)
   createdAt                 DateTime                   @default(now())
   updatedAt                 DateTime                   @updatedAt
+  onboardingStatus          OnboardingStatus           @default(NOT_STARTED)
   sessions                  AcademicSession[]
   activityLogs              ActivityLog[]
   announcements             Announcement[]
@@ -87,13 +81,13 @@ model School {
   subscription              Subscription?
   surveys                   Survey[]
   teachers                  Teacher[]
+  teacherClassAssignments   TeacherClassAssignment[]
+  teacherSubjects           TeacherSubject[]
   tenantMetrics             TenantMetrics[]
   testSeries                TestSeries[]
   usageRecord               UsageRecord?
   userDevices               UserDevice[]
   users                     UserSchool[]
-  teacherSubjects           TeacherSubject[]
-  teacherClassAssignments   TeacherClassAssignment[]
 
   @@index([slug])
   @@index([type])
@@ -314,12 +308,12 @@ model Teacher {
   createdAt        DateTime                 @default(now())
   updatedAt        DateTime                 @updatedAt
   batches          Batch[]
+  classes          Class[]
   exams            Exam[]
   lessons          Lesson[]
   school           School                   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  subjects         TeacherSubject[]
   classAssignments TeacherClassAssignment[]
-  classes          Class[]
+  subjects         TeacherSubject[]
 
   @@unique([email, schoolId])
   @@index([schoolId])
@@ -355,15 +349,15 @@ model Class {
   section                   String
   strength                  Int                        @default(0)
   capacity                  Int                        @default(40)
-  classTeacherId            String?
   room                      String?
   schoolId                  String
   createdAt                 DateTime                   @default(now())
   updatedAt                 DateTime                   @updatedAt
+  classTeacherId            String?
+  classTeacher              Teacher?                   @relation(fields: [classTeacherId], references: [id])
   school                    School                     @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   discountRules             DiscountRule[]
   feeStructureClassMappings FeeStructureClassMapping[]
-  classTeacher              Teacher?                   @relation(fields: [classTeacherId], references: [id])
   teacherClassAssignments   TeacherClassAssignment[]
 
   @@unique([name, section, schoolId])
@@ -378,10 +372,9 @@ model TeacherSubject {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  school  School  @relation(fields: [schoolId], references: [id])
-  teacher Teacher @relation(fields: [teacherId], references: [id])
-  subject Subject @relation(fields: [subjectId], references: [id])
+  school    School   @relation(fields: [schoolId], references: [id])
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  teacher   Teacher  @relation(fields: [teacherId], references: [id])
 
   @@unique([teacherId, subjectId])
   @@index([schoolId])
@@ -396,10 +389,9 @@ model TeacherClassAssignment {
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-
-  school  School  @relation(fields: [schoolId], references: [id])
-  teacher Teacher @relation(fields: [teacherId], references: [id])
-  class   Class   @relation(fields: [classId], references: [id])
+  class          Class    @relation(fields: [classId], references: [id])
+  school         School   @relation(fields: [schoolId], references: [id])
+  teacher        Teacher  @relation(fields: [teacherId], references: [id])
 
   @@unique([teacherId, classId])
   @@index([schoolId])
@@ -469,6 +461,7 @@ model Subject {
   classes         Int              @default(0)
   students        Int              @default(0)
   description     String?
+  isActive        Boolean          @default(true)
   schoolId        String
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -504,6 +497,7 @@ model FeeStructure {
   id          String                     @id @default(cuid())
   name        String
   description String?
+  isActive    Boolean                    @default(true)
   schoolId    String
   createdAt   DateTime                   @default(now())
   updatedAt   DateTime                   @updatedAt
@@ -1544,6 +1538,12 @@ model Expense {
 
   @@index([schoolId])
   @@index([expenseDate])
+}
+
+enum OnboardingStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
 }
 
 enum TenantType {

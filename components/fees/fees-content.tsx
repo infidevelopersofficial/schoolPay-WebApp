@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { MoreHorizontal, Pencil, Trash2, Plus, Search, Filter, Download } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { DeleteFeeStructureButton } from "./delete-fee-structure-button"
 
 interface FeeStructure {
   id: string
@@ -97,23 +98,15 @@ export function FeesContent({ feeStructures }: { feeStructures: FeeStructure[] }
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Pencil className="mr-2 h-4 w-4" />
+                    <div className="flex items-center justify-end gap-2">
+                      <Button variant="outline" size="sm" asChild disabled>
+                        <span>
+                          <Pencil className="h-4 w-4 mr-2" />
                           Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                        </span>
+                      </Button>
+                      <DeleteFeeStructureButton id={structure.id} />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

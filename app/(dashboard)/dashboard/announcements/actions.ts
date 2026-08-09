@@ -61,3 +61,21 @@ export async function updateAnnouncementAction(prevState: any, formData: FormDat
     return { error: e.message || "Unauthorized" }
   }
 }
+
+export async function deleteAnnouncementAction(id: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN", "TEACHER"], async () => {
+      if (!id) return { error: "Announcement ID is missing" }
+
+      try {
+        await deleteAnnouncement(id)
+        revalidatePath("/dashboard/announcements")
+        return { success: true }
+      } catch (e: any) {
+        return { error: e.message || "Failed to delete announcement" }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}

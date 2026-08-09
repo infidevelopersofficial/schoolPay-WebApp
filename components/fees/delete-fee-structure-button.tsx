@@ -1,17 +1,15 @@
 "use client"
 
-import { useState } from "react"
-import { deleteAnnouncementAction } from "@/app/(dashboard)/dashboard/announcements/actions"
+import { deleteFeeStructureAction } from "@/app/(dashboard)/dashboard/fees/actions"
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog"
 import { useToast } from "@/hooks/use-toast"
-import { Trash2 } from "lucide-react"
 
-export function DeleteAnnouncementButton({ id }: { id: string }) {
+export function DeleteFeeStructureButton({ id }: { id: string }) {
   const { toast } = useToast()
 
   const handleDelete = async () => {
-    const result = await deleteAnnouncementAction(id)
-    if (result.error) {
+    const result = await deleteFeeStructureAction(id)
+    if (result?.error) {
       toast({
         title: "Error",
         description: result.error,
@@ -20,15 +18,15 @@ export function DeleteAnnouncementButton({ id }: { id: string }) {
     } else {
       toast({
         title: "Success",
-        description: "Announcement deleted successfully.",
+        description: "Fee structure deleted successfully.",
       })
     }
   }
 
   return (
     <ConfirmDeleteDialog
-      title="Delete Announcement?"
-      description="This will archive this announcement. It will no longer be visible to staff, parents, or students."
+      title="Archive Fee Structure?"
+      description="This will archive this fee structure. Any existing invoices linked to it will be unaffected."
       triggerText="Delete"
       triggerVariant="destructive"
       onConfirm={handleDelete}

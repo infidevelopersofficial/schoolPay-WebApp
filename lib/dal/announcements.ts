@@ -37,32 +37,6 @@ export async function getAnnouncements() {
   })
 }
 
-const createAnnouncementSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  content: z.string().min(1, "Content is required"),
-  date: z.string().optional(), // Server sets this if missing
-  author: z.string().optional(), // Server sets this if missing
-  priority: z.enum(["urgent", "high", "medium", "low"]),
-  category: z.enum(["General", "Academic", "Event", "Holiday", "Exam", "Fee"]),
-  targetAudience: z.enum(["All", "Teachers", "Parents", "Students"]),
-  expiryDate: z.string().optional().nullable(),
-})
-
-export async function getAnnouncements() {
-  return withTenantRead(async () => {
-    const schoolId = await getSchoolId()
-    return withDAL(
-      "announcements.getList",
-      async () => {
-        return prisma.announcement.findMany({
-          where: { schoolId, isActive: true },
-          orderBy: { createdAt: "desc" },
-        })
-      },
-      { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
-    )
-  })
-}
 
 export async function getAnnouncement(id: string) {
   return withTenantRead(async () => {

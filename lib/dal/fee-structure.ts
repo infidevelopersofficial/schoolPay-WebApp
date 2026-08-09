@@ -33,7 +33,7 @@ export async function getFeeStructures() {
       "feeStructures.getAll",
       () =>
         prisma.feeStructure.findMany({
-          where: { schoolId },
+          where: { schoolId, isActive: true },
           include: {
             items: true,
             mappings: {
@@ -113,6 +113,53 @@ export async function getFeeStructureById(id: string) {
           where: { id, schoolId },
           include: { items: true, mappings: { include: { class: true } } },
         }),
+      { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
+    )
+  })
+}
+
+export async function deleteFeeStructure(id: string) {
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    return withDAL(
+      "feeStructures.delete",
+      async () => {
+        const structure = await prisma.feeStructure.findUnique({
+          where: { id },
+          include: { items: true }
+        })
+
+        if (!structure || structure.schoolId !== schoolId) {
+          throw new Error("Fee structure not found or unauthorized")
+        }
+
+        const itemIds = structure.items.map(i => i.id)
+
+        const mappingsWithInvoices = await prisma.studentFeeMapping.findFirst({
+          where: {
+            feeItemId: { in: itemIds }
+          }
+        })
+
+        if (mappingsWithInvoices) {
+           throw new Error("Cannot delete fee structure: Invoices or payments have already been generated for it.")
+        }
+
+        const updated = await prisma.feeStructure.update({
+          where: { id },
+          data: { isActive: false },
+        })
+
+        await recordAuditLog({
+          action: "SOFT_DELETE",
+          entityType: "FEE_STRUCTURE",
+          entityId: id,
+          schoolId,
+          description: `Archived fee structure: ${structure.name}`,
+        })
+
+        return updated
+      },
       { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
     )
   })
