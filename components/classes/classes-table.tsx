@@ -6,6 +6,7 @@ import { MoreHorizontal, Edit, Trash2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import type { Class } from "@prisma/client"
 import Link from "next/link"
+import { DataTableExport } from "@/components/ui/data-table-export"
 
 interface ClassesTableProps {
   data: (Class & { classTeacher?: { name: string } | null })[]
@@ -14,6 +15,19 @@ interface ClassesTableProps {
 export function ClassesTable({ data }: ClassesTableProps) {
   return (
     <Card>
+      <div className="p-4 flex justify-end items-center border-b">
+        <DataTableExport 
+          filename="Classes_Export" 
+          data={data} 
+          columns={[
+          { header: "Name", key: "name" },
+          { header: "Section", key: "section" },
+          { header: "Class Teacher", key: (r) => r.classTeacher?.name || "" },
+          { header: "Capacity", key: "capacity" },
+          { header: "Room", key: "room" }
+        ]} 
+        />
+      </div>
       <Table>
         <TableHeader>
           <TableRow>

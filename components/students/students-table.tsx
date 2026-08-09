@@ -14,6 +14,7 @@ import { DeleteConfirm } from "@/components/ui/delete-confirm"
 import { TableEmptyState } from "@/components/ui/table-empty-state"
 import { DataTableSortHeader } from "@/components/ui/data-table/data-table-sort-header"
 import Link from "next/link"
+import { DataTableExport } from "@/components/ui/data-table-export"
 
 const statusColors = {
   PAID: "bg-green-100 text-green-700",
@@ -64,6 +65,20 @@ export function StudentsTable({ data }: StudentsTableProps) {
 
   return (
     <Card>
+      <div className="p-4 flex justify-end items-center border-b">
+        <DataTableExport 
+          filename="Students_Export" 
+          data={data} 
+          columns={[
+          { header: "Name", key: "name" },
+          { header: "Student ID", key: "studentId" },
+          { header: "Class", key: "class" },
+          { header: "Parent", key: (r) => r.parent?.name || "" },
+          { header: "Mobile", key: (r) => r.parent?.mobile || "" },
+          { header: "Fee Status", key: "feeStatus" }
+        ]} 
+        />
+      </div>
       <Table>
         <TableHeader>
           <TableRow>

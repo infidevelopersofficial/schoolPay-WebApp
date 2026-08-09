@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast"
 import { deleteSubjectAction } from "@/app/(dashboard)/dashboard/subjects/actions"
 import { MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react"
 import Link from "next/link"
+import { DataTableExport } from "@/components/ui/data-table-export"
 
 interface Subject {
   id: string
@@ -50,6 +51,18 @@ export function SubjectsTable({ data }: { data: Subject[] }) {
 
   return (
     <div className="rounded-md border">
+      <div className="p-4 flex justify-end items-center border-b">
+        <DataTableExport 
+          filename="Subjects_Export" 
+          data={data} 
+          columns={[
+          { header: "Code", key: "code" },
+          { header: "Name", key: "name" },
+          { header: "Teacher", key: (r) => r.teacherSubjects?.map((ts: any) => ts.teacher.name).join(", ") || "" },
+          { header: "Description", key: "description" }
+        ]} 
+        />
+      </div>
       <Table>
         <TableHeader>
           <TableRow>

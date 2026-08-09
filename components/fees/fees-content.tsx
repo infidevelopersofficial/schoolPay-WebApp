@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { MoreHorizontal, Pencil, Trash2, Plus, Search, Filter, Download } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { DeleteFeeStructureButton } from "./delete-fee-structure-button"
+import { DataTableExport } from "@/components/ui/data-table-export"
 
 interface FeeStructure {
   id: string
@@ -48,10 +49,11 @@ export function FeesContent({ feeStructures }: { feeStructures: FeeStructure[] }
             <Filter className="h-4 w-4" />
             Filter
           </Button>
-          <Button variant="outline" className="gap-2 bg-transparent">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
+          <DataTableExport filename="Fees_Export" data={feeStructures} columns={[
+            { header: "Name", key: "name" },
+            { header: "Description", key: "description" },
+            { header: "Classes Mapped", key: (r: any) => r.mappings.map((m: any) => m.class.name + " " + m.class.section).join(", ") }
+          ]} />
         </div>
 
         <Card>

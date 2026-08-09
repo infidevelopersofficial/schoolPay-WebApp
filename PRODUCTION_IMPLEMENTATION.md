@@ -98,7 +98,7 @@ Add View / Edit / Delete dropdown menu to all table components:
 
 - [ ] Teachers CSV import (follow student import pattern)
 - [ ] Parents CSV import
-- [ ] Fee structure CSV import
+- ⏸️ *Fee structure CSV import DEFERRED: A fee structure requires a complex relational tree (base structure → multiple fee items → multiple class mappings). Flattening this 1-to-Many-to-Many relationship into CSV is brittle and prone to data corruption. The interactive UI Wizard remains the safest and primary path.*
 
 ---
 

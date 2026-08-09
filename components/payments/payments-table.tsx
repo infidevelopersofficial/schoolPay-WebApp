@@ -12,6 +12,7 @@ import { generateReceiptPdf } from "@/lib/utils/receipt"
 import { deletePaymentAction } from "@/app/(dashboard)/dashboard/payments/actions"
 import { useToast } from "@/hooks/use-toast"
 import { Trash2 } from "lucide-react"
+import { DataTableExport } from "@/components/ui/data-table-export"
 
 const statusColors = {
   COMPLETED: "bg-green-100 text-green-700",
@@ -54,6 +55,22 @@ export function PaymentsTable({ payments }: { payments: Payment[] }) {
 
   return (
     <Card>
+      <div className="p-4 flex justify-end items-center border-b">
+        <DataTableExport 
+          filename="Payments_Export" 
+          data={payments} 
+          columns={[
+          { header: "Receipt No", key: "receiptNumber" },
+          { header: "Student", key: (r) => r.student?.name || "" },
+          { header: "Class", key: (r) => r.student?.class || "" },
+          { header: "Fee Type", key: "feeType" },
+          { header: "Amount", key: "amount" },
+          { header: "Method", key: "paymentMethod" },
+          { header: "Date", key: (r) => new Date(r.date).toLocaleDateString() },
+          { header: "Status", key: "status" }
+        ]} 
+        />
+      </div>
       <Table>
         <TableHeader>
           <TableRow>

@@ -13,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { DeleteConfirm } from "@/components/ui/delete-confirm"
 import { TableEmptyState } from "@/components/ui/table-empty-state"
 import Link from "next/link"
+import { DataTableExport } from "@/components/ui/data-table-export"
 
 const statusColors = {
   active: "bg-green-100 text-green-700",
@@ -61,6 +62,20 @@ export function TeachersTable({ data }: TeachersTableProps) {
 
   return (
     <Card>
+      <div className="p-4 flex justify-end items-center border-b">
+        <DataTableExport 
+          filename="Teachers_Export" 
+          data={data} 
+          columns={[
+          { header: "Name", key: "name" },
+          { header: "Email", key: "email" },
+          { header: "Phone", key: "phone" },
+          { header: "Subject", key: "subject" },
+          { header: "Class", key: "class" },
+          { header: "Status", key: (r) => r.isActive ? "Active" : "Inactive" }
+        ]} 
+        />
+      </div>
       <Table>
         <TableHeader>
           <TableRow>

@@ -13,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { DeleteConfirm } from "@/components/ui/delete-confirm"
 import { TableEmptyState } from "@/components/ui/table-empty-state"
 import Link from "next/link"
+import { DataTableExport } from "@/components/ui/data-table-export"
 
 interface ParentsTableProps {
   data: {
@@ -54,6 +55,19 @@ export function ParentsTable({ data }: ParentsTableProps) {
 
   return (
     <Card>
+      <div className="p-4 flex justify-end items-center border-b">
+        <DataTableExport 
+          filename="Parents_Export" 
+          data={data} 
+          columns={[
+          { header: "Name", key: "name" },
+          { header: "Email", key: "email" },
+          { header: "Phone", key: "mobile" },
+          { header: "Relation", key: "relationship" },
+          { header: "Students", key: (r) => r.students?.map((s: any) => s.name).join(", ") || "" }
+        ]} 
+        />
+      </div>
       <Table>
         <TableHeader>
           <TableRow>
