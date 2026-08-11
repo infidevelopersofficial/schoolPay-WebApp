@@ -9,10 +9,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Loader2 } from "lucide-react"
 import { useFormEffect } from "@/lib/hooks/use-form-effect"
+import { AsyncCombobox } from "@/components/ui/async-combobox"
+import { searchTeachersAction } from "@/app/(dashboard)/dashboard/teachers/actions"
+import type { AsyncSearchOption } from "@/components/ui/async-combobox"
 
 export function AddClassForm({ open, onOpenChange, onSuccess, teachers = [], mode = "create", initialData }: any) {
   const [state, formAction, isPending] = useActionState(mode === "edit" ? updateClassAction : addClassAction, null)
   const [classTeacherId, setClassTeacherId] = useState(initialData?.classTeacherId || "")
+
+  const defaultOptions: AsyncSearchOption[] = teachers.map((t: any) => ({
+    value: t.id,
+    label: t.name,
+    subLabel: t.email
+  }))
 
   useFormEffect(state, {
     successMessage: "Class added successfully!",
@@ -39,18 +48,15 @@ export function AddClassForm({ open, onOpenChange, onSuccess, teachers = [], mod
               <Input name="section" defaultValue={initialData?.section} placeholder="e.g. A" required />
             </div>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 flex flex-col">
             <Label>Class Teacher</Label>
-            <Select value={classTeacherId} onValueChange={setClassTeacherId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select class teacher" />
-              </SelectTrigger>
-              <SelectContent>
-                {teachers.map((t: any) => (
-                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <AsyncCombobox
+              value={classTeacherId}
+              onValueChange={setClassTeacherId}
+              searchAction={searchTeachersAction}
+              placeholder="Search teacher..."
+              defaultOptions={defaultOptions}
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

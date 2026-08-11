@@ -15,7 +15,8 @@ export default async function SubjectsPage(props: {
   const searchParams = await props.searchParams
   const query = searchParams?.query || ""
 
-  const { teachers = [] } = await getTeachers({ limit: 500 })
+  // We no longer prefetch 500 teachers. AsyncCombobox fetches on demand.
+  const teachers: any[] = []
 
   return (
     <DataTableShell

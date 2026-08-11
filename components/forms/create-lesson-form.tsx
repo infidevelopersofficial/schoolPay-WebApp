@@ -9,12 +9,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Loader2 } from "lucide-react"
 import { useFormEffect } from "@/lib/hooks/use-form-effect"
+import { AsyncCombobox } from "@/components/ui/async-combobox"
+import { searchTeachersAction } from "@/app/(dashboard)/dashboard/teachers/actions"
+import type { AsyncSearchOption } from "@/components/ui/async-combobox"
 
 export function CreateLessonForm({ open, onOpenChange, onSuccess, classes = [], subjects = [], teachers = [], mode = "create", initialData }: any) {
   const [state, formAction, isPending] = useActionState(mode === "edit" ? updateLessonAction : createLessonAction, null)
   const [subjectVal, setSubjectVal] = useState(initialData?.subject || "")
   const [classVal, setClassVal] = useState(initialData?.class || "")
   const [teacherId, setTeacherId] = useState(initialData?.teacherId || "")
+
+  const defaultOptions: AsyncSearchOption[] = teachers.map((t: any) => ({
+    value: t.id,
+    label: t.name,
+    subLabel: t.email
+  }))
 
   useFormEffect(state, {
     successMessage: mode === "edit" ? "Lesson updated successfully!" : "Lesson scheduled successfully!",
@@ -67,17 +76,15 @@ export function CreateLessonForm({ open, onOpenChange, onSuccess, classes = [], 
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 flex flex-col">
             <Label>Assigned Teacher</Label>
-            <Select value={teacherId} onValueChange={setTeacherId}>
-              <SelectTrigger><SelectValue placeholder="Select teacher (optional)..." /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">None / Unassigned</SelectItem>
-                {teachers.map((t: any) => (
-                  <SelectItem key={t.id} value={t.id}>{t.name} ({t.email})</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <AsyncCombobox
+              value={teacherId}
+              onValueChange={setTeacherId}
+              searchAction={searchTeachersAction}
+              placeholder="Search teacher (optional)..."
+              defaultOptions={defaultOptions}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

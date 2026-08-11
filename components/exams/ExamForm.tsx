@@ -25,6 +25,9 @@ import {
 } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
+import { AsyncCombobox } from "@/components/ui/async-combobox"
+import { searchTeachersAction } from "@/app/(dashboard)/dashboard/teachers/actions"
+import type { AsyncSearchOption } from "@/components/ui/async-combobox"
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -40,6 +43,12 @@ const formSchema = z.object({
 
 export function ExamForm({ open, onOpenChange, examGroups, batches, subjects, teachers = [], activeSessionId }: any) {
   const [loading, setLoading] = useState(false)
+
+  const defaultOptions: AsyncSearchOption[] = teachers.map((t: any) => ({
+    value: t.id,
+    label: t.name,
+    subLabel: t.email
+  }))
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema) as any,
@@ -219,23 +228,15 @@ export function ExamForm({ open, onOpenChange, examGroups, batches, subjects, te
               control={form.control}
               name="teacherId"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Invigilator / Teacher (Optional)</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select teacher..." />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="">None / Unassigned</SelectItem>
-                      {teachers.map((t: any) => (
-                        <SelectItem key={t.id} value={t.id}>
-                          {t.name} ({t.email})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <AsyncCombobox
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    searchAction={searchTeachersAction}
+                    placeholder="Search teacher..."
+                    defaultOptions={defaultOptions}
+                  />
                   <FormMessage />
                 </FormItem>
               )}

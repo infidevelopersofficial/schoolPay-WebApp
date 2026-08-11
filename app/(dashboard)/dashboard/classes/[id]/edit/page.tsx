@@ -11,8 +11,13 @@ export default async function EditClassPage({ params }: { params: { id: string }
     notFound()
   }
 
-  // Fetch teachers for the dropdown
-  const { teachers } = await getTeachers({ limit: 500 })
+  // Only pass the currently linked teacher to populate defaultOptions
+  let teachers: any[] = []
+  if (cls.classTeacherId) {
+    const { getTeacher } = await import("@/lib/dal/teachers")
+    const teacher = await getTeacher(cls.classTeacherId)
+    if (teacher) teachers = [teacher]
+  }
 
   const initialData = {
     id: cls.id,

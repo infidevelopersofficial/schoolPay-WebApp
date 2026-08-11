@@ -10,7 +10,8 @@ export const metadata = { title: "Classes | SchoolPay" }
 
 export default async function ClassesPage() {
   const classes = await getClasses()
-  const { teachers } = await getTeachers({ limit: 1000 })
+  // We no longer prefetch 1000 teachers. AsyncCombobox fetches on demand.
+  const teachers: any[] = []
 
   return (
     <div className="space-y-6">

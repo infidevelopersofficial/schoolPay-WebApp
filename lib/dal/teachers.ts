@@ -128,6 +128,36 @@ export async function getTeacherDetail(id: string) {
   })
 }
 
+export async function searchTeachers(query: string, limit: number = 20) {
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    const safeLimit = Math.min(Math.max(limit, 1), 50)
+    
+    return withDAL(
+      "teachers.search",
+      () =>
+        prisma.teacher.findMany({
+          where: {
+            schoolId,
+            isActive: true,
+            OR: [
+              { name: { contains: query, mode: "insensitive" } },
+              { email: { contains: query, mode: "insensitive" } },
+            ],
+          },
+          take: safeLimit,
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+          orderBy: { name: "asc" },
+        }),
+      { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
+    )
+  })
+}
+
 export async function createTeacher(input: CreateTeacherInput) {
   const schoolId = await getSchoolId()
   const validated = createTeacherSchema.parse(input)

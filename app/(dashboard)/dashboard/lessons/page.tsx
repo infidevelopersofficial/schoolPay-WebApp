@@ -21,7 +21,8 @@ export default async function LessonsPage(props: {
   const [classesRes, subjectsRes, teachersRes] = await Promise.all([
     getClasses(),
     getSubjects(),
-    getTeachers({ limit: 500 }),
+    // We no longer prefetch 500 teachers. AsyncCombobox fetches on demand.
+    Promise.resolve({ teachers: [] }),
   ])
 
   const classes = classesRes || []

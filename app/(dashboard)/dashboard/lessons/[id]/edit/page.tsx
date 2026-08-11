@@ -7,12 +7,19 @@ import { CreateLessonForm } from "@/components/forms/create-lesson-form"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default async function EditLessonPage({ params }: { params: { id: string } }) {
-  const [lesson, classes, subjects, teachers] = await Promise.all([
+  const [lesson, classes, subjects] = await Promise.all([
     getLesson(params.id),
     getClasses(),
-    getSubjects(),
-    getTeachers()
+    getSubjects()
   ])
+
+  // Only pass the currently linked teacher
+  let teachers: any[] = []
+  if (lesson?.teacherId) {
+    const { getTeacher } = await import("@/lib/dal/teachers")
+    const teacher = await getTeacher(lesson.teacherId)
+    if (teacher) teachers = [teacher]
+  }
 
   if (!lesson) {
     notFound()

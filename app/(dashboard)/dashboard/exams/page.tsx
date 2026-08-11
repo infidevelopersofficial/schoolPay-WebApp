@@ -16,7 +16,8 @@ export default async function ExamsPage() {
   const exams = await getExams()
   const batches = await getBatches()
   const subjects = await getSubjects()
-  const { teachers = [] } = await getTeachers({ limit: 500 })
+  // We no longer prefetch 500 teachers. AsyncCombobox fetches on demand.
+  const teachers: any[] = []
   const gradingSchemes = await getGradingSchemes()
 
   return (

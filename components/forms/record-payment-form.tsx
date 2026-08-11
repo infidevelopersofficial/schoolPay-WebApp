@@ -80,8 +80,16 @@ export function RecordPaymentForm({ open, onOpenChange, onSuccess }: RecordPayme
       }
       setLoadingStudents(true)
       const res = await searchStudentsAction(studentQuery)
-      if ("success" in res && res.success && res.students) {
-        setStudents(res.students)
+      if (Array.isArray(res)) {
+        // Map the AsyncSearchOption format back to what the form expects
+        const mappedStudents = res.map((r: any) => ({
+          id: r.value,
+          name: r.label,
+          class: r.subLabel
+        }))
+        setStudents(mappedStudents)
+      } else {
+        setStudents([])
       }
       setLoadingStudents(false)
     }, 300)

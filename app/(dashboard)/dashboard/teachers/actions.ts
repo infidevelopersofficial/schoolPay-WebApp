@@ -110,6 +110,28 @@ export async function deleteTeacherAction(id: string) {
   }
 }
 
+export async function searchTeachersAction(query: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN", "TEACHER"], async () => {
+      try {
+        const { searchTeachers } = await import("@/lib/dal/teachers")
+        const results = await searchTeachers(query, 20)
+        return results.map(t => ({
+          value: t.id,
+          label: t.name,
+          subLabel: t.email
+        }))
+      } catch (e: any) {
+        console.error("Failed to search teachers:", e)
+        return []
+      }
+    })
+  } catch (e: any) {
+    console.error(e)
+    return []
+  }
+}
+
 import { createClass } from "@/lib/dal/classes"
 import { createSubject } from "@/lib/dal/subjects"
 

@@ -167,6 +167,38 @@ export async function getStudent(id: string) {
   })
 }
 
+export async function searchStudents(query: string, limit: number = 20) {
+  return withTenantRead(async () => {
+    const schoolId = await getSchoolId()
+    const safeLimit = Math.min(Math.max(limit, 1), 50)
+    
+    return withDAL(
+      "students.search",
+      () =>
+        prisma.student.findMany({
+          where: {
+            schoolId,
+            isActive: true,
+            OR: [
+              { name: { contains: query, mode: "insensitive" } },
+              { admissionNumber: { contains: query, mode: "insensitive" } },
+            ],
+          },
+          take: safeLimit,
+          select: {
+            id: true,
+            name: true,
+            admissionNumber: true,
+            class: true,
+            section: true,
+          },
+          orderBy: { name: "asc" },
+        }),
+      { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
+    )
+  })
+}
+
 // ──────────────────────────────────────────────
 // Mutations
 // ──────────────────────────────────────────────

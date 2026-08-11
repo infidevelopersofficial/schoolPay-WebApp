@@ -39,7 +39,7 @@ export const generateDeterministicForecastCached = unstable_cache(
 
     // Get recovery analytics to derive a baseline rate
     const recoveryData = await getRecoveryAnalyticsCached(schoolId)
-    
+
     // Fallback to 80% if no historical data exists
     let historicalRate = 0.80
     if (recoveryData.totalStudents > 0) {
@@ -47,7 +47,7 @@ export const generateDeterministicForecastCached = unstable_cache(
       // Ensure we have a sane minimum baseline for active schools
       if (historicalRate < 0.2) historicalRate = 0.2
     }
-    
+
     // Overdue is harder to collect, assume a heavily discounted recovery probability
     const overdueRecoveryProbability = historicalRate * 0.35
 

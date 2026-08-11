@@ -11,8 +11,8 @@ export default async function EditParentPage({ params }: { params: { id: string 
     notFound()
   }
 
-  // Fetch all students for the dropdown
-  const { students } = await getStudents({ limit: 1000 })
+  // Only pass the already linked students to populate the defaultOptions in AsyncMultiSelect
+  const students = parent.students || []
 
   // Map database model to form expected fields
   const initialData = {

@@ -11,18 +11,22 @@ import { Loader2, Check, Plus } from "lucide-react"
 import { useFormEffect } from "@/lib/hooks/use-form-effect"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
+import { AsyncMultiSelect } from "@/components/ui/async-multi-select"
+import { searchStudentsAction } from "@/app/(dashboard)/dashboard/students/actions"
+import type { AsyncSearchOption } from "@/components/ui/async-combobox"
 
 export function AddParentForm({ open, onOpenChange, onSuccess, students = [], classes = [], mode = "create", initialData }: any) {
   const [state, formAction, isPending] = useActionState(mode === "edit" ? updateParentAction : addParentAction, null)
   const [relationship, setRelationship] = useState(initialData?.relationship || "Father")
   
-  const [availableStudents, setAvailableStudents] = useState<any[]>(students)
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>(initialData?.studentIds || [])
-  const [studentSearch, setStudentSearch] = useState("")
-
-  useEffect(() => {
-    setAvailableStudents(students)
-  }, [students])
+  const [defaultOptions, setDefaultOptions] = useState<AsyncSearchOption[]>(() => {
+    return (students || []).map((s: any) => ({
+      value: s.id,
+      label: s.name,
+      subLabel: s.admissionNumber ? `Adm: ${s.admissionNumber} | Class: ${s.class}` : `Class: ${s.class}`
+    }))
+  })
 
   // Inline student creation state
   const [showNewStudentInput, setShowNewStudentInput] = useState(false)
@@ -47,7 +51,12 @@ export function AddParentForm({ open, onOpenChange, onSuccess, students = [], cl
     setCreatingStudent(false)
     if (res && "studentItem" in res && res.studentItem) {
       toast.success("Student created and attached!")
-      setAvailableStudents(prev => [res.studentItem!, ...prev])
+      const newOpt: AsyncSearchOption = {
+        value: res.studentItem!.id,
+        label: res.studentItem!.name,
+        subLabel: res.studentItem!.admissionNumber ? `Adm: ${res.studentItem!.admissionNumber} | Class: ${res.studentItem!.class}` : `Class: ${res.studentItem!.class}`
+      }
+      setDefaultOptions(prev => [newOpt, ...prev])
       setSelectedStudentIds(prev => [...prev, res.studentItem!.id])
       setNewStudentName("")
       setNewStudentClass("")
@@ -64,12 +73,6 @@ export function AddParentForm({ open, onOpenChange, onSuccess, students = [], cl
     onOpenChange,
     onSuccess,
   })
-
-  const filteredStudents = availableStudents.filter(s => 
-    s.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
-    (s.admissionNumber && s.admissionNumber.toLowerCase().includes(studentSearch.toLowerCase())) ||
-    (s.class && s.class.toLowerCase().includes(studentSearch.toLowerCase()))
-  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -157,31 +160,14 @@ export function AddParentForm({ open, onOpenChange, onSuccess, students = [], cl
               </div>
             )}
 
-            <Input 
-              placeholder="Search students by name, class, or admission number..." 
-              value={studentSearch} 
-              onChange={e => setStudentSearch(e.target.value)} 
-              className="h-8 text-xs mb-2" 
+            <AsyncMultiSelect
+              value={selectedStudentIds}
+              onValueChange={setSelectedStudentIds}
+              searchAction={searchStudentsAction}
+              placeholder="Search and select students..."
+              emptyText="No students found."
+              defaultOptions={defaultOptions}
             />
-
-            <div className="flex flex-wrap gap-2 p-2 border rounded-md max-h-[140px] overflow-y-auto bg-background">
-              {filteredStudents.map(s => {
-                const isSelected = selectedStudentIds.includes(s.id)
-                return (
-                  <Badge 
-                    key={s.id} 
-                    variant={isSelected ? "default" : "outline"}
-                    className="cursor-pointer py-1 px-2.5 text-xs flex items-center gap-1"
-                    onClick={() => toggleStudent(s.id)}
-                  >
-                    <span>{s.name}</span>
-                    <span className="text-[10px] opacity-75">({s.class || 'No Class'}{s.admissionNumber ? ` #${s.admissionNumber}` : ''})</span>
-                    {isSelected && <Check className="h-3 w-3 ml-0.5" />}
-                  </Badge>
-                )
-              })}
-              {filteredStudents.length === 0 && <span className="text-sm text-muted-foreground">No students found.</span>}
-            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

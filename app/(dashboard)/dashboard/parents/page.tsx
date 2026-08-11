@@ -19,7 +19,8 @@ export default async function ParentsPage(props: {
   const currentPage = Number(searchParams?.page) || 1
   const query = searchParams?.query || ""
 
-  const { students = [] } = await getStudents({ limit: 500 })
+  // We no longer prefetch 500 students. AsyncMultiSelect fetches on demand.
+  const students: any[] = []
 
   return (
     <DataTableShell

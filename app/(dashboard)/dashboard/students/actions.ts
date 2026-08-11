@@ -96,25 +96,24 @@ export async function searchStudentsAction(query: string) {
   try {
     return await withTenantAuth(null, ["ADMIN", "TEACHER"], async () => {
       const session = await auth()
-      if (!session) return { error: "Unauthorized" }
+      if (!session) throw new Error("Unauthorized")
 
       try {
-        const result = await getStudents({ search: query, limit: 10 })
-        return {
-          success: true,
-          students: result.students.map(s => ({
-            id: s.id,
-            name: s.name,
-            studentId: s.studentId,
-            class: s.class,
-          }))
-        }
+        const { searchStudents } = await import("@/lib/dal/students")
+        const results = await searchStudents(query, 20)
+        return results.map(s => ({
+          value: s.id,
+          label: s.name,
+          subLabel: s.admissionNumber ? `Adm: ${s.admissionNumber} | Class: ${s.class}` : `Class: ${s.class}`
+        }))
       } catch (e: any) {
-        return { error: "Failed to search students" }
+        console.error("Failed to search students:", e)
+        return []
       }
     })
   } catch (e: any) {
-    return { error: e.message || "Unauthorized" }
+    console.error(e)
+    return []
   }
 }
 
