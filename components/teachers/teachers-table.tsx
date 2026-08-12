@@ -122,9 +122,11 @@ export function TeachersTable({ data }: TeachersTableProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Eye className="mr-2 h-4 w-4" />
-                      View
+                    <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/teachers/${teacher.id}`}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        View
+                      </Link>
                     </DropdownMenuItem>
                     <Link href={`/dashboard/teachers/${teacher.id}/edit`}>
                       <DropdownMenuItem>

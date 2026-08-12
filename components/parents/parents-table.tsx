@@ -116,9 +116,11 @@ export function ParentsTable({ data }: ParentsTableProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Eye className="mr-2 h-4 w-4" />
-                      View
+                    <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/parents/${parent.id}`}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        View
+                      </Link>
                     </DropdownMenuItem>
                     <Link href={`/dashboard/parents/${parent.id}/edit`}>
                       <DropdownMenuItem>

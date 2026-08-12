@@ -1,6 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -96,7 +97,9 @@ function LessonCard({ lesson, className = "" }: { lesson: Lesson; className?: st
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>View Details</DropdownMenuItem>
-              <DropdownMenuItem>Edit Lesson</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/lessons/${lesson.id}/edit`}>Edit Lesson</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem>Duplicate</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

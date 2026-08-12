@@ -46,14 +46,21 @@ export async function getInvoices(opts?: {
   limit?: number
   studentId?: string
   status?: string
+  query?: string
 }) {
   return withTenantRead(async () => {
     const schoolId = await getSchoolId()
-  const { page = 1, limit = 50, studentId, status } = opts ?? {}
+  const { page = 1, limit = 50, studentId, status, query } = opts ?? {}
   const where: any = {
     schoolId,
     ...(studentId && { studentId }),
     ...(status && { status }),
+    ...(query && {
+      OR: [
+        { invoiceNo: { contains: query, mode: "insensitive" } },
+        { student: { name: { contains: query, mode: "insensitive" } } }
+      ]
+    })
   }
 
   return withDAL(

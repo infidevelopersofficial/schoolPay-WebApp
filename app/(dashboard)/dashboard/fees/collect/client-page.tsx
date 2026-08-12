@@ -21,7 +21,7 @@ export function CollectClient({ searchQuery, searchResults, selectedStudent, pen
   const [query, setQuery] = useState(searchQuery)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [selectedFee, setSelectedFee] = useState<any>(null)
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState("CASH")
   const [amountToPay, setAmountToPay] = useState(0)
@@ -44,7 +44,7 @@ export function CollectClient({ searchQuery, searchResults, selectedStudent, pen
     e.preventDefault()
     if (!selectedStudent || !selectedFee) return
     setIsSubmitting(true)
-    
+
     const formData = new FormData()
     formData.append("studentId", selectedStudent.id)
     formData.append("amount", amountToPay.toString())
@@ -55,16 +55,16 @@ export function CollectClient({ searchQuery, searchResults, selectedStudent, pen
 
     const result = await addPaymentAction(null, formData)
     setIsSubmitting(false)
-    
+
     if (result?.error) {
       toast.error(result.error)
     } else {
       toast.success("Payment recorded successfully!")
       setShowPaymentModal(false)
-      
+
       // Auto-generate receipt
       generateReceipt(result.receiptNumber as string, amountToPay, selectedFee.type)
-      
+
       // Refresh page to update pending and paid lists
       router.push(`/dashboard/fees/collect?studentId=${selectedStudent.id}`)
     }
@@ -72,19 +72,19 @@ export function CollectClient({ searchQuery, searchResults, selectedStudent, pen
 
   function generateReceipt(receiptNo: string, amount: number, type: string) {
     const doc = new jsPDF()
-    
+
     // Header
     doc.setFontSize(22)
     doc.text("Sunrise Public School", 14, 20)
-    
+
     doc.setFontSize(10)
     doc.text("Shop No. 14, Rashmi Laxmi Sadan, Near Bhayandar East Station,", 14, 27)
     doc.text("Bhayander East - 401105, Thane, Maharashtra", 14, 32)
-    doc.text("Phone: 8369704457", 14, 37)
+    doc.text("Phone: 8108826869", 14, 37)
 
     doc.setFontSize(16)
     doc.text("Payment Receipt", 14, 47)
-    
+
     // Details
     doc.setFontSize(11)
     doc.text(`Receipt No: ${receiptNo}`, 14, 60)
@@ -96,27 +96,27 @@ export function CollectClient({ searchQuery, searchResults, selectedStudent, pen
     doc.text(`Student Name: ${selectedStudent.name}`, 14, 74)
     doc.text(`Student ID: ${selectedStudent.studentId || ''}`, 14, 81)
     doc.text(`Class: ${selectedStudent.class}`, 14, 88)
-    
+
     // Table
     const tableData = [
       [type, `₹${amount.toFixed(2)}`]
     ]
-    
-    ;(doc as any).autoTable({
-      startY: 95,
-      head: [['Description', 'Amount']],
-      body: tableData,
-      theme: 'grid',
-      headStyles: { fillColor: [41, 128, 185] }
-    })
-    
+
+      ; (doc as any).autoTable({
+        startY: 95,
+        head: [['Description', 'Amount']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [41, 128, 185] }
+      })
+
     // Footer
     const finalY = (doc as any).lastAutoTable.finalY || 95
     doc.text(`Total Paid: ₹${amount.toFixed(2)}`, 14, finalY + 10)
     doc.text(`Payment Method: ${paymentMethod}`, 14, finalY + 17)
-    
+
     doc.text("Thank you for your payment.", 14, finalY + 35)
-    
+
     doc.save(`Receipt_${receiptNo}.pdf`)
   }
 
@@ -130,8 +130,8 @@ export function CollectClient({ searchQuery, searchResults, selectedStudent, pen
       <Card>
         <CardContent className="pt-6">
           <form onSubmit={handleSearch} className="flex gap-2">
-            <Input 
-              placeholder="Search by student name or ID..." 
+            <Input
+              placeholder="Search by student name or ID..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="max-w-md"
@@ -294,7 +294,7 @@ export function CollectClient({ searchQuery, searchResults, selectedStudent, pen
               <Label>Fee Head</Label>
               <Input value={selectedFee?.type || ""} disabled />
             </div>
-            
+
             <div className="space-y-2">
               <Label>Amount to Pay (₹)</Label>
               <Input type="number" value={amountToPay} onChange={(e) => setAmountToPay(Number(e.target.value))} required />

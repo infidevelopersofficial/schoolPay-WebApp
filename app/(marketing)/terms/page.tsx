@@ -8,7 +8,7 @@ export default function TermsOfServicePage() {
         <h1 className="text-4xl md:text-5xl font-extrabold mb-4">Terms of Service &mdash; SchoolPay Technologies</h1>
         <p className="text-muted-foreground">Last updated: June 2025</p>
       </div>
-      
+
       <div className="prose prose-slate dark:prose-invert max-w-none space-y-8">
         <section>
           <h2 className="text-2xl font-bold mb-3">1. Service description</h2>
@@ -37,7 +37,7 @@ export default function TermsOfServicePage() {
             You may cancel your subscription at any time. Refunds are not provided after 7 days of the subscription start date.
           </p>
         </section>
-        
+
         <section>
           <h2 className="text-2xl font-bold mb-3">5. Governing law</h2>
           <p className="leading-relaxed">

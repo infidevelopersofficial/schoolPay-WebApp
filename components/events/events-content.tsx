@@ -1,6 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -109,7 +110,9 @@ function EventCard({ event, className = "" }: { event: Event; className?: string
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>View Details</DropdownMenuItem>
-              <DropdownMenuItem>Edit Event</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/events/${event.id}/edit`}>Edit Event</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem>Share</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

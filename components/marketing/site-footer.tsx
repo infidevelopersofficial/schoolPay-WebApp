@@ -14,7 +14,7 @@ export function SiteFooter() {
             The Complete School Management Platform for India. Built for Indian schools.
           </p>
         </div>
-        
+
         <div>
           <h3 className="font-semibold mb-4">Links</h3>
           <ul className="space-y-3 text-sm text-muted-foreground">
@@ -23,16 +23,16 @@ export function SiteFooter() {
             <li><a href="mailto:support@schoolpay.in" className="hover:text-primary">Contact</a></li>
           </ul>
         </div>
-        
+
         <div>
           <h3 className="font-semibold mb-4">Contact Info</h3>
           <ul className="space-y-3 text-sm text-muted-foreground">
-            <li><a href="tel:8369704457" className="hover:text-primary">Phone: 8369704457</a></li>
+            <li><a href="tel:8108826869" className="hover:text-primary">Phone: 8108826869</a></li>
             <li><a href="mailto:support@schoolpay.in" className="hover:text-primary">Email: support@schoolpay.in</a></li>
           </ul>
         </div>
       </div>
-      
+
       <div className="container mt-12 pt-8 border-t flex flex-col justify-between items-start gap-4 text-sm text-muted-foreground">
         <p>
           Shop No. 14, Rashmi Laxmi Sadan,<br />

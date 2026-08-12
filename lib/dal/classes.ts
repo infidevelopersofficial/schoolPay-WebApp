@@ -187,4 +187,33 @@ export async function updateClass(id: string, data: Partial<CreateClassInput>) {
     { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY },
   )
 }
-export async function deleteClass(id: string) { const schoolId = await getSchoolId(); return withDAL('classes.delete', async () => { const oldData = await prisma.class.findUnique({ where: { id } }); if (oldData?.schoolId !== schoolId) throw new Error('Class not found'); await prisma.class.delete({ where: { id } }); await recordAuditLog({ action: 'SOFT_DELETE', entityType: 'CLASS', entityId: id, schoolId, oldValues: oldData }); return { success: true }; }); }
+export async function deleteClass(id: string) {
+  const schoolId = await getSchoolId()
+  return withDAL(
+    "classes.delete",
+    async () => {
+      const oldData = await prisma.class.findUnique({
+        where: { id },
+        include: { teacherClassAssignments: true }
+      })
+      if (oldData?.schoolId !== schoolId) throw new Error("Class not found")
+
+      // Explicit server-side guard
+      if (oldData.teacherClassAssignments.length > 0) {
+        throw new Error("Cannot delete class: active teacher assignments exist — please reassign teachers first")
+      }
+
+      await prisma.class.delete({ where: { id } })
+      await recordAuditLog({
+        action: "HARD_DELETE",
+        entityType: "CLASS",
+        entityId: id,
+        schoolId,
+        oldValues: { name: oldData.name, section: oldData.section },
+        description: `Deleted class ${oldData.name}-${oldData.section}`,
+      })
+      return { success: true }
+    },
+    { log, thresholdMs: THRESHOLDS.DB_SIMPLE_QUERY }
+  )
+}

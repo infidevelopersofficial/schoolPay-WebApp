@@ -94,7 +94,11 @@ export function SubjectsTable({ data }: { data: Subject[] }) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem><Eye className="mr-2 h-4 w-4" />View Details</DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/subjects/${subject.id}`}>
+                        <Eye className="mr-2 h-4 w-4" />View Details
+                      </Link>
+                    </DropdownMenuItem>
                     <Link href={`/dashboard/subjects/${subject.id}/edit`}>
                       <DropdownMenuItem><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
                     </Link>
