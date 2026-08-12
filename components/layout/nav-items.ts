@@ -19,6 +19,7 @@ import {
   Award,
   BookMarked,
   Clock,
+  Activity,
   type LucideIcon,
 } from "lucide-react"
 
@@ -62,6 +63,7 @@ export const navItems: NavEntry[] = [
   { icon: BarChart3, label: "Reports", href: "/dashboard/reports" },
   { section: true, label: "OTHER" },
   { icon: UserCircle, label: "Profile", href: "/dashboard/profile" },
+  { icon: Activity, label: "Audit Logs", href: "/dashboard/audit-logs" },
   { icon: Settings, label: "Settings", href: "/dashboard/settings" },
   { icon: LogOut, label: "Logout", href: "/logout" },
 ]
