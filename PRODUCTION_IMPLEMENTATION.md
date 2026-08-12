@@ -141,9 +141,9 @@ Add View / Edit / Delete dropdown menu to all table components:
 - [ ] Transfer attendance/fee records
 
 ### Phase 6: Audit Trail Viewer
-- [ ] UI for existing `AuditLog` table
-- [ ] Filter by entity, action, user, date
-- [ ] Before/after diff viewer
+- [x] UI for existing `AuditLog` table
+- [x] Filter by entity, action, user, date
+- [x] Before/after diff viewer
 
 ### Phase 7: Timetable Management
 - [x] Timetable model (Day × Period × Subject × Teacher)
