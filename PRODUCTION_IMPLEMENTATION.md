@@ -81,17 +81,17 @@ Every add form needs an edit mode. The DAL already has `updateStudent()`, `updat
 **Priority**: 🟡 HIGH | **Effort**: 2 days
 
 Add View / Edit / Delete dropdown menu to all table components:
-- [ ] `students-table.tsx` (Missing completely)
+- [x] `students-table.tsx`
 - [x] `teachers-table.tsx`
 - [x] `parents-table.tsx`
 - [x] `classes-table.tsx`
 - [x] `subjects-table.tsx`
 - [x] `lessons-table.tsx`
 - [x] `events-table.tsx`
-- [x] `payments-table.tsx` (Has dropdown for View/Download/Void)
-- [x] `invoices-table.tsx` (Has dropdown)
-- [ ] `fees-content.tsx` (Currently uses plain buttons instead of DropdownMenu)
-- [ ] `announcements-client.tsx` (Currently a card list with plain buttons, needs standardization if converting to table)
+- [x] `payments-table.tsx`
+- [x] `invoices-table.tsx`
+- [x] `fees-content.tsx`
+- [x] `announcements-client.tsx` (Intentionally card-based, inline buttons are correct UX)
 
 ---
 
@@ -146,10 +146,10 @@ Add View / Edit / Delete dropdown menu to all table components:
 - [ ] Before/after diff viewer
 
 ### Phase 7: Timetable Management
-- [ ] Timetable model (Day × Period × Subject × Teacher)
-- [ ] Weekly grid view
-- [ ] Teacher schedule view
-- [ ] Conflict detection
+- [x] Timetable model (Day × Period × Subject × Teacher)
+- [x] Weekly grid view
+- [x] Teacher schedule view
+- [x] Conflict detection
 
 ### Phase 8: Expense Enhancements
 - [ ] Add expense categories management (salary, maintenance, stationery, etc.)
