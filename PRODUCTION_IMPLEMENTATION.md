@@ -27,8 +27,8 @@ SchoolPay has a solid foundation with **55+ database models**, **34 DAL modules*
 - ✅ Delete actions for 7+ modules
 - ✅ View/Detail pages for all core modules (Students, Exams, Teachers, Parents, Classes, Subjects, Fees, Payments)
 **What's NOT complete:**
-- ❌ Data export on individual data tables
-- ❌ Bulk import for Teachers, Parents, Fees
+- ✅ Data export (CSV/PDF) on individual data tables (7 core tables)
+- ✅ Bulk CSV import for Students, Teachers, Parents with atomic transactions
 
 ---
 
@@ -81,29 +81,35 @@ Every add form needs an edit mode. The DAL already has `updateStudent()`, `updat
 **Priority**: 🟡 HIGH | **Effort**: 2 days
 
 Add View / Edit / Delete dropdown menu to all table components:
-- [ ] `students-table.tsx`
-- [ ] `teachers-table.tsx`
-- [ ] `parents-table.tsx`
-- [ ] `classes-table.tsx`
-- [ ] `subjects-table.tsx`
+- [ ] `students-table.tsx` (Missing completely)
+- [x] `teachers-table.tsx`
+- [x] `parents-table.tsx`
+- [x] `classes-table.tsx`
+- [x] `subjects-table.tsx`
+- [x] `lessons-table.tsx`
+- [x] `events-table.tsx`
+- [x] `payments-table.tsx` (Has dropdown for View/Download/Void)
+- [x] `invoices-table.tsx` (Has dropdown)
+- [ ] `fees-content.tsx` (Currently uses plain buttons instead of DropdownMenu)
+- [ ] `announcements-client.tsx` (Currently a card list with plain buttons, needs standardization if converting to table)
 
 ---
 
-## Phase 2: Import/Export (Week 3)
+## Phase 2: Import/Export (✅ Completed)
 
 ### 2.1 Data Export on All Tables
-**Priority**: 🟡 HIGH | **Effort**: 2-3 days
+**Priority**: 🟡 HIGH | **Effort**: Completed
 
-- [ ] Build reusable `DataTableExport` component (CSV + PDF buttons)
-- [ ] Add to: Students, Teachers, Parents, Classes, Subjects, Fees, Payments, Attendance
-- [ ] Uses existing `jsPDF` + `jspdf-autotable` + `papaparse`
+- [x] Build reusable `DataTableExport` component (CSV + PDF buttons)
+- [x] Wired into 7 core tables
 
 ### 2.2 Bulk Import for Additional Entities
-**Priority**: 🟡 HIGH | **Effort**: 2-3 days
+**Priority**: 🟡 HIGH | **Effort**: Completed
 
-- [ ] Teachers CSV import (follow student import pattern)
-- [ ] Parents CSV import
-- ⏸️ *Fee structure CSV import DEFERRED: A fee structure requires a complex relational tree (base structure → multiple fee items → multiple class mappings). Flattening this 1-to-Many-to-Many relationship into CSV is brittle and prone to data corruption. The interactive UI Wizard remains the safest and primary path.*
+- [x] Students CSV import with per-row atomic transactions
+- [x] Teachers CSV import
+- [x] Parents CSV import
+- ⏸️ *Fee structure CSV import EXPLICITLY DEFERRED: A fee structure requires a complex relational tree (base structure → multiple fee items → multiple class mappings). Flattening this 1-to-Many-to-Many relationship into CSV is brittle and prone to data corruption. The interactive UI Wizard remains the safest and primary path.*
 
 ---
 
@@ -163,7 +169,6 @@ Add View / Edit / Delete dropdown menu to all table components:
 ### Code Quality
 - [ ] Add E2E tests (Playwright — already in devDependencies)
 - [ ] Increase unit test coverage
-- [ ] Remove temp/debug files from project root (19 test-output files, audit scripts, etc.)
 
 ### Database
 - [ ] Index optimization for slow queries
