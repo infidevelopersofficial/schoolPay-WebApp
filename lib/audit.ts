@@ -32,6 +32,8 @@ interface AuditLogParams {
     | "COMMUNICATION_CAMPAIGN"
     | "SURVEY"
     | "SURVEY_RESPONSE"
+    | "TIMETABLE"
+    | "TIMETABLE_PERIOD"
   entityId: string
   oldValues?: unknown
   newValues?: unknown

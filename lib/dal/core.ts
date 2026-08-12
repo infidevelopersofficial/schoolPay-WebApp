@@ -28,3 +28,13 @@ export async function getActiveSession() {
     })
   })
 }
+
+export async function getAcademicSessions() {
+  const { schoolId } = await getTenantContext()
+  return await tenantContext.run({ schoolId }, async () => {
+    return await prisma.academicSession.findMany({
+      where: { schoolId },
+      orderBy: { startDate: 'desc' }
+    })
+  })
+}

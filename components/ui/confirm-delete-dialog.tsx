@@ -18,8 +18,9 @@ import { Loader2 } from "lucide-react"
 interface ConfirmDeleteDialogProps {
   title?: string
   description?: string
-  triggerText?: string
+  triggerText?: React.ReactNode
   triggerVariant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
+  triggerClassName?: string
   onConfirm: () => Promise<void>
 }
 
@@ -28,6 +29,7 @@ export function ConfirmDeleteDialog({
   description = "This action cannot be undone. This will permanently delete this record.",
   triggerText = "Delete",
   triggerVariant = "destructive",
+  triggerClassName,
   onConfirm,
 }: ConfirmDeleteDialogProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -47,7 +49,7 @@ export function ConfirmDeleteDialog({
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant={triggerVariant} size="sm">
+        <Button variant={triggerVariant} size="sm" className={triggerClassName}>
           {triggerText}
         </Button>
       </AlertDialogTrigger>

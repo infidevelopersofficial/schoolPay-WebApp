@@ -18,6 +18,7 @@ import {
   Megaphone,
   Award,
   BookMarked,
+  Clock,
   type LucideIcon,
 } from "lucide-react"
 
@@ -47,6 +48,7 @@ export const navItems: NavEntry[] = [
   { icon: BookOpen, label: "Subjects", href: "/dashboard/subjects" },
   { icon: School, label: "Classes", href: "/dashboard/classes", show: (c) => c.hasClasses || c.hasBatches },
   { icon: BookMarked, label: "Lessons", href: "/dashboard/lessons" },
+  { icon: Clock, label: "Timetable", href: "/dashboard/timetable" },
   { icon: FileText, label: "Exams", href: "/dashboard/exams", show: (c) => c.hasExams },
   { icon: Award, label: "Results", href: "/dashboard/results", show: (c) => c.hasExams },
   { icon: ClipboardCheck, label: "Attendance", href: "/dashboard/attendance", show: (c) => c.hasAttendance },

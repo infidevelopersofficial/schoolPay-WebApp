@@ -78,6 +78,8 @@ model School {
   students                  Student[]
   studentFeeMappings        StudentFeeMapping[]
   subjects                  Subject[]
+  timetables                Timetable[]
+  timetablePeriods          TimetablePeriod[]
   subscription              Subscription?
   surveys                   Survey[]
   teachers                  Teacher[]
@@ -314,6 +316,7 @@ model Teacher {
   school           School                   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   classAssignments TeacherClassAssignment[]
   subjects         TeacherSubject[]
+  timetablePeriods TimetablePeriod[]
 
   @@unique([email, schoolId])
   @@index([schoolId])
@@ -359,6 +362,7 @@ model Class {
   discountRules             DiscountRule[]
   feeStructureClassMappings FeeStructureClassMapping[]
   teacherClassAssignments   TeacherClassAssignment[]
+  timetables                Timetable[]
 
   @@unique([name, section, schoolId])
   @@index([schoolId])
@@ -469,6 +473,7 @@ model Subject {
   exams           Exam[]
   school          School           @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   teacherSubjects TeacherSubject[]
+  timetablePeriods TimetablePeriod[]
 
   @@unique([code, schoolId])
   @@index([schoolId])
@@ -906,6 +911,7 @@ model AcademicSession {
   payments                  Payment[]
   results                   Result[]
   students                  Student[]
+  timetables                Timetable[]
 
   @@index([schoolId])
 }
@@ -1780,4 +1786,53 @@ enum QuestionType {
   RATING
   SINGLE_CHOICE
   MULTIPLE_CHOICE
+}
+
+enum DayOfWeek {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+}
+
+model Timetable {
+  id        String   @id @default(cuid())
+  schoolId  String
+  classId   String
+  sessionId String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  class     Class           @relation(fields: [classId], references: [id])
+  school    School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  session   AcademicSession @relation(fields: [sessionId], references: [id])
+  periods   TimetablePeriod[]
+
+  @@unique([classId, sessionId, schoolId])
+  @@index([schoolId])
+}
+
+model TimetablePeriod {
+  id           String    @id @default(cuid())
+  timetableId  String
+  schoolId     String
+  dayOfWeek    DayOfWeek
+  periodNumber Int
+  startTime    String
+  endTime      String
+  subjectId    String?
+  teacherId    String?
+  roomNumber   String?
+
+  timetable    Timetable @relation(fields: [timetableId], references: [id], onDelete: Cascade)
+  school       School    @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  subject      Subject?  @relation(fields: [subjectId], references: [id])
+  teacher      Teacher?  @relation(fields: [teacherId], references: [id])
+
+  @@unique([timetableId, dayOfWeek, periodNumber])
+  @@index([timetableId])
+  @@index([schoolId])
 }
