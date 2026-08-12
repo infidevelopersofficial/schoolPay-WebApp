@@ -6,10 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { MoreHorizontal, Pencil, Trash2, Plus, Search, Filter, Download } from "lucide-react"
+import { MoreHorizontal, Pencil, Trash2, Plus, Search, Filter, Download, Eye } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { DeleteFeeStructureButton } from "./delete-fee-structure-button"
 import { DataTableExport } from "@/components/ui/data-table-export"
+import Link from "next/link"
 
 interface FeeStructure {
   id: string
@@ -100,15 +101,30 @@ export function FeesContent({ feeStructures }: { feeStructures: FeeStructure[] }
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button variant="outline" size="sm" asChild disabled>
-                        <span>
-                          <Pencil className="h-4 w-4 mr-2" />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Row actions">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link href={`/dashboard/fees/${structure.id}`}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem disabled>
+                          <Pencil className="mr-2 h-4 w-4" />
                           Edit
-                        </span>
-                      </Button>
-                      <DeleteFeeStructureButton id={structure.id} />
-                    </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                          <div className="text-destructive w-full cursor-pointer flex items-center">
+                            <DeleteFeeStructureButton id={structure.id} />
+                          </div>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
