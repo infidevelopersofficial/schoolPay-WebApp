@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache"
 import { withTenantAuth } from "@/lib/tenant-auth"
 import { getFeeStructureById } from "@/lib/dal/fee-structure"
-import { createInvoice, createInvoiceSchema, type CreateInvoiceInput } from "@/lib/dal/invoices"
+import { createInvoice } from "@/lib/dal/invoices"
+import { createInvoiceSchema, type CreateInvoiceInput } from "@/lib/validations/invoices"
 
 export async function getFeeStructureDetailsAction(id: string) {
   return withTenantAuth(null, ["ADMIN", "ACCOUNTANT"], async () => {

@@ -22,6 +22,7 @@
  *    transactions complete and connections are returned cleanly.
  */
 
+import "server-only"
 import { PrismaClient } from "@prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
 import { Pool } from "pg"

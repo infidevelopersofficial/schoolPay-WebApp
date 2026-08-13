@@ -1,7 +1,7 @@
 import { withTenantRead } from "@/lib/dal/core"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
-import { z } from "zod"
+import { createInvoiceSchema, type CreateInvoiceInput } from "@/lib/validations/invoices"
 import { recordAuditLog } from "@/lib/audit"
 import { withDAL } from "@/lib/dal/utils"
 import { getSchoolId } from "@/lib/tenant-context"
@@ -13,29 +13,6 @@ import { generateCollisionProofId } from "@/lib/utils/id-generator"
 
 const log = logger.child({ domain: "invoices" })
 
-
-// ──────────────────────────────────────────────
-// Types & Schemas
-// ──────────────────────────────────────────────
-
-const lineItemSchema = z.object({
-  description: z.string().min(1),
-  qty: z.coerce.number().positive().default(1),
-  rate: z.coerce.number().positive(),
-  amount: z.coerce.number().positive(),
-})
-
-export const createInvoiceSchema = z.object({
-  studentId: z.string().min(1, "Student is required"),
-  lineItems: z.array(lineItemSchema).min(1, "At least one line item required"),
-  cgstRate: z.coerce.number().min(0).max(100).default(0),
-  sgstRate: z.coerce.number().min(0).max(100).default(0),
-  igstRate: z.coerce.number().min(0).max(100).default(0),
-  dueDate: z.string().min(1, "Due date is required"),
-  notes: z.string().optional(),
-})
-
-export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>
 
 // ──────────────────────────────────────────────
 // Queries
