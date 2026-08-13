@@ -136,9 +136,9 @@ Add View / Edit / Delete dropdown menu to all table components:
 ## Phase 5-8: Advanced Features (Month 2+)
 
 ### Phase 5: Student Promotion
-- [ ] Bulk promote students between classes/sessions
-- [ ] Preview before commit
-- [ ] Transfer attendance/fee records
+- [x] Bulk promote students between classes/sessions
+- [x] Preview before commit
+- [x] Transfer attendance/fee records
 
 ### Phase 6: Audit Trail Viewer
 - [x] UI for existing `AuditLog` table
