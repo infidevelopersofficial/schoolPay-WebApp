@@ -32,135 +32,26 @@ SchoolPay has a solid foundation with **55+ database models**, **34 DAL modules*
 
 ---
 
-## Phase 1: Edit Forms (Dedicated Pages) (CRITICAL — Week 1-2)
+## Phases 1-8: Audit Roadmap Completion Summary
 
-### 1.1 Edit/Update Forms
-**Priority**: 🔴 CRITICAL | **Effort**: 5-6 days
+- [x] Phase 1: Edit/Update Forms — dedicated /[id]/edit pages for all core entities (Students, Teachers, Parents, Classes, Subjects, Lessons, Events, Announcements; Messages intentionally omitted as immutable)
+- [x] Phase 2: View/Detail Pages — detail pages for Students, Exams, Teachers, Parents, Classes, Subjects, Fees, Payments
+- [x] Phase 3: Complete Delete Actions — soft delete (isActive=false) for Announcements, FeeStructure; status=CANCELLED for Lessons, Events; status=FAILED for Payments (PENDING only); hard delete with server-side guard for Subjects; Messages omitted (immutable)
+- [x] Phase 4: Import/Export on Tables — DataTableExport (CSV/PDF) wired into 7 tables; bulk CSV import for Students, Teachers, Parents with atomic per-row transactions; Fee Structure import explicitly deferred
+- [x] Phase 5: Student Promotion — StudentAcademicHistory schema, promotion DAL with single transaction, preview UI with per-student Promote/Detain/Exclude toggle
+- [x] Phase 6: Audit Trail Viewer — filterable paginated table reading from AuditLog with expandable before/after JSON diff
+- [x] Phase 7: Timetable Management — Timetable + TimetablePeriod schema, weekly grid UI, teacher conflict detection
+- [x] Phase 8: Expense Enhancements — custom ExpenseCategory model with admin CRUD, approval workflow (PENDING/APPROVED/REJECTED) with isAdmin-gated approve/reject buttons, REJECTED expenses excluded from P&L
 
-Every add form needs an edit mode. The DAL already has `updateStudent()`, `updateTeacher()`, `updateClass()`, etc.
-
-**Implementation approach:**
-- Use dedicated `/[entity]/[id]/edit` pages for all edits (no modals).
-- Add `initialData` prop to each form component
-- When present, pre-fill fields and switch submit to update action
-
-**Modules needing edit forms:**
-- [x] Students (`components/forms/add-student-form.tsx`)
-- [x] Teachers (`components/forms/add-teacher-form.tsx`)
-- [x] Parents (`components/forms/add-parent-form.tsx`)
-- [x] Classes (`components/forms/add-class-form.tsx`)
-- [x] Subjects (`components/forms/add-subject-form.tsx`)
-- [x] Lessons (`components/forms/create-lesson-form.tsx`)
-- [x] Events (`components/forms/create-event-form.tsx`)
-- [x] Announcements (`components/forms/new-announcement-form.tsx`)
-*(Note: Messages are intentionally omitted from this list because sent messages are immutable by design in standard communication systems. They cannot be edited after sending.)*
-
-### 1.2 View/Detail Pages (Phase 2)
-**Priority**: 🔴 CRITICAL | **Effort**: 4-5 days
-
-- [ ] Teachers `[id]` — profile, subjects, classes, schedule
-- [ ] Parents `[id]` — contact info, linked students, fee summary
-- [ ] Classes `[id]` — student roster, class teacher, attendance stats
-- [ ] Subjects `[id]` — assigned teachers, exam history
-- [x] Fees `[id]` — structure detail, mapped classes, collection progress
-- [x] Payments `[id]` — full receipt view, transaction detail
-
-### 1.3 Complete Delete Actions (Phase 3) (✅ Completed August 9, 2026)
-**Priority**: 🟡 HIGH | **Effort**: 2-3 days
-
-- [x] Delete actions implemented with proper server-side safeguards and the following patterns:
-  - `isActive = false` (Soft delete): Announcements, FeeStructure
-  - `status = "CANCELLED"`: Lessons, Events
-  - `status = "FAILED"`: Payments (restricted to PENDING only; blocked if COMPLETED)
-  - Hard delete with server-side guard: Subjects (blocked if active TeacherSubject or Exam rows exist)
-  - Omitted (immutable): Messages
-- [x] Wire delete actions with `withTenantAuth`
-- [x] Build reusable `ConfirmDeleteDialog` component (replace `window.confirm`)
-
-### 1.4 Action Columns in Tables
-**Priority**: 🟡 HIGH | **Effort**: 2 days
-
-Add View / Edit / Delete dropdown menu to all table components:
-- [x] `students-table.tsx`
-- [x] `teachers-table.tsx`
-- [x] `parents-table.tsx`
-- [x] `classes-table.tsx`
-- [x] `subjects-table.tsx`
-- [x] `lessons-table.tsx`
-- [x] `events-table.tsx`
-- [x] `payments-table.tsx`
-- [x] `invoices-table.tsx`
-- [x] `fees-content.tsx`
-- [x] `announcements-client.tsx` (Intentionally card-based, inline buttons are correct UX)
+> **Note on Currency Storage**: `Expense.amount` is strictly stored in **paise** (Integer, e.g., 5000 = ₹50). The UI layer correctly handles this by dividing by 100 before formatting. This is distinct from `FeeItem.amount`, which is stored directly in **rupees** (Integer).
 
 ---
 
-## Phase 2: Import/Export (✅ Completed)
-
-### 2.1 Data Export on All Tables
-**Priority**: 🟡 HIGH | **Effort**: Completed
-
-- [x] Build reusable `DataTableExport` component (CSV + PDF buttons)
-- [x] Wired into 7 core tables
-
-### 2.2 Bulk Import for Additional Entities
-**Priority**: 🟡 HIGH | **Effort**: Completed
-
-- [x] Students CSV import with per-row atomic transactions
-- [x] Teachers CSV import
-- [x] Parents CSV import
-- ⏸️ *Fee structure CSV import EXPLICITLY DEFERRED: A fee structure requires a complex relational tree (base structure → multiple fee items → multiple class mappings). Flattening this 1-to-Many-to-Many relationship into CSV is brittle and prone to data corruption. The interactive UI Wizard remains the safest and primary path.*
-
----
-
-## Phase 3: Communication & Notifications (Week 4-5)
-
-### 3.1 Email Notifications
-**Priority**: 🟡 HIGH | **Effort**: 3-4 days
-
-- [ ] Email templates for: payment reminders, absence alerts, exam schedules, result notifications
-- [ ] Integration with Resend or nodemailer (nodemailer already in dependencies)
-- [ ] Email queue for async processing
-
-### 3.2 WhatsApp Integration
-**Priority**: 🟢 MEDIUM | **Effort**: 2-3 days
-
-- [ ] WhatsApp Business API integration
-- [ ] Template messages for fee reminders and attendance
-
----
-
-## Phase 4: Frontend UI Optimizations
-- [ ] Refactor Parent-Student Assignment: Replace the flat capped `getStudents({ limit: 1000 })` list with a server-side async typeahead (Select/ComboBox) to prevent data loss or silent unlinking for schools exceeding 1,000 students.
-
-## Phase 5-8: Advanced Features (Month 2+)
-
-### Phase 5: Student Promotion
-- [x] Bulk promote students between classes/sessions
-- [x] Preview before commit
-- [x] Transfer attendance/fee records
-
-### Phase 6: Audit Trail Viewer
-- [x] UI for existing `AuditLog` table
-- [x] Filter by entity, action, user, date
-- [x] Before/after diff viewer
-
-### Phase 7: Timetable Management
-- [x] Timetable model (Day × Period × Subject × Teacher)
-- [x] Weekly grid view
-- [x] Teacher schedule view
-- [x] Conflict detection
-
-### Phase 8: Expense Enhancements
-- [ ] Add expense categories management (salary, maintenance, stationery, etc.)
-- [ ] Add recurring expense auto-generation
-- [ ] Add expense approval workflow
-- [ ] Add expense vs. income comparison chart
-
-### Future/Deferred
+## Future / Deferred Features
+- [ ] Refactor Parent-Student Assignment: Replace the flat capped `getStudents({ limit: 1000 })` list with a server-side async typeahead.
+- [ ] Email & WhatsApp API Integrations for automated notifications.
 - [ ] Advanced Analytics (Performance, Forecasting)
 - [ ] Multi-Language Support (Hindi, Tamil, Telugu)
-
 
 ---
 
