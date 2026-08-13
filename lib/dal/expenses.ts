@@ -3,7 +3,10 @@ import { withTenantRead } from "@/lib/dal/core"
 
 export async function getExpenseStats(schoolIdParam?: string, startDate?: Date, endDate?: Date) {
   return await withTenantRead(async (schoolId) => {
-    const whereCondition: any = { schoolId }
+    const whereCondition: any = { 
+      schoolId,
+      approvalStatus: { not: "REJECTED" }
+    }
     const paymentWhereCondition: any = { schoolId, status: "COMPLETED" }
 
     if (startDate && endDate) {
@@ -55,6 +58,9 @@ export async function getExpensesList(schoolIdParam?: string, filters?: { catego
       orderBy: { expenseDate: 'desc' },
       include: {
         createdBy: {
+          select: { name: true }
+        },
+        approvedBy: {
           select: { name: true }
         }
       }

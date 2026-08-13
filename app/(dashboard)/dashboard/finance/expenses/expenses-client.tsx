@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Plus, Download, Trash2, Calendar, FileText, CheckCircle2, DollarSign, TrendingUp, TrendingDown, Clock } from "lucide-react"
+import { useState, useTransition } from "react"
+import { Plus, Download, Trash2, Calendar, FileText, CheckCircle2, DollarSign, TrendingUp, TrendingDown, Clock, XCircle } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,24 +15,27 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "sonner"
-import { createExpense, deleteExpense } from "./actions"
+import { createExpense, deleteExpense, approveExpenseAction, rejectExpenseAction } from "./actions"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 import Papa from "papaparse"
 
-const EXPENSE_CATEGORIES = [
-  "SALARY", "UTILITIES", "EVENTS", "MAINTENANCE", "SUPPLIES", "OTHER"
-]
-
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#ffc658'];
 
-export default function ExpensesClient({ expenses, stats, chartData }: { 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ExpenseCategoriesManager } from "@/components/finance/expense-categories-manager"
+
+export default function ExpensesClient({ expenses, stats, chartData, categories, isAdmin }: { 
   expenses: any[],
   stats: any,
-  chartData: any[]
+  chartData: any[],
+  categories: any[],
+  isAdmin?: boolean
 }) {
+  const [activeTab, setActiveTab] = useState("overview")
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isRecurring, setIsRecurring] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   const handleExport = () => {
     const csvData = expenses.map(e => ({
@@ -88,8 +91,44 @@ export default function ExpensesClient({ expenses, stats, chartData }: {
     }
   }
 
+  function handleApprove(id: string) {
+    startTransition(async () => {
+      try {
+        const res = await approveExpenseAction(id)
+        if (res.success) toast.success("Expense approved")
+        else toast.error("error" in res ? res.error : "Approval failed")
+      } catch (e: any) {
+        toast.error(e.message || "Approval failed")
+      }
+    })
+  }
+
+  function handleReject(id: string) {
+    startTransition(async () => {
+      try {
+        const res = await rejectExpenseAction(id)
+        if (res.success) toast.success("Expense rejected")
+        else toast.error("error" in res ? res.error : "Rejection failed")
+      } catch (e: any) {
+        toast.error(e.message || "Rejection failed")
+      }
+    })
+  }
+
   return (
-    <div className="space-y-8">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+      <div className="flex justify-between items-center">
+        <TabsList className="bg-slate-900 border border-slate-800">
+          <TabsTrigger value="overview">Overview & Register</TabsTrigger>
+          <TabsTrigger value="categories">Manage Categories</TabsTrigger>
+        </TabsList>
+      </div>
+
+      <TabsContent value="categories">
+        <ExpenseCategoriesManager categories={categories} />
+      </TabsContent>
+
+      <TabsContent value="overview" className="space-y-8">
       {/* P&L Overview */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="bg-slate-900 border-slate-800">
@@ -240,6 +279,7 @@ export default function ExpensesClient({ expenses, stats, chartData }: {
                     <th className="px-4 py-3">Vendor / Details</th>
                     <th className="px-4 py-3">Type</th>
                     <th className="px-4 py-3 text-right">Amount</th>
+                    <th className="px-4 py-3 text-center">Status</th>
                     <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -271,10 +311,53 @@ export default function ExpensesClient({ expenses, stats, chartData }: {
                       <td className="px-4 py-3 text-right font-medium text-rose-400">
                         ₹{(expense.amount / 100).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
+                      <td className="px-4 py-3 text-center">
+                        {expense.approvalStatus === 'APPROVED' && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400">
+                            Approved
+                          </span>
+                        )}
+                        {expense.approvalStatus === 'PENDING' && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400">
+                            Pending
+                          </span>
+                        )}
+                        {expense.approvalStatus === 'REJECTED' && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-500/10 text-red-400">
+                            Rejected
+                          </span>
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(expense.id)} className="h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-red-500/10">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          {isAdmin && expense.approvalStatus === 'PENDING' && (
+                            <>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => handleApprove(expense.id)} 
+                                disabled={isPending}
+                                className="h-8 w-8 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
+                                title="Approve"
+                              >
+                                <CheckCircle2 className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => handleReject(expense.id)} 
+                                disabled={isPending}
+                                className="h-8 w-8 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
+                                title="Reject"
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                          <Button variant="ghost" size="icon" onClick={() => handleDelete(expense.id)} className="h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-red-500/10">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -307,14 +390,27 @@ export default function ExpensesClient({ expenses, stats, chartData }: {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Category</Label>
+                  <div className="flex justify-between items-center">
+                    <Label>Category</Label>
+                    <Button 
+                      type="button" 
+                      variant="link" 
+                      className="h-auto p-0 text-xs text-blue-400"
+                      onClick={() => {
+                        setIsModalOpen(false)
+                        setActiveTab("categories")
+                      }}
+                    >
+                      Manage Categories
+                    </Button>
+                  </div>
                   <Select name="category" required>
                     <SelectTrigger className="bg-slate-950 border-slate-800">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-900 border-slate-800">
-                      {EXPENSE_CATEGORIES.map(c => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      {categories.map(c => (
+                        <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -367,6 +463,7 @@ export default function ExpensesClient({ expenses, stats, chartData }: {
           </Card>
         </div>
       )}
-    </div>
+      </TabsContent>
+    </Tabs>
   )
 }

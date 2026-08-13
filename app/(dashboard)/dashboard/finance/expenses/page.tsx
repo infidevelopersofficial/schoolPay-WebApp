@@ -1,5 +1,7 @@
 import { Metadata } from "next"
 import { getDashboardData } from "./actions"
+import { getExpenseCategories } from "@/lib/dal/expense-categories"
+import { auth } from "@/lib/auth"
 import ExpensesClient from "./expenses-client"
 
 export const metadata: Metadata = {
@@ -8,7 +10,13 @@ export const metadata: Metadata = {
 }
 
 export default async function ExpensesPage() {
-  const data = await getDashboardData()
+  const session = await auth()
+  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUPER_ADMIN"
+
+  const [data, categories] = await Promise.all([
+    getDashboardData(),
+    getExpenseCategories()
+  ])
 
   return (
     <div className="space-y-8 p-6 md:p-10 max-w-7xl mx-auto">
@@ -25,6 +33,8 @@ export default async function ExpensesPage() {
         expenses={data.expenses} 
         stats={data.stats} 
         chartData={data.chartData} 
+        categories={categories}
+        isAdmin={isAdmin}
       />
     </div>
   )

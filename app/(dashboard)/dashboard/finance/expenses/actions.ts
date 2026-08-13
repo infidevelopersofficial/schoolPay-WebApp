@@ -110,3 +110,51 @@ export async function getDashboardData() {
   }
 }
 
+export async function approveExpenseAction(id: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async (config, schoolId) => {
+      const session = await auth()
+      const userId = session?.user?.id as string
+      if (!userId) throw new Error("Not authenticated")
+
+      await prisma.expense.updateMany({
+        where: { id, schoolId },
+        data: {
+          approvalStatus: "APPROVED",
+          approvedById: userId,
+          approvedAt: new Date()
+        }
+      })
+
+      revalidatePath("/dashboard/finance/expenses")
+      return { success: true }
+    })
+  } catch (e: any) {
+    return { success: false, error: e.message || "Failed to approve expense" }
+  }
+}
+
+export async function rejectExpenseAction(id: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async (config, schoolId) => {
+      const session = await auth()
+      const userId = session?.user?.id as string
+      if (!userId) throw new Error("Not authenticated")
+
+      await prisma.expense.updateMany({
+        where: { id, schoolId },
+        data: {
+          approvalStatus: "REJECTED",
+          approvedById: userId,
+          approvedAt: new Date()
+        }
+      })
+
+      revalidatePath("/dashboard/finance/expenses")
+      return { success: true }
+    })
+  } catch (e: any) {
+    return { success: false, error: e.message || "Failed to reject expense" }
+  }
+}
+
