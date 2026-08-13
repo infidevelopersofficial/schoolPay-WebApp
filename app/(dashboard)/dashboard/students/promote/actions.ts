@@ -10,7 +10,7 @@ export async function searchStudentsForPromotionAction(classFilter: string, sect
       classFilter, 
       sectionFilter, 
       sessionFilter, 
-      limit: 1000 // load all for promotion preview
+      limit: 500 // load all for promotion preview
     })
     return result.students
   })
