@@ -90,6 +90,7 @@ model School {
   usageRecord               UsageRecord?
   userDevices               UserDevice[]
   users                     UserSchool[]
+  studentAcademicHistory    StudentAcademicHistory[]
 
   @@index([slug])
   @@index([type])
@@ -133,6 +134,7 @@ model User {
   surveyResponses         SurveyResponse[]
   userDevices             UserDevice[]
   schools                 UserSchool[]
+  promotionsProcessed     StudentAcademicHistory[] @relation("PromotedByUser")
 
   @@index([email])
 }
@@ -284,6 +286,7 @@ model Student {
   user                  User?               @relation(fields: [userId], references: [id])
   studentFeeMappings    StudentFeeMapping[]
   testAttempts          TestAttempt[]
+  academicHistory       StudentAcademicHistory[]
 
   @@unique([schoolId, admissionNumber])
   @@index([userId])
@@ -912,6 +915,7 @@ model AcademicSession {
   results                   Result[]
   students                  Student[]
   timetables                Timetable[]
+  studentAcademicHistory    StudentAcademicHistory[]
 
   @@index([schoolId])
 }
@@ -1835,4 +1839,33 @@ model TimetablePeriod {
   @@unique([timetableId, dayOfWeek, periodNumber])
   @@index([timetableId])
   @@index([schoolId])
+}
+
+enum PromotionStatus {
+  PROMOTED
+  DETAINED
+  TRANSFERRED
+  GRADUATED
+}
+
+model StudentAcademicHistory {
+  id               String   @id @default(cuid())
+  studentId        String
+  schoolId         String
+  class            String
+  section          String?
+  sessionId        String
+  promotedToClass  String?
+  status           PromotionStatus
+  promotedAt       DateTime @default(now())
+  promotedByUserId String?
+
+  student          Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  school           School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  session          AcademicSession @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  promotedByUser   User?           @relation("PromotedByUser", fields: [promotedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([schoolId])
+  @@index([studentId])
+  @@index([sessionId])
 }

@@ -61,12 +61,19 @@ export default async function StudentsPage(props: {
         </>
       }
       actions={
-        <Button className="gap-2" asChild>
-          <Link href="/dashboard/students/new">
-            <Plus className="h-4 w-4" />
-            Add Student
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" className="gap-2" asChild>
+            <Link href="/dashboard/students/promote">
+              Promote Students
+            </Link>
+          </Button>
+          <Button className="gap-2" asChild>
+            <Link href="/dashboard/students/new">
+              <Plus className="h-4 w-4" />
+              Add Student
+            </Link>
+          </Button>
+        </div>
       }
     >
       <Suspense key={query + currentPage + classFilter + statusFilter + sortBy + sortDir} fallback={<TableSkeleton />}>

@@ -98,21 +98,35 @@ export async function getStudents(opts?: {
   limit?: number
   search?: string
   classFilter?: string
+  sectionFilter?: string
+  sessionFilter?: string
   feeStatus?: string
   sortBy?: string
   sortDir?: "asc" | "desc"
 }) {
   return withTenantRead(async () => {
     const schoolId = await getSchoolId()
-  const { page = 1, limit = 50, search, classFilter, feeStatus, sortBy, sortDir } = opts ?? {}
+    const { 
+      page = 1, 
+      limit = 50, 
+      search, 
+      classFilter, 
+      sectionFilter,
+      sessionFilter,
+      feeStatus, 
+      sortBy, 
+      sortDir 
+    } = opts ?? {}
 
-  const where = {
-    schoolId,
-    isActive: true,
-    ...(search && { name: { contains: search, mode: "insensitive" as const } }),
-    ...(classFilter && { class: classFilter }),
-    ...(feeStatus && { feeStatus: feeStatus as any }),
-  }
+    const where = {
+      schoolId,
+      isActive: true,
+      ...(search && { name: { contains: search, mode: "insensitive" as const } }),
+      ...(classFilter && { class: classFilter }),
+      ...(sectionFilter && { section: sectionFilter }),
+      ...(sessionFilter && { sessionId: sessionFilter }),
+      ...(feeStatus && { feeStatus: feeStatus as any }),
+    }
 
   const orderBy: any = sortBy && sortDir ? { [sortBy]: sortDir } : { createdAt: "desc" }
 
