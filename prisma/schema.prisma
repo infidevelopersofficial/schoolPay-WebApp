@@ -57,6 +57,7 @@ model School {
   exams                     Exam[]
   examGroups                ExamGroup[]
   expenses                  Expense[]
+  expenseCategories         ExpenseCategory[]
   fees                      Fee[]
   feeStructures             FeeStructure[]
   feeStructureClassMappings FeeStructureClassMapping[]
@@ -124,6 +125,7 @@ model User {
   campaignsCreated        CommunicationCampaign[]
   dataImports             DataImport[]
   expensesCreated         Expense[]
+  expensesApproved        Expense[]                @relation("ApprovedExpenses")
   leads                   Lead[]
   notificationPreferences NotificationPreference[]
   parent                  Parent?
@@ -1528,6 +1530,26 @@ model SurveyAnswer {
   @@index([questionId])
 }
 
+enum ExpenseApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model ExpenseCategory {
+  id        String   @id @default(cuid())
+  schoolId  String
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@unique([schoolId, name])
+  @@index([schoolId])
+}
+
 model Expense {
   id              String    @id @default(cuid())
   schoolId        String
@@ -1543,7 +1565,12 @@ model Expense {
   receiptUrl      String?
   recurrenceType  String?
   vendorName      String?
+  approvalStatus  ExpenseApprovalStatus @default(APPROVED)
+  approvedById    String?
+  approvedAt      DateTime?
+
   createdBy       User      @relation(fields: [createdById], references: [id])
+  approvedBy      User?     @relation("ApprovedExpenses", fields: [approvedById], references: [id])
   school          School    @relation(fields: [schoolId], references: [id])
 
   @@index([schoolId])
