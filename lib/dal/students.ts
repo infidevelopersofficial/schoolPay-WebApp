@@ -36,7 +36,8 @@ function parseDateToISO(val: string): string | null {
 
 export const createStudentSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
-  dateOfBirth: z.string().trim().min(1, "Date of Birth is required").superRefine((val, ctx) => {
+  dateOfBirth: z.string().trim().optional().transform(v => v === "" ? undefined : v).superRefine((val, ctx) => {
+    if (!val) return // optional – skip validation when not provided
     const iso = parseDateToISO(val)
     if (!iso) {
       ctx.addIssue({
@@ -67,8 +68,9 @@ export const createStudentSchema = z.object({
       return
     }
   }).transform(val => {
+    if (!val) return undefined
     const iso = parseDateToISO(val)
-    return iso || val
+    return iso || undefined
   }),
   class: z.string().trim().min(1, "Class is required"),
   section: z.string().trim().optional(),
@@ -230,7 +232,8 @@ export async function createStudent(input: CreateStudentInput) {
       // Run as sequential transaction so we get the UsageRecord sync correctly
       const txResult = await prisma.$transaction(async (tx) => {
         // 1. Create or Find Parent User
-        let parentUser = await tx.user.findUnique({ where: { email: validated.parentEmail } })
+        // Note: tx.user.findUnique uses a composite key rewritten by the RLS extension → use findFirst with flat fields
+        let parentUser = await tx.user.findFirst({ where: { email: validated.parentEmail } })
         if (!parentUser) {
           parentUser = await tx.user.create({
             data: {
@@ -248,8 +251,9 @@ export async function createStudent(input: CreateStudentInput) {
         })
 
         // 3. Create or Find Parent Record
-        let parentRecord = await tx.parent.findUnique({
-          where: { email_schoolId: { email: validated.parentEmail, schoolId } }
+        // Note: composite key findUnique is rewritten by RLS extension to findFirst with extra schoolId injected → use findFirst directly
+        let parentRecord = await tx.parent.findFirst({
+          where: { email: validated.parentEmail, schoolId }
         })
         if (!parentRecord) {
           parentRecord = await tx.parent.create({
@@ -319,7 +323,7 @@ export async function createStudent(input: CreateStudentInput) {
             name: validated.name,
             class: `${normalizedClass}-${normalizedSection}`,
             section: normalizedSection,
-            dateOfBirth: new Date(validated.dateOfBirth),
+            dateOfBirth: validated.dateOfBirth ? new Date(validated.dateOfBirth) : null,
             admissionNumber: validated.admissionNumber,
             studentId: generatedStudentId,
             schoolId,

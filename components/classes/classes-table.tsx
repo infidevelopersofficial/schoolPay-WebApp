@@ -1,6 +1,5 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal, Edit, Trash2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -13,19 +12,30 @@ interface ClassesTableProps {
 }
 
 export function ClassesTable({ data }: ClassesTableProps) {
+  // Pre-resolve nested data into plain strings for the client-side DataTableExport.
+  // Functions cannot be serialized across the server/client boundary.
+  const exportData = data.map((c) => ({
+    name: c.name,
+    section: c.section,
+    classTeacher: c.classTeacher?.name || "",
+    capacity: String(c.capacity),
+    room: c.room || "",
+  }))
+  const exportColumns = [
+    { header: "Name", key: "name" },
+    { header: "Section", key: "section" },
+    { header: "Class Teacher", key: "classTeacher" },
+    { header: "Capacity", key: "capacity" },
+    { header: "Room", key: "room" },
+  ]
+
   return (
     <Card>
       <div className="p-4 flex justify-end items-center border-b">
-        <DataTableExport 
-          filename="Classes_Export" 
-          data={data} 
-          columns={[
-          { header: "Name", key: "name" },
-          { header: "Section", key: "section" },
-          { header: "Class Teacher", key: (r) => r.classTeacher?.name || "" },
-          { header: "Capacity", key: "capacity" },
-          { header: "Room", key: "room" }
-        ]} 
+        <DataTableExport
+          filename="Classes_Export"
+          data={exportData}
+          columns={exportColumns}
         />
       </div>
       <Table>
@@ -56,7 +66,7 @@ export function ClassesTable({ data }: ClassesTableProps) {
                   </div>
                 </TableCell>
                 <TableCell>{classItem.classTeacher?.name ?? "—"}</TableCell>
-                <TableCell className="font-medium">{classItem.strength}</TableCell>
+                <TableCell className="font-medium">{(classItem as any).strength}</TableCell>
                 <TableCell>{classItem.capacity}</TableCell>
                 <TableCell>{classItem.room ?? "—"}</TableCell>
                 <TableCell>

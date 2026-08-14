@@ -3,7 +3,7 @@
 import { withTenantAuth } from "@/lib/tenant-auth"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
-import { createStudent, createStudentSchema, deleteStudent as deleteStudentDal, getStudents, updateStudent } from "@/lib/dal/students"
+import { createStudent, createStudentSchema, deleteStudent as deleteStudentDal, getStudents, getStudent, updateStudent } from "@/lib/dal/students"
 import { getClasses, createClass } from "@/lib/dal/classes"
 
 export async function addStudentAction(prevState: any, formData: FormData) {
@@ -62,10 +62,60 @@ export async function updateStudentAction(prevState: any, formData: FormData) {
         await updateStudent(id, updatePayload)
         revalidatePath("/dashboard/students")
         revalidatePath(`/dashboard/students/${id}`)
+        revalidatePath(`/dashboard/students/${id}/edit`)
         return { success: true }
       } catch (e: any) {
         console.error("Error updating student:", e)
         return { error: `Failed to update student: ${e?.message || e}` }
+      }
+    })
+  } catch (e: any) {
+    return { error: e.message || "Unauthorized" }
+  }
+}
+
+export async function getStudentForEditAction(id: string) {
+  try {
+    return await withTenantAuth(null, ["ADMIN"], async () => {
+      const session = await auth()
+      if (!session) return { error: "Unauthorized" }
+
+      try {
+        const student = await getStudent(id)
+        if (!student) return { error: "Student not found" }
+
+        // Map DB model to form-ready shape
+        const classBase = student.class?.includes("-")
+          ? student.class.split("-")[0]
+          : student.class
+        // Reconstruct the val format used by class select (e.g. "10-A")
+        const classVal = student.section
+          ? `${classBase}-${student.section}`
+          : student.class
+
+        return {
+          student: {
+            id: student.id,
+            name: student.name,
+            class: classVal || student.class,
+            section: student.section || "",
+            dateOfBirth: student.dateOfBirth
+              ? new Date(student.dateOfBirth).toISOString().split("T")[0]
+              : "",
+            gender: student.gender || "",
+            rollNumber: student.rollNumber || "",
+            bloodGroup: student.bloodGroup || "",
+            emergencyContact: student.emergencyContact || "",
+            address: student.address || "",
+            totalFees: Number(student.totalFees) || 0,
+            parentId: student.parentId || "",
+            parentName: student.parent?.name || "",
+            parentEmail: student.parent?.email || "",
+            parentMobile: student.parent?.mobile || "",
+          }
+        }
+      } catch (e: any) {
+        return { error: `Failed to load student: ${e?.message || e}` }
       }
     })
   } catch (e: any) {

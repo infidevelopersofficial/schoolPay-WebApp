@@ -38,20 +38,36 @@ function getPoolConfig() {
       require("dotenv").config()
     } catch {}
   }
+  const isDev = process.env.NODE_ENV === "development"
   return {
     connectionString: process.env.DATABASE_URL,
-    /** Hard cap on open connections. Prevents thundering-herd on DB restart. */
-    max: Number(process.env.DB_POOL_MAX ?? 10),
+    /**
+     * Hard cap on open connections.
+     * Neon free tier allows ~10 total connections across all pools.
+     * Keep this low so we don't exhaust the limit.
+     */
+    max: Number(process.env.DB_POOL_MAX ?? 5),
     /**
      * How long (ms) an idle connection is kept open before being destroyed.
-     * 30 s keeps the pool warm without leaking connections in low-traffic periods.
+     * Neon suspends compute after ~5 min of inactivity, so keeping idle
+     * connections alive longer just causes "Connection terminated" errors on
+     * the next request. Use a short timeout so stale connections are recycled.
      */
-    idleTimeoutMillis: Number(process.env.DB_IDLE_TIMEOUT_MS ?? 30_000),
+    idleTimeoutMillis: Number(process.env.DB_IDLE_TIMEOUT_MS ?? 10_000),
     /**
-     * How long (ms) to wait for an available connection before throwing.
-     * Without this, requests pile up silently during a DB outage.
+     * How long (ms) to wait for a connection from the pool before throwing.
+     * Neon serverless cold-starts can take 2–10 s to wake the compute up.
+     * 15 s in development (where cold starts are frequent) and 10 s in prod.
      */
-    connectionTimeoutMillis: Number(process.env.DB_CONN_TIMEOUT_MS ?? 5_000),
+    connectionTimeoutMillis: Number(
+      process.env.DB_CONN_TIMEOUT_MS ?? (isDev ? 15_000 : 10_000)
+    ),
+    /**
+     * Enable TCP keep-alive so the OS sends keep-alive probes on idle
+     * connections, preventing silent drops by network middleboxes.
+     */
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10_000,
   }
 }
 

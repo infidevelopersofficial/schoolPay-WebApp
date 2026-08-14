@@ -82,6 +82,25 @@ export interface WithDALOptions {
  * - Prisma validation   → translated to "Invalid data provided"
  * - Unknown errors      → re-thrown as-is (already captured by Sentry via logger)
  */
+// ─── Connection-timeout detection ────────────────────────────────────────────
+
+/**
+ * Returns true when the error is a transient connection drop caused by
+ * Neon's serverless compute waking from suspension (cold-start).
+ * We detect this by checking the raw pg error message.
+ */
+function isConnectionTimeout(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false
+  const msg: string = (err as any)?.message ?? ""
+  const cause: string = (err as any)?.cause?.message ?? ""
+  return (
+    msg.includes("Connection terminated") ||
+    msg.includes("connection timeout") ||
+    cause.includes("Connection terminated") ||
+    cause.includes("connection timeout")
+  )
+}
+
 export async function withDAL<T>(
   label: string,
   fn: () => Promise<T>,
@@ -96,35 +115,52 @@ export async function withDAL<T>(
   return measureAsync(
     label,
     async () => {
-      try {
-        return await fn()
-      } catch (err: any) {
-        // ── Classify the error ───────────────────────────────────────────────
-        let userMessage = "An unexpected error occurred. Please try again."
-        let prismaCode: string | undefined
+      // ── Auto-retry for Neon cold-starts ─────────────────────────────────────
+      // Neon serverless suspends compute after ~5 min of inactivity.  The first
+      // request after suspension times out while the compute wakes up (~2–8 s).
+      // One automatic retry after 1.5 s silently recovers without user action.
+      let attempt = 0
+      while (true) {
+        try {
+          return await fn()
+        } catch (err: any) {
+          if (attempt === 0 && isConnectionTimeout(err)) {
+            attempt++
+            log.warn(
+              { label, attempt },
+              `[withDAL] Connection timeout on attempt ${attempt} for ${label} — retrying after 1.5 s (Neon cold-start)`,
+            )
+            await new Promise((r) => setTimeout(r, 1500))
+            continue
+          }
 
-        if (err instanceof Prisma.PrismaClientKnownRequestError) {
-          prismaCode = err.code
-          userMessage = PRISMA_MESSAGES[err.code] ?? `Database error (${err.code}).`
-          log.error(
-            { err, label, prismaCode, meta: err.meta },
-            `Prisma known error in ${label}`,
-          )
-        } else if (err instanceof Prisma.PrismaClientInitializationError) {
-          userMessage = "Database connection failed. Please try again later."
-          log.error({ err, label }, `Prisma initialisation error in ${label}`)
-        } else if (err instanceof Prisma.PrismaClientValidationError) {
-          userMessage = "Invalid data provided."
-          log.error({ err, label }, `Prisma validation error in ${label}`)
-        } else if (err instanceof Prisma.PrismaClientUnknownRequestError) {
-          log.error({ err, label }, `Prisma unknown request error in ${label}`)
-        } else {
-          // Non-Prisma error — re-throw without wrapping so the original stack
-          // is preserved.  The `measureAsync` wrapper will log it.
-          throw err
+          // ── Classify the error ─────────────────────────────────────────────
+          let userMessage = "An unexpected error occurred. Please try again."
+          let prismaCode: string | undefined
+
+          if (err instanceof Prisma.PrismaClientKnownRequestError) {
+            prismaCode = err.code
+            userMessage = PRISMA_MESSAGES[err.code] ?? `Database error (${err.code}).`
+            log.error(
+              { err, label, prismaCode, meta: err.meta },
+              `Prisma known error in ${label}`,
+            )
+          } else if (err instanceof Prisma.PrismaClientInitializationError) {
+            userMessage = "Database connection failed. Please try again later."
+            log.error({ err, label }, `Prisma initialisation error in ${label}`)
+          } else if (err instanceof Prisma.PrismaClientValidationError) {
+            userMessage = "Invalid data provided."
+            log.error({ err, label }, `Prisma validation error in ${label}`)
+          } else if (err instanceof Prisma.PrismaClientUnknownRequestError) {
+            log.error({ err, label }, `Prisma unknown request error in ${label}`)
+          } else {
+            // Non-Prisma error — re-throw without wrapping so the original stack
+            // is preserved.  The `measureAsync` wrapper will log it.
+            throw err
+          }
+
+          throw new DALError(userMessage, err, prismaCode)
         }
-
-        throw new DALError(userMessage, err, prismaCode)
       }
     },
     { sentryOp, domain: "db", thresholdMs },
