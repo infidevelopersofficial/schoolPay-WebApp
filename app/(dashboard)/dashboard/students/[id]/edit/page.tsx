@@ -101,9 +101,9 @@ function EditStudentForm({ studentId, initialData }: {
 
       const result = await updateStudentAction(null, formData)
 
-      if (result?.error || result?.fieldErrors) {
-        let errorMessage = result.error || "An error occurred while updating student details."
-        if (result.fieldErrors && typeof result.fieldErrors === "object") {
+      if (result && ('error' in result || 'fieldErrors' in result)) {
+        let errorMessage = ('error' in result && typeof result.error === 'string') ? result.error : "An error occurred while updating student details."
+        if ('fieldErrors' in result && result.fieldErrors && typeof result.fieldErrors === "object") {
           const fields = Object.keys(result.fieldErrors)
           if (fields.length > 0) {
             const firstErrList = (result.fieldErrors as Record<string, string[]>)[fields[0]]
@@ -289,10 +289,10 @@ function EditStudentLoader({ studentId }: { studentId: string }) {
       try {
         const { getStudentForEditAction } = await import("../../actions")
         const result = await getStudentForEditAction(studentId)
-        if (!result || result.error) {
-          setNotFound(true)
+        if (result && 'student' in result) {
+          setInitialData(result.student as any)
         } else {
-          setInitialData(result.student)
+          setNotFound(true)
         }
       } catch {
         setNotFound(true)

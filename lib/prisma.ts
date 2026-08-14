@@ -36,7 +36,7 @@ function getPoolConfig() {
   if (!process.env.DATABASE_URL) {
     try {
       require("dotenv").config()
-    } catch {}
+    } catch { }
   }
   const isDev = process.env.NODE_ENV === "development"
   return {
@@ -97,14 +97,14 @@ function createPrismaClient(): PrismaClient {
     log:
       process.env.NODE_ENV === "development"
         ? [
-            { emit: "event", level: "query" },
-            { emit: "event", level: "warn" },
-            { emit: "event", level: "error" },
-          ]
+          { emit: "event", level: "query" },
+          { emit: "event", level: "warn" },
+          { emit: "event", level: "error" },
+        ]
         : [
-            { emit: "event", level: "warn" },
-            { emit: "event", level: "error" },
-          ],
+          { emit: "event", level: "warn" },
+          { emit: "event", level: "error" },
+        ],
   })
 
   // ── Slow-query detection (dev) ─────────────────────────────────────────────
@@ -155,7 +155,7 @@ export const prisma = (globalForPrisma.prisma ?? createPrismaClient()).$extends(
     $allModels: {
       async $allOperations({ model, operation, args, query }) {
         const store = tenantContext.getStore()
-        
+
         // If context is initialized (even if schoolId is ""), apply Native RLS
         if (store !== undefined) {
           // Bypass Native RLS explicitly for the User and Account models which span tenants
@@ -170,7 +170,7 @@ export const prisma = (globalForPrisma.prisma ?? createPrismaClient()).$extends(
             // We enforce tenant isolation at the Prisma runtime level.
             // Executing `set_config` inside an array $transaction for every query 
             // caused P2028 connection exhaustion when mixed with interactive DAL transactions.
-            
+
             if (store.schoolId !== "") {
               // 1. Bulk Operations & Safe Reads
               if (operation === "findMany" || operation === "findFirst" || operation === "findFirstOrThrow" || operation === "count" || operation === "aggregate" || operation === "groupBy" || operation === "updateMany" || operation === "deleteMany") {
@@ -205,7 +205,7 @@ export const prisma = (globalForPrisma.prisma ?? createPrismaClient()).$extends(
             }
           }
         }
-        
+
         // Execute the query securely
         return query(args)
       }
