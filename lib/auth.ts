@@ -419,6 +419,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           }
           token.activeSchoolId = session.impersonateSchoolId;
           token.role = "SCHOOL_ADMIN";
+          token.schoolRole = "ADMIN"; // Grant admin-level access inside the impersonated school
           token.isImpersonating = true;
           return token;
         }

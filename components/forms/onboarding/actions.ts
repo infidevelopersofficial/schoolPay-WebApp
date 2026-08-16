@@ -23,7 +23,7 @@ export async function completeWizardOnboarding(formData: FormData): Promise<Acti
 
     const { schoolId, schoolRole } = await getTenantContext();
     if (!schoolId) throw new Error("No school selected");
-    if (schoolRole !== "ADMIN" && session.user.role !== "SUPER_ADMIN") throw new Error("Unauthorized role");
+    if (schoolRole !== "ADMIN" && session.user.role !== "SUPER_ADMIN" && (session.user as any).role !== "SCHOOL_ADMIN") throw new Error("Unauthorized role");
 
       // Rate limiting
       const headersList = await headers();
@@ -185,7 +185,7 @@ export async function completeOnboarding(formData: FormData): Promise<ActionResu
 
     const { schoolId, schoolRole } = await getTenantContext();
     if (!schoolId) throw new Error("No school selected");
-    if (schoolRole !== "ADMIN" && session.user.role !== "SUPER_ADMIN") throw new Error("Unauthorized role");
+    if (schoolRole !== "ADMIN" && session.user.role !== "SUPER_ADMIN" && (session.user as any).role !== "SCHOOL_ADMIN") throw new Error("Unauthorized role");
 
   // Fetch school to know tenant type
   const school = await prisma.school.findUnique({
