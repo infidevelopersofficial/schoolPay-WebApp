@@ -1,8 +1,6 @@
 import { getSubject } from "@/lib/dal/subjects"
-import { getTeachers } from "@/lib/dal/teachers"
 import { notFound } from "next/navigation"
-import { AddSubjectForm } from "@/components/forms/add-subject-form"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { EditSubjectForm } from "@/components/subjects/edit-subject-form"
 
 export default async function EditSubjectPage({ params }: { params: { id: string } }) {
   const subject = await getSubject(params.id)
@@ -33,21 +31,9 @@ export default async function EditSubjectPage({ params }: { params: { id: string
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Subject: {subject.name}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <AddSubjectForm 
-            mode="edit" 
-            initialData={initialData} 
-            open={true} 
-            onOpenChange={() => {}} 
-            teachers={teachers}
-          />
-        </CardContent>
-      </Card>
-    </div>
+    <EditSubjectForm 
+      initialData={initialData} 
+      defaultTeachers={teachers}
+    />
   )
 }

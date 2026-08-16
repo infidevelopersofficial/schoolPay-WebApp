@@ -1,14 +1,15 @@
 "use client"
 
+import { useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { deleteSubjectAction } from "@/app/(dashboard)/dashboard/subjects/actions"
-import { MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react"
-import Link from "next/link"
+import { MoreHorizontal, Pencil, Eye } from "lucide-react"
+import { DeleteConfirm } from "@/components/ui/delete-confirm"
 import { DataTableExport } from "@/components/ui/data-table-export"
 
 interface Subject {
@@ -22,18 +23,22 @@ interface Subject {
 
 export function SubjectsTable({ data }: { data: Subject[] }) {
   const { toast } = useToast()
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
 
-  const handleDelete = async (id: string) => {
-    try {
-      const result = await deleteSubjectAction(id)
-      if (result?.error) {
-        toast({ title: "Error", description: result.error, variant: "destructive" })
-      } else {
-        toast({ title: "Success", description: "Subject deleted successfully." })
+  const handleDelete = (id: string) => {
+    startTransition(async () => {
+      try {
+        const result = await deleteSubjectAction(id)
+        if (result?.error) {
+          toast({ title: "Error", description: result.error, variant: "destructive" })
+        } else {
+          toast({ title: "Success", description: "Subject deleted successfully." })
+        }
+      } catch (err: any) {
+        toast({ title: "Error", description: err.message || "Failed to delete", variant: "destructive" })
       }
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" })
-    }
+    })
   }
 
   if (data.length === 0) {
@@ -50,7 +55,7 @@ export function SubjectsTable({ data }: { data: Subject[] }) {
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border bg-white dark:bg-slate-950">
       <div className="p-4 flex justify-end items-center border-b">
         <DataTableExport 
           filename="Subjects_Export" 
@@ -89,43 +94,24 @@ export function SubjectsTable({ data }: { data: Subject[] }) {
               <TableCell className="text-right">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isPending}>
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link href={`/dashboard/subjects/${subject.id}`}>
-                        <Eye className="mr-2 h-4 w-4" />View Details
-                      </Link>
+                    <DropdownMenuItem onClick={() => router.push(`/dashboard/subjects/${subject.id}`)}>
+                      <Eye className="mr-2 h-4 w-4" />
+                      View Details
                     </DropdownMenuItem>
-                    <Link href={`/dashboard/subjects/${subject.id}/edit`}>
-                      <DropdownMenuItem><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
-                    </Link>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
-                          <Trash2 className="mr-2 h-4 w-4" />Delete
-                        </DropdownMenuItem>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Subject?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will permanently delete this subject and all its lesson history. Deletion will be blocked if the subject has active teacher assignments or exams.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction 
-                            onClick={() => handleDelete(subject.id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <DropdownMenuItem onClick={() => router.push(`/dashboard/subjects/${subject.id}/edit`)}>
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DeleteConfirm
+                      name={subject.name}
+                      onConfirm={() => handleDelete(subject.id)}
+                    />
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
