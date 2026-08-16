@@ -1,19 +1,47 @@
+"use client"
+
+import { useTransition } from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal, Edit, Trash2 } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import type { Class } from "@prisma/client"
-import Link from "next/link"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DeleteConfirm } from "@/components/ui/delete-confirm"
 import { DataTableExport } from "@/components/ui/data-table-export"
+import { deleteClassAction } from "@/app/(dashboard)/dashboard/classes/actions"
+
+interface ClassItem {
+  id: string
+  name: string
+  section: string
+  capacity: number
+  room: string | null
+  strength?: number
+  classTeacher?: { name: string } | null
+}
 
 interface ClassesTableProps {
-  data: (Class & { classTeacher?: { name: string } | null })[]
+  data: ClassItem[]
 }
 
 export function ClassesTable({ data }: ClassesTableProps) {
-  // Pre-resolve nested data into plain strings for the client-side DataTableExport.
-  // Functions cannot be serialized across the server/client boundary.
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+
+  const handleDelete = (id: string) => {
+    startTransition(async () => {
+      const result = await deleteClassAction(id)
+      if (result?.error) {
+        toast.error(result.error)
+      } else {
+        toast.success("Class deleted successfully")
+        router.refresh()
+      }
+    })
+  }
+
   const exportData = data.map((c) => ({
     name: c.name,
     section: c.section,
@@ -66,27 +94,28 @@ export function ClassesTable({ data }: ClassesTableProps) {
                   </div>
                 </TableCell>
                 <TableCell>{classItem.classTeacher?.name ?? "—"}</TableCell>
-                <TableCell className="font-medium">{(classItem as any).strength}</TableCell>
+                <TableCell className="font-medium">{classItem.strength ?? 0}</TableCell>
                 <TableCell>{classItem.capacity}</TableCell>
                 <TableCell>{classItem.room ?? "—"}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isPending}>
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <Link href={`/dashboard/classes/${classItem.id}/edit`}>
-                        <DropdownMenuItem>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                      </Link>
-                      <DropdownMenuItem className="text-destructive">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
+                      <DropdownMenuItem
+                        onClick={() => router.push(`/dashboard/classes/${classItem.id}/edit`)}
+                      >
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
                       </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DeleteConfirm
+                        name={`${classItem.name} - ${classItem.section}`}
+                        onConfirm={() => handleDelete(classItem.id)}
+                      />
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

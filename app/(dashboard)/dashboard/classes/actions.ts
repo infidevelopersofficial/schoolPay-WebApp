@@ -66,6 +66,6 @@ export async function deleteClassAction(id: string) {
       return { success: true }
     })
   } catch (e: any) {
-    return { error: "Failed to delete class" }
+    return { error: e.message || "Failed to delete class" }
   }
 }

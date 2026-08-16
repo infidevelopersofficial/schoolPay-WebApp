@@ -196,11 +196,19 @@ export async function deleteClass(id: string) {
         where: { id },
         include: { teacherClassAssignments: true }
       })
-      if (oldData?.schoolId !== schoolId) throw new Error("Class not found")
+      if (!oldData || oldData.schoolId !== schoolId) throw new Error("Class not found")
 
-      // Explicit server-side guard
+      // Guard: block if teacher assignments exist
       if (oldData.teacherClassAssignments.length > 0) {
-        throw new Error("Cannot delete class: active teacher assignments exist — please reassign teachers first")
+        throw new Error("Cannot delete class: it has active teacher assignments — please reassign teachers first")
+      }
+
+      // Guard: block if students are enrolled (students reference class by name+section string)
+      const enrolledCount = await prisma.student.count({
+        where: { schoolId, class: oldData.name, section: oldData.section }
+      })
+      if (enrolledCount > 0) {
+        throw new Error(`Cannot delete class: ${enrolledCount} student(s) are enrolled — please transfer or remove them first`)
       }
 
       await prisma.class.delete({ where: { id } })
