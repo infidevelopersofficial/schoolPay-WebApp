@@ -25,6 +25,12 @@ export async function completeWizardOnboarding(formData: FormData): Promise<Acti
     if (!schoolId) throw new Error("No school selected");
     if (schoolRole !== "ADMIN" && session.user.role !== "SUPER_ADMIN" && (session.user as any).role !== "SCHOOL_ADMIN") throw new Error("Unauthorized role");
 
+    // SCHOOLPAY_TEAM impersonators have IDs in SpayTeamUser, not User.
+    // Passing their ID to AuditLog.userId (FK → User) causes a constraint error.
+    // Use null for impersonators so the audit log records the event without a user FK.
+    const isImpersonating = (session.user as any).isImpersonating === true;
+    const auditUserId = isImpersonating ? null : session.user.id;
+
       // Rate limiting
       const headersList = await headers();
       const ip = headersList.get("x-forwarded-for") || "127.0.0.1";
@@ -76,7 +82,8 @@ export async function completeWizardOnboarding(formData: FormData): Promise<Acti
           entityType: "School",
           entityId: schoolId,
           schoolId: schoolId,
-          userId: session.user.id,
+          userId: auditUserId,
+          userEmail: session.user.email ?? undefined,
           description: "Tenant onboarding completed via wizard"
         }
       });
@@ -157,7 +164,8 @@ export async function completeWizardOnboarding(formData: FormData): Promise<Acti
             entityType: "School",
             entityId: schoolId,
             schoolId: schoolId,
-            userId: session.user.id,
+            userId: auditUserId,
+            userEmail: session.user.email ?? undefined,
             description: `Generated default settings for ${tenantType}`
           }
         });
