@@ -221,15 +221,17 @@ export async function deleteSubject(id: string) {
       }
 
       return await prisma.$transaction(async (tx) => {
-        // Server-side guard: block if active TeacherSubject or Exam rows exist
-        const [activeTeacherSubjects, examsCount] = await Promise.all([
-          tx.teacherSubject.count({ where: { subjectId: id, isActive: true } }),
-          tx.exam.count({ where: { subjectId: id } })
-        ])
+        // Server-side guard: block if Exam rows exist
+        const examsCount = await tx.exam.count({ where: { subjectId: id } })
 
-        if (activeTeacherSubjects > 0 || examsCount > 0) {
-          throw new Error("Cannot delete subject: Active teacher assignments or exams exist.")
+        if (examsCount > 0) {
+          throw new Error(`Cannot delete subject: It has ${examsCount} associated exam(s).`)
         }
+
+        // Automatically clean up teacher subject associations
+        await tx.teacherSubject.deleteMany({
+          where: { subjectId: id, schoolId }
+        })
 
         const deleted = await tx.subject.delete({
           where: { id }
